@@ -1,0 +1,45 @@
+<div class="lightbox" id="lightbox"><img alt=""></div>
+
+<script>
+(function () {
+  var imgs = document.querySelectorAll('.prose img');
+  if (!imgs.length) return;
+
+  var box  = document.getElementById('lightbox');
+  var full = box.querySelector('img');
+  var scrollbarW = 0;
+
+  function open(src, alt) {
+    full.src = src;
+    full.alt = alt || '';
+    box.classList.add('open');
+    // 锁定背景滚动，同时补上滚动条消失导致的宽度跳动
+    scrollbarW = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = scrollbarW + 'px';
+  }
+
+  function close() {
+    box.classList.remove('open');
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+  }
+
+  [].forEach.call(imgs, function (img) {
+    if (img.closest('a')) return;            // 图片本身是链接，别抢它的点击
+    img.classList.add('zoomable');
+    img.addEventListener('click', function () {
+      open(img.currentSrc || img.src, img.alt);
+    });
+  });
+
+  // 点在图片以外的任何地方 → 关闭
+  box.addEventListener('click', function (e) {
+    if (e.target !== full) close();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && box.classList.contains('open')) close();
+  });
+})();
+</script>

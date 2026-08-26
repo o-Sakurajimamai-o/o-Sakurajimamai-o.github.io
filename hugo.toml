@@ -41,6 +41,11 @@ defaultContentLanguageInSubdir = false
     noClasses = false
     lineNos = false
 
+[markup.tableOfContents]
+    startLevel = 2
+    endLevel   = 3
+    ordered    = false
+
 [params]
     author = 'Sakura'
     github = 'https://github.com/o-Sakurajimamai-o'

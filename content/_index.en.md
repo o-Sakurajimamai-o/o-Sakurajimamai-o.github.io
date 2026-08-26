@@ -2,7 +2,8 @@
 title: "Mai"
 ---
 
-Hi, 
 I'm a postgraduate student in CS at Tianjin University.
-This blog is where I document my learning journey — mostly on **Agents**, and occasionally
-things I just find interesting.
+
+This blog is intended to document my learning and research process, solutions to competition problems, and a few other interesting things.
+
+Research areas currently under consideration：**Agent**，**RL**，**Knowledge Enhancement**

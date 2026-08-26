@@ -6,3 +6,6 @@ other = "Read more"
 
 [backHome]
 other = "Back"
+
+[greeting]
+other = "Hi,"

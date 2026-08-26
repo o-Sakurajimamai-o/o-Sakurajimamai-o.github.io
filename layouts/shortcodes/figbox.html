@@ -1,0 +1,4 @@
+<figure class="fig fig--box">
+  {{- with .Get "caption" }}<figcaption class="fig__cap-top">{{ . | markdownify }}</figcaption>{{ end -}}
+  <div class="fig__body">{{ .Inner | markdownify }}</div>
+</figure>

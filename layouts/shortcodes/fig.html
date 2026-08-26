@@ -1,0 +1,9 @@
+{{- $src := .Get "src" -}}
+{{- with .Page.Resources.GetMatch $src }}{{ $src = .RelPermalink }}{{ end -}}
+<figure class="fig">
+  <img src="{{ $src }}"
+       alt="{{ .Get "alt" | default (.Get "caption") }}"
+       {{ with .Get "width" }}style="max-width:{{ . }}"{{ end }}
+       loading="lazy">
+  {{- with .Get "caption" }}<figcaption>{{ . | markdownify }}</figcaption>{{ end -}}
+</figure>

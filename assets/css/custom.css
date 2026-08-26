@@ -1,3 +1,7 @@
+html {
+  font-size: clamp(1rem, 0.9rem + 0.3vw, 1.25rem);
+}
+
 :root {
     --color-bg:       #ffffff;
     --color-text:     #1a1a1a;
@@ -5,6 +9,8 @@
     --color-accent:   #e11d48;   /* 主色：favicon 那个红点、链接 hover */
     --color-border:   #e5e7eb;
     --color-code-bg:  #f7f7f7;
+    --color-fig-bg:   #fffdfc;
+    --shadow-fig:     0 8px 26px rgba(0,0,0,.045);
 }
 
 html.dark {
@@ -14,6 +20,8 @@ html.dark {
     --color-accent:   #fb7185;   /* 深色底上主色要提亮，否则看不清 */
     --color-border:   #2a2f3a;
     --color-code-bg:  #161a22;
+    --color-fig-bg:   #151922;
+    --shadow-fig:     0 8px 26px rgba(0,0,0,.35);
 }
 
 /* 主题切换时平滑过渡，别硬闪 */
@@ -49,3 +57,139 @@ body {
 
 /* 中文标点挤压 + 段首不缩进（中文排版细节） */
 :lang(zh) .prose p { text-spacing-trim: space-first; }
+
+/* 全站边框统一走变量，深浅模式自动适配 */
+footer, .section-rule {
+  border-color: var(--color-border);
+}
+
+/* ---- 排版 ---- */
+.prose { line-height: 1.7; }
+:lang(zh) .prose { line-height: 1; }
+
+/* 两端对齐只给中文 */
+:lang(zh) .prose,
+:lang(zh) main > div:first-child {
+  text-align: justify;
+}
+
+/* 深色下代码块背景（压过 Tailwind 的 bg-transparent） */
+html.dark .prose pre {
+  background-color: var(--color-code-bg);
+}
+
+
+/* ---- 目录 ---- */
+.toc {
+  display: none;                     /* 窄屏不显示 */
+}
+
+@media (min-width: 1400px) {
+  .toc {
+    display: block;
+    position: fixed;
+    top: 9rem;
+    /* 正文栏居中占 48rem，其左边缘在 50vw - 24rem 处；
+       目录宽 16rem，再留 2rem 间隙 → 50vw - 42rem */
+    left: max(1.5rem, calc(50vw - 42rem));
+    width: 16rem;
+    max-height: 70vh;
+    overflow-y: auto;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
+
+.toc ul       { list-style: none; padding-left: 0; margin: 0; }
+.toc ul ul    { padding-left: 0.9rem; }     /* 子级缩进 */
+.toc li       { margin: 0.35rem 0; }
+.toc a        { color: inherit; text-decoration: none; }
+.toc a:hover  { color: var(--color-accent); text-decoration: underline; }
+.toc a {
+  color: var(--color-muted);
+  text-decoration: none;
+  display: block;
+  padding-left: 0.7rem;
+  border-left: 2px solid transparent;
+  transition: color .15s ease, border-color .15s ease;
+}
+.toc a:hover { color: var(--color-text); }
+
+.toc a.active {
+  color: var(--color-text);
+  border-left-color: var(--color-accent);
+}
+
+/* 点目录跳转时平滑滚动 */
+html { scroll-behavior: smooth; }
+.prose h2, .prose h3 { scroll-margin-top: 2rem; }
+
+/* 滚动条低调一点 */
+.toc::-webkit-scrollbar       { width: 4px; }
+.toc::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+
+
+/* ---- 图表组件 ---- */
+.prose .fig {
+  margin: 2rem auto 1.6rem;
+  padding: 1.1rem 1.35rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-fig-bg);
+  box-shadow: var(--shadow-fig);
+}
+.prose .fig img {
+  display: block;
+  margin: 0 auto;
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+.prose .fig figcaption {
+  margin: .75rem 0 0;
+  font-size: .72rem;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--color-muted);
+}
+.prose .fig .fig__cap-top {
+  margin: 0 0 .75rem;
+}
+/* 框内表格去掉 prose 的默认外边距 */
+.prose .fig__body > :first-child { margin-top: 0; }
+.prose .fig__body > :last-child  { margin-bottom: 0; }
+
+
+
+/* ---- 图片灯箱 ---- */
+.prose img.zoomable { cursor: zoom-in; }
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, .82);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .18s ease, visibility .18s;
+  cursor: zoom-out;                    /* 光标提示：点这里能关 */
+}
+.lightbox.open { opacity: 1; visibility: visible; }
+
+.lightbox img {
+  max-width: 92vw;
+  max-height: 92vh;
+  object-fit: contain;
+  border-radius: 6px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
+  cursor: default;                     /* 图片上不是关闭区 */
+  transform: scale(.97);
+  transition: transform .18s ease;
+}
+.lightbox.open img { transform: scale(1); }

@@ -25,8 +25,8 @@
                 sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system',
                         'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
                         'Microsoft YaHei', 'Noto Sans SC', 'sans-serif'],
-                serif: ['Source Serif 4', 'Georgia', 'Cambria',
-                        'Songti SC', 'Noto Serif SC', 'SimSun', 'serif'],
+                serif: ['Georgia', 'Times New Roman', 'Times',
+                        'Songti SC', 'SimSun', 'Noto Serif SC', 'serif'],
                 mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular',
                         'Cascadia Code', 'Consolas', 'monospace'],
                 },
@@ -38,10 +38,10 @@
 
 
     {{ with resources.Get "css/syntax.css" }}
-        <link rel="stylesheet" href="{{ .RelPermalink }}">
+    <link rel="stylesheet" id="hl-light" href="{{ .RelPermalink }}">
     {{ end }}
-    {{ with resources.Get "css/custom.css" }}
-        <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ with resources.Get "css/syntax-dark.css" }}
+        <link rel="stylesheet" id="hl-dark" href="{{ .RelPermalink }}" disabled>
     {{ end }}
     {{ with resources.Get "css/custom.css" }}
         <link rel="stylesheet" href="{{ .RelPermalink }}">
@@ -64,7 +64,7 @@
     {{ end }}
 </head>
 
-<body class="flex flex-col items-center font-sans">
+<body class="flex flex-col items-center font-serif">
 <div class="w-full max-w-3xl px-5 sm:px-4">
 
     <header>

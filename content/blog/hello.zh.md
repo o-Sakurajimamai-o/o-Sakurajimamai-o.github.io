@@ -20,3 +20,16 @@ def hello(name: str) -> str:
 ```
 
 就这样。
+
+## 第一节
+
+内容……
+
+{{</* fig src="D:\blog\static\images\test.png" caption="测试图片" */>}}
+### 一个子节
+
+内容……
+
+## 第二节
+
+内容……

@@ -1,28 +1,35 @@
 {{ define "main" }}
 <article class="pb-10">
-  <h1 class="text-4xl font-medium pt-4 leading-tight">{{ .Title }}</h1>
 
-  <div class="italic text-sm py-3 flex flex-row gap-4 opacity-70">
-    <span>{{ .Date | time.Format ":date_medium" }}</span>
-    <span>{{ .ReadingTime }} min</span>
-  </div>
+    {{ if and (ne .Params.toc false) (gt (len .TableOfContents) 100) }}
+        <aside class="toc muted">{{ .TableOfContents }}</aside>
+    {{ end }}
 
-  {{ with .Description }}
-    <p class="italic pb-4 opacity-80">{{ . }}</p>
-  {{ end }}
+    <h1 class="text-4xl font-medium pt-4 leading-tight">{{ .Title }}</h1>
 
-  <div class="prose dark:prose-invert max-w-none text-justify leading-relaxed
-              prose-headings:font-medium prose-a:text-inherit
-              prose-pre:bg-gray-50 prose-pre:text-gray-800 
-              prose-pre:border prose-pre:border-gray-200
-              dark:prose-pre:bg-transparent dark:prose-pre:text-gray-200
-              dark:prose-pre:border-gray-700">
-    {{ .Content }}
-  </div>
+    <div class="italic text-sm py-3 flex flex-row gap-4 opacity-70">
+        <span>{{ .Date | time.Format ":date_medium" }}</span>
+        <span>{{ .ReadingTime }} min</span>
+    </div>
 
-  <div class="pt-10 text-sm">
-    <a href="{{ site.Home.RelPermalink }}" class="hover:underline opacity-70">← {{ i18n "backHome" }}</a>
-  </div>
+    {{ with .Description }}
+        <p class="italic pb-4 opacity-80">{{ . }}</p>
+    {{ end }}
+
+    <div class="prose dark:prose-invert max-w-none text-justify leading-relaxed
+                prose-headings:font-medium prose-a:text-inherit
+                prose-pre:bg-gray-50 prose-pre:text-gray-800 
+                prose-pre:border prose-pre:border-gray-200
+                dark:prose-pre:bg-transparent dark:prose-pre:text-gray-200
+                dark:prose-pre:border-gray-700">
+        {{ .Content }}
+    </div>
+
+    <div class="pt-10 text-sm">
+        <a href="{{ site.Home.RelPermalink }}" class="hover:underline opacity-70">← {{ i18n "backHome" }}</a>
+    </div>
   
 </article>
+{{ partial "tocspy.html" . }}
+{{ partial "lightbox.html" . }}
 {{ end }}

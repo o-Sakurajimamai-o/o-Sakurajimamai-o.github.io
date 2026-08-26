@@ -27,3 +27,17 @@ def hello(name: str) -> str:
 ```
 
 That's it.
+
+## First Title
+
+content……
+
+{{</* fig src="D:\blog\static\images\test.png" caption="测试图片" */>}}
+
+### one son title
+
+content……
+
+## Second Title
+
+content……

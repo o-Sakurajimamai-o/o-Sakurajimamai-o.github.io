@@ -1,11 +1,12 @@
 {{ define "main" }}
 
+<p class="text-6xl leading-none pb-6">{{ i18n "greeting" }}</p>
 <div class="text-justify leading-relaxed prose max-w-none dark:prose-invert">
     {{ .Content }}
 </div>
 
 <div class="pt-20">
-    <h1 class="text-3xl font-normal border-b-2 py-3">{{ i18n "writing" }}</h1>
+    <h1 class="text-3xl font-normal border-b-2 py-3 section-rule">{{ i18n "writing" }}</h1>
 
     <ul class="list-none p-0">
         {{ range where site.RegularPages "Section" "blog" }}
