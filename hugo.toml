@@ -1,0 +1,46 @@
+baseURL = 'https://o-sakurajimamai-o.github.io/'
+title = 'Sakura'
+
+defaultContentLanguage = 'en'
+defaultContentLanguageInSubdir = false
+
+[languages]
+    [languages.en]
+        languageName = 'EN'
+        languageCode = 'en-us'
+        weight = 1
+        title = 'Mai'
+        [languages.en.params]
+            description = 'Notes on Agents and things I find interesting'
+            intro = """Hi, 
+            I'm a postgraduate student in CS at TianJin University; 
+            This blog is where I document my learning journey."""
+
+    [languages.zh]
+        languageName = '中文'
+        languageCode = 'zh-CN'
+        weight = 2
+        title = '麻衣'
+        [languages.zh.params]
+            description = '关于Agent和一些有意思的东西'
+            intro = '''欢迎，
+            本人是一名天津大学计算机技术在读研究生，
+            此博客用于记录学习经历。'''
+
+
+[markup.goldmark.renderer]
+    unsafe = true
+
+[markup.goldmark.extensions.passthrough]
+    enable = true
+    [markup.goldmark.extensions.passthrough.delimiters]
+        block  = [['\[', '\]'], ['$$', '$$']]
+        inline = [['\(', '\)'], ['$', '$']]
+
+[markup.highlight]
+    noClasses = false
+    lineNos = false
+
+[params]
+    author = 'Sakura'
+    github = 'https://github.com/o-Sakurajimamai-o'

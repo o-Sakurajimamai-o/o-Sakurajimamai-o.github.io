@@ -1,0 +1,51 @@
+:root {
+    --color-bg:       #ffffff;
+    --color-text:     #1a1a1a;
+    --color-muted:    #6b7280;   /* 日期、描述这类次要文字 */
+    --color-accent:   #e11d48;   /* 主色：favicon 那个红点、链接 hover */
+    --color-border:   #e5e7eb;
+    --color-code-bg:  #f7f7f7;
+}
+
+html.dark {
+    --color-bg:       #0f1115;
+    --color-text:     #e6e6e6;
+    --color-muted:    #9199a6;
+    --color-accent:   #fb7185;   /* 深色底上主色要提亮，否则看不清 */
+    --color-border:   #2a2f3a;
+    --color-code-bg:  #161a22;
+}
+
+/* 主题切换时平滑过渡，别硬闪 */
+body {
+    transition: background-color .2s ease, color .2s ease;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    -webkit-font-smoothing: antialiased;   /* 字体渲染更细腻 */
+}
+
+/* 次要文字统一走一个类，别再散用 opacity */
+.muted { color: var(--color-muted); }
+
+/* 链接：默认继承正文色 + 下划线，hover 才上主色 —— 极简站的典型处理 */
+.prose a, main a.link {
+    color: inherit;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;           /* 下划线离文字远一点，中文尤其需要 */
+}
+.prose a:hover, main a.link:hover {
+    color: var(--color-accent);
+}
+
+/* 代码块 */
+.prose pre {
+    background-color: var(--color-code-bg);
+    border: 1px solid var(--color-border);
+}
+
+/* 中文标点挤压 + 段首不缩进（中文排版细节） */
+:lang(zh) .prose p { text-spacing-trim: space-first; }

@@ -1,0 +1,27 @@
+{{ define "main" }}
+
+<div class="text-justify leading-relaxed prose max-w-none dark:prose-invert">
+    {{ .Content }}
+</div>
+
+<div class="pt-20">
+    <h1 class="text-3xl font-normal border-b-2 py-3">{{ i18n "writing" }}</h1>
+
+    <ul class="list-none p-0">
+        {{ range where site.RegularPages "Section" "blog" }}
+        <li class="py-2">
+            <a class="flex flex-col hover:opacity-75 hover:underline no-underline" href="{{ .RelPermalink }}">
+            <div class="flex flex-row justify-between items-baseline gap-4">
+                <div class="font-normal underline">{{ .Title }}</div>
+                <div class="italic text-sm whitespace-nowrap">{{ .Date | time.Format ":date_medium" }}</div>
+            </div>
+            {{ with .Description }}
+                <div class="text-sm italic pt-1">{{ . }}</div>
+            {{ end }}
+            </a>
+        </li>
+        {{ end }}
+    </ul>
+</div>
+
+{{ end }}

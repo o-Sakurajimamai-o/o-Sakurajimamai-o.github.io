@@ -1,0 +1,26 @@
+{{ $p := . }}
+<div class="flex flex-row items-baseline text-sm gap-2">
+  {{ range $i, $lang := site.Languages }}
+    {{ if $i }}<span class="opacity-40">/</span>{{ end }}
+
+    {{ $url := "" }}
+    {{ if eq $lang.Lang $p.Language.Lang }}
+      {{ $url = $p.RelPermalink }}
+    {{ else }}
+      {{ range $p.Translations }}
+        {{ if eq .Language.Lang $lang.Lang }}{{ $url = .RelPermalink }}{{ end }}
+      {{ end }}
+      {{ if not $url }}
+        {{ range site.Home.AllTranslations }}
+          {{ if eq .Language.Lang $lang.Lang }}{{ $url = .RelPermalink }}{{ end }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+
+    {{ if eq $lang.Lang $p.Language.Lang }}
+      <span class="font-semibold">{{ $lang.LanguageName }}</span>
+    {{ else }}
+      <a href="{{ $url }}" class="opacity-60 hover:opacity-100 hover:underline">{{ $lang.LanguageName }}</a>
+    {{ end }}
+  {{ end }}
+</div>

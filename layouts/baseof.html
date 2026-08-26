@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="{{ site.Language.LanguageCode }}">
+<head>
+    <meta charset="utf-8">
+    <script>
+        (function () {
+            var t = localStorage.getItem('theme');
+            if (!t) {
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            }
+            if (t === 'dark') document.documentElement.classList.add('dark');
+        })();
+    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }} · {{ site.Title }}{{ end }}</title>
+    <meta name="description" content="{{ .Description | default site.Params.description }}">
+
+    <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+            extend: {
+                fontFamily: {
+                sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system',
+                        'Segoe UI', 'PingFang SC', 'Hiragino Sans GB',
+                        'Microsoft YaHei', 'Noto Sans SC', 'sans-serif'],
+                serif: ['Source Serif 4', 'Georgia', 'Cambria',
+                        'Songti SC', 'Noto Serif SC', 'SimSun', 'serif'],
+                mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular',
+                        'Cascadia Code', 'Consolas', 'monospace'],
+                },
+            },
+            },
+        }
+    </script>
+
+
+
+    {{ with resources.Get "css/syntax.css" }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ end }}
+    {{ with resources.Get "css/custom.css" }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ end }}
+    {{ with resources.Get "css/custom.css" }}
+        <link rel="stylesheet" href="{{ .RelPermalink }}">
+    {{ end }}
+
+
+    
+    <script>
+        MathJax = { tex: {
+        inlineMath: [["$","$"], ["\\(","\\)"]],
+        displayMath: [["$$","$$"], ["\\[","\\]"]]
+        }};
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='50' cy='50' r='100' fill='%23e11d47'/></svg>">
+
+    {{ range .AlternativeOutputFormats }}
+        <link rel="{{ .Rel }}" type="{{ .MediaType.Type }}" href="{{ .Permalink }}">
+    {{ end }}
+</head>
+
+<body class="flex flex-col items-center font-sans">
+<div class="w-full max-w-3xl px-5 sm:px-4">
+
+    <header>
+        <nav class="flex flex-row py-10 justify-between items-baseline">
+        <a class="text-4xl font-medium hover:opacity-75" href="{{ site.Home.RelPermalink }}">{{ site.Title }}.</a>
+
+        <div class="flex flex-row items-baseline gap-6">
+            <a href="{{ "blog/" | relLangURL }}" class="text-lg font-medium hover:underline">{{ i18n "writing" }}</a>
+            <a href="{{ site.Params.github }}" class="text-lg hover:underline">GitHub</a>
+            {{ partial "langswitch.html" . }}
+            {{ partial "themetoggle.html" . }}
+        </div>
+        </nav>
+    </header>
+
+    <main>
+        {{ block "main" . }}{{ end }}
+    </main>
+
+    <footer class="border-t-2 text-xs pt-4 mt-16 pb-8">
+        <p>&copy; {{ now.Year }} {{ site.Params.author }}. All rights reserved.</p>
+    </footer>
+
+</div>
+</body>
+</html>
