@@ -1,9 +1,41 @@
 {{- $src := .Get "src" -}}
-{{- with .Page.Resources.GetMatch $src }}{{ $src = .RelPermalink }}{{ end -}}
+{{- if not $src -}}
+  {{- errorf "fig: 缺少 src 参数 (%s)" .Position -}}
+{{- end -}}
+
+{{/* 1. 先在本文章的页面资源里找（content/blog/xxx/figures/... ） */}}
+{{- $img := .Page.Resources.GetMatch $src -}}
+{{- if not $img -}}
+  {{/* 只写了文件名时，递归匹配任意子目录 */}}
+  {{- $img = .Page.Resources.GetMatch (printf "**/%s" $src) -}}
+{{- end -}}
+
+{{- $alt := .Get "alt" | default (.Get "caption") | default "" -}}
+{{- $style := "" -}}
+{{- with .Get "width" }}{{ $style = printf "max-width:%s" . }}{{ end -}}
+
 <figure class="fig">
-  <img src="{{ $src }}"
-       alt="{{ .Get "alt" | default (.Get "caption") }}"
-       {{ with .Get "width" }}style="max-width:{{ . }}"{{ end }}
-       loading="lazy">
+  {{- if $img -}}
+    {{- $o := $img -}}
+    {{/* 位图且超宽时缩到 1600px，省流量；SVG 不处理 */}}
+    {{- if and (eq $img.ResourceType "image") (ne $img.MediaType.SubType "svg") -}}
+      {{- if gt $img.Width 1600 }}{{ $o = $img.Resize "1600x q88 webp" }}{{ end -}}
+      <img src="{{ $o.RelPermalink }}" width="{{ $o.Width }}" height="{{ $o.Height }}"
+           alt="{{ $alt }}"{{ with $style }} style="{{ . }}"{{ end }}
+           loading="lazy" decoding="async">
+    {{- else -}}
+      <img src="{{ $o.RelPermalink }}" alt="{{ $alt }}"{{ with $style }} style="{{ . }}"{{ end }}
+           loading="lazy" decoding="async">
+    {{- end -}}
+  {{- else if or (hasPrefix $src "http://") (hasPrefix $src "https://") -}}
+    <img src="{{ $src }}" alt="{{ $alt }}"{{ with $style }} style="{{ . }}"{{ end }}
+         loading="lazy" decoding="async">
+  {{- else if hasPrefix $src "/" -}}
+    {{/* static/ 里的公共图片 */}}
+    <img src="{{ $src | relURL }}" alt="{{ $alt }}"{{ with $style }} style="{{ . }}"{{ end }}
+         loading="lazy" decoding="async">
+  {{- else -}}
+    {{- errorf "fig: 找不到图片 %q。请把它放到本文所在文件夹的 figures/ 下，或用 / 开头的 static 路径。(%s)" $src .Position -}}
+  {{- end -}}
   {{- with .Get "caption" }}<figcaption>{{ . | markdownify }}</figcaption>{{ end -}}
 </figure>

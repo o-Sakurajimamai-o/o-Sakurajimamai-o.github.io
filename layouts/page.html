@@ -1,24 +1,35 @@
 {{ define "main" }}
+{{ $hasToc := and (ne .Params.toc false) (gt (len .TableOfContents) 100) }}
 <article class="pb-10">
 
-    {{ if and (ne .Params.toc false) (gt (len .TableOfContents) 100) }}
-        <aside class="toc muted">{{ .TableOfContents }}</aside>
+    {{ if $hasToc }}
+        <button class="toc-toggle" type="button" aria-label="{{ i18n "toc" }}" aria-expanded="false">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" stroke-linecap="round">
+                <path d="M4 6h16M4 12h16M4 18h10"/>
+            </svg>
+        </button>
+        <div class="toc-scrim" hidden></div>
+        <aside class="toc">
+            <p class="toc__title">{{ i18n "toc" }}</p>
+            {{ .TableOfContents }}
+        </aside>
     {{ end }}
 
     <h1 class="text-4xl font-medium pt-4 leading-tight">{{ .Title }}</h1>
 
-    <div class="italic text-sm py-3 flex flex-row gap-4 opacity-70">
+    <div class="italic text-sm py-3 flex flex-row gap-4 muted">
         <span>{{ .Date | time.Format ":date_medium" }}</span>
         <span>{{ .ReadingTime }} min</span>
     </div>
 
     {{ with .Description }}
-        <p class="italic pb-4 opacity-80">{{ . }}</p>
+        <p class="italic pb-4 muted">{{ . }}</p>
     {{ end }}
 
-    <div class="prose dark:prose-invert max-w-none text-justify leading-relaxed
+    <div class="prose dark:prose-invert max-w-none
                 prose-headings:font-medium prose-a:text-inherit
-                prose-pre:bg-gray-50 prose-pre:text-gray-800 
+                prose-pre:bg-gray-50 prose-pre:text-gray-800
                 prose-pre:border prose-pre:border-gray-200
                 dark:prose-pre:bg-transparent dark:prose-pre:text-gray-200
                 dark:prose-pre:border-gray-700">
@@ -26,10 +37,10 @@
     </div>
 
     <div class="pt-10 text-sm">
-        <a href="{{ site.Home.RelPermalink }}" class="hover:underline opacity-70">← {{ i18n "backHome" }}</a>
+        <a href="{{ site.Home.RelPermalink }}" class="hover:underline muted">← {{ i18n "backHome" }}</a>
     </div>
-  
+
 </article>
-{{ partial "tocspy.html" . }}
+{{ if $hasToc }}{{ partial "tocspy.html" . }}{{ end }}
 {{ partial "lightbox.html" . }}
 {{ end }}

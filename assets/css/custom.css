@@ -1,115 +1,119 @@
+/* ==========================================================================
+   基础：根字号 / 颜色变量
+   ========================================================================== */
+
 html {
   font-size: clamp(1rem, 0.9rem + 0.3vw, 1.25rem);
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
 }
 
 :root {
-    --color-bg:       #ffffff;
-    --color-text:     #1a1a1a;
-    --color-muted:    #6b7280;   /* 日期、描述这类次要文字 */
-    --color-accent:   #e11d48;   /* 主色：favicon 那个红点、链接 hover */
-    --color-border:   #e5e7eb;
-    --color-code-bg:  #f7f7f7;
-    --color-fig-bg:   #fffdfc;
-    --shadow-fig:     0 8px 26px rgba(0,0,0,.045);
+  --color-bg:       #ffffff;
+  --color-text:     #1a1a1a;
+  --color-muted:    #6b7280;   /* 日期、描述这类次要文字 */
+  --color-accent:   #e11d48;   /* 主色：favicon 那个红点、链接 hover */
+  --color-border:   #e5e7eb;
+  --color-code-bg:  #f7f7f7;
+  --color-fig-bg:   #fffdfc;
+  --shadow-fig:     0 8px 26px rgba(0, 0, 0, .045);
+  --shadow-float:   0 4px 14px rgba(0, 0, 0, .15);
 }
 
 html.dark {
-    --color-bg:       #0f1115;
-    --color-text:     #e6e6e6;
-    --color-muted:    #9199a6;
-    --color-accent:   #fb7185;   /* 深色底上主色要提亮，否则看不清 */
-    --color-border:   #2a2f3a;
-    --color-code-bg:  #161a22;
-    --color-fig-bg:   #151922;
-    --shadow-fig:     0 8px 26px rgba(0,0,0,.35);
-}
-
-/* 主题切换时平滑过渡，别硬闪 */
-body {
-    transition: background-color .2s ease, color .2s ease;
+  --color-bg:       #0f1115;
+  --color-text:     #e6e6e6;
+  --color-muted:    #9199a6;
+  --color-accent:   #fb7185;   /* 深色底上主色要提亮，否则看不清 */
+  --color-border:   #2a2f3a;
+  --color-code-bg:  #161a22;
+  --color-fig-bg:   #151922;
+  --shadow-fig:     0 8px 26px rgba(0, 0, 0, .35);
+  --shadow-float:   0 4px 14px rgba(0, 0, 0, .5);
 }
 
 body {
-    background-color: var(--color-bg);
-    color: var(--color-text);
-    -webkit-font-smoothing: antialiased;   /* 字体渲染更细腻 */
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color .2s ease, color .2s ease;
 }
 
-/* 次要文字统一走一个类，别再散用 opacity */
+/* 次要文字统一走这个类，别再散用 opacity */
 .muted { color: var(--color-muted); }
 
-/* 链接：默认继承正文色 + 下划线，hover 才上主色 —— 极简站的典型处理 */
-.prose a, main a.link {
-    color: inherit;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 3px;           /* 下划线离文字远一点，中文尤其需要 */
-}
-.prose a:hover, main a.link:hover {
-    color: var(--color-accent);
-}
 
-/* 代码块 */
-.prose pre {
-    background-color: var(--color-code-bg);
-    border: 1px solid var(--color-border);
-}
+/* ==========================================================================
+   排版
+   ========================================================================== */
 
-/* 中文标点挤压 + 段首不缩进（中文排版细节） */
-:lang(zh) .prose p { text-spacing-trim: space-first; }
-
-/* 全站边框统一走变量，深浅模式自动适配 */
-footer, .section-rule {
-  border-color: var(--color-border);
-}
-
-/* ---- 排版 ---- */
 .prose { line-height: 1.7; }
-:lang(zh) .prose { line-height: 1; }
+:lang(zh) .prose { line-height: 1.75; }
 
-/* 两端对齐只给中文 */
+/* 两端对齐只给中文：汉字等宽、无词间空格，天然适合；
+   英文强行两端对齐会在短行上拉出很大的词距 */
 :lang(zh) .prose,
 :lang(zh) main > div:first-child {
   text-align: justify;
 }
 
-/* 深色下代码块背景（压过 Tailwind 的 bg-transparent） */
-html.dark .prose pre {
+:lang(zh) .prose p { text-spacing-trim: space-first; }
+
+/* 目录锚点跳转时，标题不要贴着视口顶边 */
+.prose h2, .prose h3, .prose h4 { scroll-margin-top: 2rem; }
+
+/* 链接：默认继承正文色 + 下划线，hover 才上主色 */
+.prose a, main a.link {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.prose a:hover, main a.link:hover { color: var(--color-accent); }
+
+/* 全站边框统一走变量，深浅模式自动适配 */
+footer, .section-rule { border-color: var(--color-border); }
+
+
+/* ==========================================================================
+   代码块
+   ========================================================================== */
+
+.prose pre {
   background-color: var(--color-code-bg);
+  border: 1px solid var(--color-border);
 }
 
+/* 优先级 (0,2,1)，压过 Tailwind 的 dark:prose-pre:bg-transparent (0,2,0) */
+html.dark .prose pre { background-color: var(--color-code-bg); }
 
-/* ---- 目录 ---- */
-.toc {
-  display: none;                     /* 窄屏不显示 */
+
+/* ==========================================================================
+   目录
+   共用样式在前，宽屏常驻 / 窄屏抽屉分别在下面两个媒体查询里
+   ========================================================================== */
+
+.toc ul    { list-style: none; padding-left: 0; margin: 0; }
+.toc ul ul { padding-left: .9rem; }
+.toc li    { margin: .35rem 0; }
+
+.toc__title {
+  margin: 0 0 .75rem;
+  padding-left: .7rem;
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
 }
 
-@media (min-width: 1400px) {
-  .toc {
-    display: block;
-    position: fixed;
-    top: 9rem;
-    /* 正文栏居中占 48rem，其左边缘在 50vw - 24rem 处；
-       目录宽 16rem，再留 2rem 间隙 → 50vw - 42rem */
-    left: max(1.5rem, calc(50vw - 42rem));
-    width: 16rem;
-    max-height: 70vh;
-    overflow-y: auto;
-    font-size: 0.875rem;
-    line-height: 1.5;
-  }
-}
-
-.toc ul       { list-style: none; padding-left: 0; margin: 0; }
-.toc ul ul    { padding-left: 0.9rem; }     /* 子级缩进 */
-.toc li       { margin: 0.35rem 0; }
-.toc a        { color: inherit; text-decoration: none; }
-.toc a:hover  { color: var(--color-accent); text-decoration: underline; }
 .toc a {
+  display: block;
+  padding-left: .7rem;
   color: var(--color-muted);
   text-decoration: none;
-  display: block;
-  padding-left: 0.7rem;
   border-left: 2px solid transparent;
   transition: color .15s ease, border-color .15s ease;
 }
@@ -120,16 +124,81 @@ html.dark .prose pre {
   border-left-color: var(--color-accent);
 }
 
-/* 点目录跳转时平滑滚动 */
-html { scroll-behavior: smooth; }
-.prose h2, .prose h3 { scroll-margin-top: 2rem; }
-
-/* 滚动条低调一点 */
 .toc::-webkit-scrollbar       { width: 4px; }
 .toc::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
 
+/* --- 宽屏：常驻左侧，滚动时固定不动 --- */
+@media (min-width: 1600px) {
+  .toc {
+    position: fixed;
+    top: 9rem;
+    /* 用 right 锚定：目录右边缘 = 正文栏左边缘 - 1rem，
+       无论视口多宽都不会压到正文上 */
+    right: calc(50% + 25rem);
+    width: min(15rem, 20vw);
+    max-height: 72vh;
+    overflow-y: auto;
+    font-size: .875rem;
+    line-height: 1.5;
+    z-index: 40;
+  }
+  .toc-toggle, .toc-scrim { display: none !important; }
+}
 
-/* ---- 图表组件 ---- */
+/* --- 窄屏：左下角圆钮 + 侧滑抽屉 --- */
+@media (max-width: 1599px) {
+  .toc {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: min(19rem, 82vw);
+    padding: 4.5rem 1.4rem 2rem;
+    overflow-y: auto;
+    background: var(--color-bg);
+    border-right: 1px solid var(--color-border);
+    font-size: .9rem;
+    line-height: 1.55;
+    transform: translateX(-100%);
+    transition: transform .22s ease;
+    z-index: 60;
+  }
+  .toc.open { transform: translateX(0); }
+
+  .toc-scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, .4);
+    opacity: 0;
+    transition: opacity .22s ease;
+    z-index: 55;
+  }
+  .toc-scrim.open { opacity: 1; }
+
+  .toc-toggle {
+    position: fixed;
+    left: 1rem;
+    bottom: 1.25rem;
+    z-index: 61;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text);
+    box-shadow: var(--shadow-float);
+    transition: transform .2s ease, background-color .2s ease;
+  }
+  .toc-toggle:hover  { color: var(--color-accent); }
+  .toc-toggle:active { transform: scale(.94); }
+}
+
+
+/* ==========================================================================
+   图表组件
+   ========================================================================== */
+
 .prose .fig {
   margin: 2rem auto 1.6rem;
   padding: 1.1rem 1.35rem 1rem;
@@ -138,6 +207,7 @@ html { scroll-behavior: smooth; }
   background: var(--color-fig-bg);
   box-shadow: var(--shadow-fig);
 }
+
 .prose .fig img {
   display: block;
   margin: 0 auto;
@@ -145,24 +215,26 @@ html { scroll-behavior: smooth; }
   height: auto;
   border-radius: 10px;
 }
+
 .prose .fig figcaption {
   margin: .75rem 0 0;
   font-size: .72rem;
   letter-spacing: .08em;
-  text-transform: uppercase;
   text-align: center;
   color: var(--color-muted);
 }
-.prose .fig .fig__cap-top {
-  margin: 0 0 .75rem;
-}
-/* 框内表格去掉 prose 的默认外边距 */
+.prose .fig .fig__cap-top { margin: 0 0 .75rem; }
+
+/* 框里的表格 / 段落去掉 prose 的首尾外边距 */
 .prose .fig__body > :first-child { margin-top: 0; }
 .prose .fig__body > :last-child  { margin-bottom: 0; }
+.prose .fig__body table          { margin: 0 auto; }
 
 
+/* ==========================================================================
+   图片灯箱
+   ========================================================================== */
 
-/* ---- 图片灯箱 ---- */
 .prose img.zoomable { cursor: zoom-in; }
 
 .lightbox {
@@ -178,7 +250,7 @@ html { scroll-behavior: smooth; }
   opacity: 0;
   visibility: hidden;
   transition: opacity .18s ease, visibility .18s;
-  cursor: zoom-out;                    /* 光标提示：点这里能关 */
+  cursor: zoom-out;                    /* 光标提示：这里点了会关 */
 }
 .lightbox.open { opacity: 1; visibility: visible; }
 
@@ -188,7 +260,7 @@ html { scroll-behavior: smooth; }
   object-fit: contain;
   border-radius: 6px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, .5);
-  cursor: default;                     /* 图片上不是关闭区 */
+  cursor: default;                     /* 图片本身不是关闭区 */
   transform: scale(.97);
   transition: transform .18s ease;
 }

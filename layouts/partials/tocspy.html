@@ -1,52 +1,113 @@
 <script>
 (function () {
-    var toc = document.querySelector('.toc');
-    if (!toc) return;
+  var toc = document.querySelector('.toc');
+  if (!toc) return;
 
-    var links = [].slice.call(toc.querySelectorAll('a[href^="#"]'));
-    var targets = links.map(function (a) {
-        return { link: a, el: document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1))) };
-    }).filter(function (t) { return t.el; });
-    var targets = links.map(function (a) {
-        return { link: a, el: document.getElementById(decodeURIComponent(a.getAttribute('href').slice(1))) };
-    }).filter(function (t) { return t.el; });
+  /* ---------- 1. 滚动高亮 ---------- */
+
+  var links = [].slice.call(toc.querySelectorAll('a[href^="#"]'));
+  var targets = links.map(function (a) {
+    var raw = a.getAttribute('href').slice(1);
+    var id;
+    // 标题里含 % 时 decodeURIComponent 会抛 URIError，退回原串
+    try { id = decodeURIComponent(raw); } catch (err) { id = raw; }
+    return { link: a, el: document.getElementById(id) };
+  }).filter(function (t) { return t.el; });
+
+  var current = null, ticking = false;
+
+  function update() {
+    ticking = false;
     if (!targets.length) return;
 
-    var current = null, ticking = false;
-
-    function update() {
-        ticking = false;
-
-        var line = 140;                    // 激活线：视口顶部往下 140px
-        var active = targets[0];
-        for (var i = 0; i < targets.length; i++) {
-        if (targets[i].el.getBoundingClientRect().top <= line) active = targets[i];
-        else break;
-        }
-
-        // 滚到页面底部时，强制高亮最后一节
-        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
-        active = targets[targets.length - 1];
-        }
-
-        if (active === current) return;
-        if (current) current.link.classList.remove('active');
-        active.link.classList.add('active');
-        current = active;
-
-        // 目录很长时，把当前项滚进可视范围
-        var lr = active.link.getBoundingClientRect(), tr = toc.getBoundingClientRect();
-        if (lr.top < tr.top || lr.bottom > tr.bottom) {
-        toc.scrollTop += lr.top - tr.top - tr.height / 3;
-        }
+    var line = 140;                    // 激活线：视口顶部往下 140px
+    var active = targets[0];
+    for (var i = 0; i < targets.length; i++) {
+      if (targets[i].el.getBoundingClientRect().top <= line) active = targets[i];
+      else break;
     }
 
-    function onScroll() {
-        if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    // 滚到页面底部时，强制高亮最后一节
+    if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4) {
+      active = targets[targets.length - 1];
     }
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    update();
+    if (active === current) return;
+    if (current) current.link.classList.remove('active');
+    active.link.classList.add('active');
+    current = active;
+
+    // 目录很长时，把当前项滚进可视范围
+    var lr = active.link.getBoundingClientRect(), tr = toc.getBoundingClientRect();
+    if (lr.top < tr.top || lr.bottom > tr.bottom) {
+      toc.scrollTop += lr.top - tr.top - tr.height / 3;
+    }
+  }
+
+  function onScroll() {
+    if (!ticking) { ticking = true; requestAnimationFrame(update); }
+  }
+
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  update();
+
+  /* ---------- 2. 窄屏抽屉 ---------- */
+
+  var btn   = document.querySelector('.toc-toggle');
+  var scrim = document.querySelector('.toc-scrim');
+  if (!btn || !scrim) return;
+
+  var padded = false;
+
+  function openDrawer() {
+    scrim.hidden = false;
+    // 强制读一次布局，让 hidden→false 与 .open 分属两帧，过渡才会生效
+    void scrim.offsetWidth;
+    toc.classList.add('open');
+    scrim.classList.add('open');
+    btn.setAttribute('aria-expanded', 'true');
+
+    var sw = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = 'hidden';
+    document.body.style.paddingRight = sw + 'px';
+    padded = true;
+  }
+
+  function closeDrawer() {
+    toc.classList.remove('open');
+    scrim.classList.remove('open');
+    btn.setAttribute('aria-expanded', 'false');
+    if (padded) {
+      document.body.style.overflow = '';
+      document.body.style.paddingRight = '';
+      padded = false;
+    }
+    setTimeout(function () {
+      if (!toc.classList.contains('open')) scrim.hidden = true;
+    }, 240);
+  }
+
+  btn.addEventListener('click', function () {
+    if (toc.classList.contains('open')) closeDrawer(); else openDrawer();
+  });
+
+  scrim.addEventListener('click', closeDrawer);
+
+  // 点条目跳转后自动收起
+  toc.addEventListener('click', function (e) {
+    if (e.target.closest('a')) closeDrawer();
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && toc.classList.contains('open')) closeDrawer();
+  });
+
+  // 窗口拉宽到常驻模式时，清掉抽屉残留状态
+  window.addEventListener('resize', function () {
+    if (window.matchMedia('(min-width: 1600px)').matches && toc.classList.contains('open')) {
+      closeDrawer();
+    }
+  });
 })();
 </script>

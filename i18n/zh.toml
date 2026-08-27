@@ -9,3 +9,6 @@ other = "返回"
 
 [greeting]
 other = "欢迎，"
+
+[toc]
+other = "目录"

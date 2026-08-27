@@ -9,3 +9,6 @@ other = "Back"
 
 [greeting]
 other = "Hi,"
+
+[toc]
+other = "Contents"
