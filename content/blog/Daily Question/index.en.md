@@ -40,9 +40,9 @@ void solve(){
     }
 
     int x = a[1];
-    cout << x << ‘ ’;
-    for(int i = 2; i <= n; i++) x -= d[i], cout << x << ‘ ’;
-    cout << ‘\n’;
+    cout << x << ' ';
+    for(int i = 2; i <= n; i++) x -= d[i], cout << x << ' ';
+    cout << '\n';
 
 }
 signed main(){

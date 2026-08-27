@@ -96,6 +96,76 @@ footer, .section-rule { border-color: var(--color-border); }
 /* 优先级 (0,2,1)，压过 Tailwind 的 dark:prose-pre:bg-transparent (0,2,0) */
 html.dark .prose pre { background-color: var(--color-code-bg); }
 
+/* --- 预处理指令 --- */
+
+/* Chroma 把 C++ 的 #include / #define 整行归进 CommentPreproc（.cp），尖括号里的
+   头文件另算 CommentPreprocFile（.cpf）；github 主题给这两类都上了灰色粗斜体，
+   看着像被注释掉了。GitHub 自己是当代码渲染的，这里对齐过去：
+   指令走关键字色，头文件走字符串色，都不要斜体。
+   选择器 (0,2,0) 与 syntax*.css 同权重，靠 custom.css 加载在后面压过去。 */
+.chroma .cp,
+.chroma .cpf { font-style: normal; font-weight: normal; }
+
+.chroma .cp  { color: #cf222e; }   /* 取 syntax.css 的 .k */
+.chroma .cpf { color: #0a3069; }   /* 取 syntax.css 的 .s */
+
+html.dark .chroma .cp  { color: #ff7b72; }   /* 取 syntax-dark.css 的 .k */
+html.dark .chroma .cpf { color: #a5d6ff; }   /* 取 syntax-dark.css 的 .s */
+
+
+/* --- 复制按钮 --- */
+
+/* 定位父级。Chroma 输出的 .highlight 直接复用，手写 <pre> 由 JS 补一层 div。
+   按钮挂在外层而不是 pre 里面，这样代码横向滚动时它不会跟着跑掉。 */
+.prose .code-box { position: relative; }
+
+.code-copy {
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  padding: 0;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  background: var(--color-code-bg);
+  color: var(--color-muted);
+  opacity: 0;
+  transition: opacity .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.code-copy svg { width: 1rem; height: 1rem; }
+
+/* 悬停代码块才浮现；键盘 Tab 过去时也得看得见 */
+.code-box:hover .code-copy,
+.code-copy:focus-visible { opacity: 1; }
+
+.code-copy:hover {
+  color: var(--color-text);
+  border-color: var(--color-muted);
+}
+
+.code-copy.is-done {
+  opacity: 1;
+  color: #1a7f37;
+  border-color: #1a7f37;
+}
+html.dark .code-copy.is-done {
+  color: #3fb950;
+  border-color: #3fb950;
+}
+
+/* 触屏没有 hover，常驻显示 */
+@media (hover: none) {
+  .code-copy { opacity: .6; }
+}
+@media (max-width: 640px) {
+  :lang(zh) .prose { text-align: start; }
+}
+
 
 /* ==========================================================================
    目录

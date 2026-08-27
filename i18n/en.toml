@@ -16,6 +16,12 @@ other = "Contents"
 [comments]
 other = "Comments"
 
+[copy]
+other = "Copy"
+
+[copied]
+other = "Copied"
+
 [about]
 other = "About me"
 

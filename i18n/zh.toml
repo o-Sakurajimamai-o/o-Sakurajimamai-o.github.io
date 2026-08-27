@@ -16,6 +16,12 @@ other = "目录"
 [comments]
 other = "评论"
 
+[copy]
+other = "复制"
+
+[copied]
+other = "已复制"
+
 [about]
 other = "关于我"
 
