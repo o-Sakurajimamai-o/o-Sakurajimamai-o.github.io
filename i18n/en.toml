@@ -18,3 +18,18 @@ other = "Comments"
 
 [about]
 other = "About me"
+
+[search]
+other = "Search"
+
+[searchPlaceholder]
+other = "Search posts…"
+
+[searchEmpty]
+other = "No matches."
+
+[searchFail]
+other = "Could not load the search index."
+
+[searchHint]
+other = "↑↓ to select · Enter to open · Esc to close"

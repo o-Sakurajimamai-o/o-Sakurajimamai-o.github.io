@@ -1,0 +1,219 @@
+{{- /* 站内搜索。索引来自 layouts/home.json，按语言各一份。
+       打开方式：点导航放大镜 / Ctrl(⌘)+K / 按 "/" */ -}}
+<div class="search" id="search" hidden data-index="{{ "index.json" | relLangURL }}">
+  <div class="search__panel" role="dialog" aria-modal="true" aria-label="{{ i18n "search" }}">
+
+    <div class="search__bar">
+      <svg class="search__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" aria-hidden="true">
+        <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
+      </svg>
+      <input type="search" id="search-input" class="search__input"
+             placeholder="{{ i18n "searchPlaceholder" }}"
+             autocomplete="off" autocorrect="off" spellcheck="false"
+             aria-label="{{ i18n "search" }}">
+    </div>
+
+    <ul class="search__results" id="search-results"></ul>
+    <p class="search__hint">{{ i18n "searchHint" }}</p>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var box   = document.getElementById('search');
+  var input = document.getElementById('search-input');
+  var list  = document.getElementById('search-results');
+  if (!box || !input || !list) return;
+
+  var EMPTY = {{ i18n "searchEmpty" | jsonify }};
+  var FAIL  = {{ i18n "searchFail"  | jsonify }};
+
+  var data = null, loading = false;
+  var prevOverflow = '', prevPad = '';
+  var rows = [], active = -1, timer = null;
+
+  /* ---------- 索引 ---------- */
+
+  // 第一次打开时才拉索引，不拖慢首屏
+  function loadIndex() {
+    if (data || loading) return;
+    loading = true;
+    fetch(box.dataset.index)
+      .then(function (r) { return r.json(); })
+      .then(function (j) { data = j; loading = false; if (input.value) run(); })
+      .catch(function () { loading = false; list.innerHTML = '<li class="search__msg">' + FAIL + '</li>'; });
+  }
+
+  /* ---------- 打分 ---------- */
+
+  function terms(q) {
+    return q.toLowerCase().trim().split(/\s+/).filter(Boolean);
+  }
+
+  function occurrences(hay, needle) {
+    var n = 0, i = 0;
+    while ((i = hay.indexOf(needle, i)) > -1) { n++; i += needle.length; }
+    return n;
+  }
+
+  // 中文没有词间空格，所以用子串匹配而不是分词——对 CJK 反而更准。
+  // 多个词之间是「与」：每个词都得命中，否则整条淘汰。
+  function score(item, ts, whole) {
+    var t = item.t.toLowerCase();
+    var d = (item.d || '').toLowerCase();
+    var c = (item.c || '').toLowerCase();
+    var total = 0;
+    for (var i = 0; i < ts.length; i++) {
+      var s = 0;
+      if (t.indexOf(ts[i]) > -1) s += 12;
+      if (d.indexOf(ts[i]) > -1) s += 5;
+      var n = occurrences(c, ts[i]);
+      if (n) s += Math.min(6, 1 + n * 0.5);
+      if (!s) return 0;
+      total += s;
+    }
+    if (t.indexOf(whole) > -1) total += 8;          // 整串命中标题，额外加权
+    return total;
+  }
+
+  /* ---------- 渲染 ---------- */
+
+  function esc(s) {
+    return s.replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+
+  // 先算出所有命中区间并合并，再一次性拼串。
+  // 不能用 replace 套 <mark>，否则第二个词可能匹配到前面插入的标签里去。
+  function mark(text, ts) {
+    var lower = text.toLowerCase(), hits = [];
+    ts.forEach(function (t) {
+      var i = 0;
+      while ((i = lower.indexOf(t, i)) > -1) { hits.push([i, i + t.length]); i += t.length; }
+    });
+    if (!hits.length) return esc(text);
+    hits.sort(function (a, b) { return a[0] - b[0]; });
+    var merged = [], cur = hits[0].slice();
+    for (var k = 1; k < hits.length; k++) {
+      if (hits[k][0] <= cur[1]) cur[1] = Math.max(cur[1], hits[k][1]);
+      else { merged.push(cur); cur = hits[k].slice(); }
+    }
+    merged.push(cur);
+    var out = '', pos = 0;
+    merged.forEach(function (r) {
+      out += esc(text.slice(pos, r[0])) + '<mark>' + esc(text.slice(r[0], r[1])) + '</mark>';
+      pos = r[1];
+    });
+    return out + esc(text.slice(pos));
+  }
+
+  // 截取第一处命中周围的一段正文当摘要
+  function snippet(item, ts) {
+    var c = item.c || '';
+    if (!c) return '';
+    var lower = c.toLowerCase(), at = -1;
+    for (var i = 0; i < ts.length && at < 0; i++) at = lower.indexOf(ts[i]);
+    if (at < 0) return c.slice(0, 110);
+    var from = Math.max(0, at - 45);
+    var to   = Math.min(c.length, at + 95);
+    return (from > 0 ? '…' : '') + c.slice(from, to) + (to < c.length ? '…' : '');
+  }
+
+  function run() {
+    var q = input.value;
+    var ts = terms(q);
+    active = -1;
+    if (!ts.length) { rows = []; list.innerHTML = ''; return; }
+    if (!data) { loadIndex(); return; }
+
+    var whole = q.toLowerCase().trim();
+    rows = data
+      .map(function (it) { return { it: it, sc: score(it, ts, whole) }; })
+      .filter(function (r) { return r.sc > 0; })
+      .sort(function (a, b) { return b.sc - a.sc; })
+      .slice(0, 12);
+
+    if (!rows.length) { list.innerHTML = '<li class="search__msg">' + EMPTY + '</li>'; return; }
+
+    list.innerHTML = rows.map(function (r, i) {
+      var it = r.it;
+      var meta = [it.s, it.dt].filter(Boolean).join(' · ');
+      return '<li class="search__item" data-i="' + i + '">' +
+               '<a href="' + esc(it.u) + '">' +
+                 '<span class="search__t">' + mark(it.t, ts) + '</span>' +
+                 (meta ? '<span class="search__meta">' + esc(meta) + '</span>' : '') +
+                 '<span class="search__snip">' + mark(snippet(it, ts), ts) + '</span>' +
+               '</a></li>';
+    }).join('');
+  }
+
+  function highlight(n) {
+    var els = list.querySelectorAll('.search__item');
+    if (!els.length) return;
+    active = (n + els.length) % els.length;
+    [].forEach.call(els, function (el, i) { el.classList.toggle('active', i === active); });
+    els[active].scrollIntoView({ block: 'nearest' });
+  }
+
+  /* ---------- 开关 ---------- */
+
+  function open() {
+    if (!box.hidden) return;
+    box.hidden = false;
+    void box.offsetWidth;               // 强制回流，让 hidden→false 与 .open 分属两帧
+    box.classList.add('open');
+    // 存原值再改，别把目录抽屉 / 灯箱的设置抹掉
+    prevOverflow = document.body.style.overflow;
+    prevPad = document.body.style.paddingRight;
+    var sw = window.innerWidth - document.documentElement.clientWidth;
+    document.body.style.overflow = 'hidden';
+    if (sw > 0) document.body.style.paddingRight = sw + 'px';
+    loadIndex();
+    input.focus();
+    input.select();
+  }
+
+  function close() {
+    if (box.hidden) return;
+    box.classList.remove('open');
+    document.body.style.overflow = prevOverflow;
+    document.body.style.paddingRight = prevPad;
+    setTimeout(function () { if (!box.classList.contains('open')) box.hidden = true; }, 180);
+  }
+
+  [].forEach.call(document.querySelectorAll('[data-search-open]'), function (b) {
+    b.addEventListener('click', open);
+  });
+
+  box.addEventListener('click', function (e) {
+    if (!e.target.closest('.search__panel')) close();   // 点面板以外关闭
+  });
+
+  input.addEventListener('input', function () {
+    clearTimeout(timer);
+    timer = setTimeout(run, 80);
+  });
+
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowDown')      { e.preventDefault(); highlight(active + 1); }
+    else if (e.key === 'ArrowUp')   { e.preventDefault(); highlight(active - 1); }
+    else if (e.key === 'Enter') {
+      var el = list.querySelector('.search__item.active a') || list.querySelector('.search__item a');
+      if (el) { e.preventDefault(); location.href = el.getAttribute('href'); }
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); open(); return; }
+    if (e.key === 'Escape' && !box.hidden) { close(); return; }
+    // "/" 快捷键：正在别的输入框里打字时不抢
+    if (e.key === '/' && box.hidden && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)
+        && !document.activeElement.isContentEditable) {
+      e.preventDefault(); open();
+    }
+  });
+})();
+</script>

@@ -1,0 +1,18 @@
+{{- /* 站内搜索索引。字段名取短是为了压缩体积：
+       t=title  u=url  d=description  s=section  dt=date  c=正文纯文本
+       想让某篇文章不进搜索，在它 front matter 里写 searchExclude: true */ -}}
+{{- $items := slice -}}
+{{- range where site.RegularPages "Params.searchExclude" "!=" true -}}
+  {{- $body := .Plain | htmlUnescape | replaceRE "\\s+" " " | strings.TrimSpace -}}
+  {{- $date := "" -}}
+  {{- if not .Date.IsZero }}{{ $date = .Date.Format "2006-01-02" }}{{ end -}}
+  {{- $items = $items | append (dict
+        "t"  .Title
+        "u"  .RelPermalink
+        "d"  (.Description | default "")
+        "s"  .Section
+        "dt" $date
+        "c"  (substr $body 0 4000)
+  ) -}}
+{{- end -}}
+{{- $items | jsonify -}}

@@ -31,6 +31,10 @@ defaultContentLanguageInSubdir = false
 [markup.goldmark.renderer]
     unsafe = true
 
+# 首页额外输出一份 JSON，作为站内搜索的索引。
+# 每种语言各生成一份：/index.json 和 /zh/index.json
+[outputs]
+    home = ['html', 'rss', 'json']
 [markup.goldmark.extensions.passthrough]
     enable = true
     [markup.goldmark.extensions.passthrough.delimiters]

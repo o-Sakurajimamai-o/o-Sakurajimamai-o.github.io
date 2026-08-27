@@ -74,6 +74,14 @@
         <div class="flex flex-row flex-wrap items-baseline gap-4 sm:gap-6">
             <a href="{{ "blog/" | relLangURL }}" class="text-lg font-medium hover:underline">{{ i18n "writing" }}</a>
             <a href="{{ "about/" | relLangURL }}" class="text-lg font-medium hover:underline">{{ i18n "about" }}</a>
+            <button type="button" data-search-open aria-label="{{ i18n "search" }}"
+                    class="opacity-60 hover:opacity-100 transition-opacity">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                    <circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/>
+                </svg>
+            </button>
+
             <a href="{{ site.Params.github }}" aria-label="GitHub" rel="noopener"
                class="opacity-60 hover:opacity-100 transition-opacity">
                 <svg class="w-5 h-5" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
@@ -102,5 +110,6 @@
     </footer>
 
 </div>
+{{ partial "search.html" . }}
 </body>
 </html>

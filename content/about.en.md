@@ -24,7 +24,7 @@ resume:
 
 {{< entry title="Lanqiao Cup National Finals — First Prize (top 3%)" date="Jun 2026" />}}
 
-{{< entry title="National College Computer Ability Challenge (Undergraduate & Graduate Group) — First Prize" date="Dec 2024" />}}
+{{< entry title="National College Computer Ability Challenge (UG & PG Group) — First Prize" date="Dec 2024" />}}
 
 {{< entry title="Group Programming Ladder Tournament — Individual Second Prize (top 9%)" date="May 2026" />}}
 
@@ -40,16 +40,16 @@ resume:
 
 ## Projects
 
-{{< entry title="Personalized Recommender for Chinese Ethnic Music and Dance" url="https://github.com/7DaysWithU/RecommenderSystem_V1" org="Python · PyTorch · Scrapy" >}}
-Accurate recommendation of text, image, audio and video content, using a hybrid approach of scheduled offline feature updates and online real-time scoring.
+- {{< entry title="Personalized Recommender for Chinese Ethnic Music and Dance" url="https://github.com/7DaysWithU/RecommenderSystem_V1" org="Python · PyTorch · Scrapy" >}}
+> Accurate recommendation of text, image, audio and video content, using a hybrid approach of scheduled offline feature updates and online real-time scoring.
 {{< /entry >}}
 
-{{< entry title="Chinese QA Bot with BERT and mengzi-T5" url="https://github.com/o-Sakurajimamai-o/A-Simple-Question-Answering-System-Based-on-BERT" org="Python · PyTorch · Transformers" >}}
-A high-accuracy Chinese reading comprehension QA system, mainly addressing two problems: insufficient semantic modeling of long texts and typo interference in user input affecting answer extraction.
+- {{< entry title="Chinese QA Bot with BERT and mengzi-T5" url="https://github.com/o-Sakurajimamai-o/A-Simple-Question-Answering-System-Based-on-BERT" org="Python · PyTorch · Transformers" >}}
+> A high-accuracy Chinese reading comprehension QA system, mainly addressing two problems: insufficient semantic modeling of long texts and typo interference in user input affecting answer extraction.
 {{< /entry >}}
 
-{{< entry title="Chinese–English Translation with Bahdanau Attention and Transformer" url="https://github.com/o-Sakurajimamai-o/Seq2Seq-CN---EN-model-based-on-Attention-and-Transformer" org="Python · PyTorch" >}}
-Built two classic NLP translation models from scratch with PyTorch — a Seq2Seq (GRU) with Bahdanau attention and a standard Transformer — for Chinese-English and English-Chinese translation on Opus/Tatoeba.
+- {{< entry title="Chinese–English Translation with Bahdanau Attention and Transformer" url="https://github.com/o-Sakurajimamai-o/Seq2Seq-CN---EN-model-based-on-Attention-and-Transformer" org="Python · PyTorch" >}}
+> Built two classic NLP translation models from scratch with PyTorch — a Seq2Seq (GRU) with Bahdanau attention and a standard Transformer — for Chinese-English and English-Chinese translation on Opus/Tatoeba.
 {{< /entry >}}
 
 ## Skills

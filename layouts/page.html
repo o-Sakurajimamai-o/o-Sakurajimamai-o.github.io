@@ -32,6 +32,7 @@
     {{ end }}
 
     <div class="prose dark:prose-invert max-w-none
+                {{ if .Params.resume }}resume-body{{ end }}
                 prose-headings:font-medium prose-a:text-inherit
                 prose-pre:bg-gray-50 prose-pre:text-gray-800
                 prose-pre:border prose-pre:border-gray-200

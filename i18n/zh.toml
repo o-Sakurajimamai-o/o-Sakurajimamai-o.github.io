@@ -18,3 +18,18 @@ other = "评论"
 
 [about]
 other = "关于我"
+
+[search]
+other = "搜索"
+
+[searchPlaceholder]
+other = "搜索文章…"
+
+[searchEmpty]
+other = "没有找到匹配的内容。"
+
+[searchFail]
+other = "搜索索引加载失败。"
+
+[searchHint]
+other = "↑↓ 选择 · Enter 打开 · Esc 关闭"

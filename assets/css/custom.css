@@ -21,6 +21,12 @@ html {
   --color-fig-bg:   #fffdfc;
   --shadow-fig:     0 8px 26px rgba(0, 0, 0, .045);
   --shadow-float:   0 4px 14px rgba(0, 0, 0, .15);
+
+  /* --- 简历页排版旋钮：嫌松就把这几个数调小，改完刷新即可 --- */
+  --resume-line:       1.5;     /* 条目内的行高（正文是 1.7 / 中文 1.75） */
+  --resume-entry-gap:  1rem;    /* 条目与条目之间的上下间距 */
+  --resume-sec-top:    1.9rem;  /* 章节标题（##）上方留白 */
+  --resume-sec-bottom: .85rem;  /* 章节标题下方留白 */
 }
 
 html.dark {
@@ -267,7 +273,19 @@ html.dark .prose pre { background-color: var(--color-code-bg); }
 
 /* --- 简历条目 --- */
 
-.prose .entry { margin: 1.4rem 0; }
+/* 简历整页比正文紧一档。用 .prose.resume-body 双类选择器（0,2,0），
+   和上面 :lang(zh) .prose 同权重但位置更靠后，所以能压过去；
+   同时不会波及普通文章。 */
+.prose.resume-body { line-height: var(--resume-line); }
+
+.prose.resume-body h2 {
+  margin-top: var(--resume-sec-top);
+  margin-bottom: var(--resume-sec-bottom);
+}
+/* 页眉紧跟着的第一个标题不要再顶一段空白 */
+.prose.resume-body > :first-child { margin-top: 0; }
+
+.prose.resume-body .entry { margin: var(--resume-entry-gap) 0; }
 
 /* flex-wrap：窄屏时右侧的日期整体掉到下一行，而不是把标题挤成两行 */
 .entry__row {
@@ -321,6 +339,155 @@ html.dark .prose pre { background-color: var(--color-code-bg); }
 
 /* giscus iframe 自带宽度 100%，这里只保证它不被 prose 的样式影响 */
 .comments .giscus { width: 100%; }
+
+
+/* ==========================================================================
+   站内搜索
+   ========================================================================== */
+
+.search {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 8vh 1rem 2rem;
+  background: rgba(0, 0, 0, .45);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+/* .search 自带 display:flex，会盖掉 [hidden] 的 display:none，得手动补 */
+.search[hidden] { display: none; }
+.search.open    { opacity: 1; }
+
+.search__panel {
+  width: min(38rem, 100%);
+  max-height: 76vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .35);
+  transform: translateY(-6px);
+  transition: transform .18s ease;
+}
+.search.open .search__panel { transform: translateY(0); }
+
+/* --- 输入栏 --- */
+
+.search__bar {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  padding: .85rem 1rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.search__icon {
+  flex: none;
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--color-muted);
+}
+
+.search__input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1rem;
+}
+.search__input::placeholder { color: var(--color-muted); }
+/* 干掉 WebKit 自带的那个小叉，样式和站点不搭 */
+.search__input::-webkit-search-cancel-button { -webkit-appearance: none; }
+
+/* --- 结果 --- */
+
+.search__results {
+  flex: 1;
+  min-height: 0;
+  margin: 0;
+  padding: .35rem;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.search__item a {
+  display: block;
+  padding: .55rem .7rem;
+  border-radius: 8px;
+  color: inherit;
+  text-decoration: none;
+}
+.search__item a:hover,
+.search__item.active a { background: var(--color-code-bg); }
+
+.search__t {
+  display: block;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+.search__meta {
+  display: block;
+  margin-top: .15rem;
+  font-size: .72rem;
+  letter-spacing: .04em;
+  color: var(--color-muted);
+}
+
+.search__snip {
+  display: block;
+  margin-top: .25rem;
+  font-size: .8rem;
+  line-height: 1.5;
+  color: var(--color-muted);
+  /* 摘要最多两行，超出省略，避免长文把面板撑爆 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.search mark {
+  padding: 0 .1em;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--color-accent);
+  font-weight: 600;
+}
+
+.search__msg {
+  padding: 1.1rem .7rem;
+  text-align: center;
+  font-size: .875rem;
+  color: var(--color-muted);
+}
+
+.search__hint {
+  flex: none;
+  margin: 0;
+  padding: .5rem 1rem;
+  border-top: 1px solid var(--color-border);
+  font-size: .7rem;
+  color: var(--color-muted);
+}
+
+.search__results::-webkit-scrollbar       { width: 4px; }
+.search__results::-webkit-scrollbar-thumb { background: var(--color-border); border-radius: 2px; }
+
+@media (max-width: 640px) {
+  .search { padding: 4vh .75rem 1rem; }
+  .search__hint { display: none; }   /* 手机上没有键盘快捷键，提示没意义 */
+}
 
 
 /* ==========================================================================

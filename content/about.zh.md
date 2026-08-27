@@ -41,16 +41,16 @@ resume:
 ## 项目
 
 1. {{< entry title="基于深度学习的中国民族歌舞个性化推荐系统" url="https://github.com/7DaysWithU/RecommenderSystem_V1" org="Python · PyTorch · Scrapy" >}}
-图文、音视频内容的精准推荐，采用离线特征定时更新与在线实时运算的混合模式。
+> 图文、音视频内容的精准推荐，采用离线特征定时更新与在线实时运算的混合模式。
 {{< /entry >}}
 
 2. {{< entry title="基于 BERT 与 mengzi-T5 的双模型中文问答机器人" url="https://github.com/o-Sakurajimamai-o/A-Simple-Question-Answering-System-Based-on-BERT" org="Python · PyTorch · Transformers" >}}
-面向中文阅读理解的高精度问答系统，主要解决长文本语义建模不足、以及用户输入错别字干扰答案抽取这两个问题。
+> 面向中文阅读理解的高精度问答系统，主要解决长文本语义建模不足、以及用户输入错别字干扰答案抽取这两个问题。
 {{< /entry >}}
 
 3. {{< entry title="基于 Bahdanau Attention 与 Transformer 的中英翻译" url="https://github.com/o-Sakurajimamai-o/Seq2Seq-CN---EN-model-based-on-Attention-and-Transformer" org="Python · PyTorch" >}}
-用 PyTorch 从头搭了两个经典 NLP 翻译模型——带 Bahdanau 注意力的 Seq2Seq (GRU) 与标准 Transformer，在 Opus/Tatoeba 上完成中英互译。
-。
+> 用 PyTorch 从头搭了两个经典 NLP 翻译模型——带 Bahdanau 注意力的 Seq2Seq (GRU) 与标准 Transformer，在 Opus/Tatoeba 上完成中英互译。
+
 {{< /entry >}}
 
 ## 技能
