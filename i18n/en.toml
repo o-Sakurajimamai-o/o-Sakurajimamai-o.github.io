@@ -12,3 +12,9 @@ other = "Hi,"
 
 [toc]
 other = "Contents"
+
+[comments]
+other = "Comments"
+
+[about]
+other = "About me"

@@ -1,0 +1,31 @@
+{{- /* 简历条目。成对用（带正文）或自闭合用（只有一行）都行：
+       {{< entry title="天津大学" org="计算机技术 · 硕士" date="2025 – 2028" place="天津" >}}
+       - 研究方向：LLM Agent
+       {{< /entry >}}                                                        */ -}}
+{{- $title := .Get "title" -}}
+{{- if not $title -}}{{- errorf "entry: 缺少 title 参数 (%s)" .Position -}}{{- end -}}
+{{- $url   := .Get "url" -}}
+{{- $org   := .Get "org" -}}
+{{- $date  := .Get "date" -}}
+{{- $place := .Get "place" -}}
+<div class="entry">
+  <div class="entry__row">
+    <span class="entry__title">
+      {{- if $url }}<a href="{{ $url }}"{{ if hasPrefix $url "http" }} rel="noopener"{{ end }}>{{ $title }}</a>
+      {{- else }}{{ $title }}{{ end -}}
+    </span>
+    {{- with $date }}<span class="entry__date">{{ . }}</span>{{ end -}}
+  </div>
+  {{- if or $org $place -}}
+  <div class="entry__row entry__row--sub">
+    <span class="entry__org">{{ $org }}</span>
+    {{- with $place }}<span class="entry__place">{{ . }}</span>{{ end -}}
+  </div>
+  {{- end -}}
+  {{- with .Inner -}}
+    {{- $body := . | markdownify -}}
+    {{- if trim ($body | plainify) " \n\r\t" -}}
+      <div class="entry__body">{{ $body }}</div>
+    {{- end -}}
+  {{- end -}}
+</div>

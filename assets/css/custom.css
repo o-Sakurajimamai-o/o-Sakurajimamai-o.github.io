@@ -232,6 +232,98 @@ html.dark .prose pre { background-color: var(--color-code-bg); }
 
 
 /* ==========================================================================
+   简历页（about）
+   ========================================================================== */
+
+.resume-head {
+  padding: .4rem 0 1.6rem;
+  margin-bottom: 1.6rem;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.resume-name {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 500;
+}
+
+.resume-tagline {
+  margin: .35rem 0 0;
+  color: var(--color-muted);
+}
+
+.resume-contact {
+  margin: .7rem 0 0;
+  font-size: .875rem;
+}
+.resume-contact a {
+  color: var(--color-muted);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.resume-contact a:hover { color: var(--color-accent); }
+.resume-sep { margin: 0 .5rem; color: var(--color-border); }
+
+/* --- 简历条目 --- */
+
+.prose .entry { margin: 1.4rem 0; }
+
+/* flex-wrap：窄屏时右侧的日期整体掉到下一行，而不是把标题挤成两行 */
+.entry__row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0 1rem;
+}
+
+.entry__title { font-weight: 500; }
+.entry__title a { text-decoration: none; }
+.entry__title a:hover { color: var(--color-accent); text-decoration: underline; }
+
+.entry__row--sub { margin-top: .1rem; }
+.entry__org { font-style: italic; }
+
+.entry__date,
+.entry__place {
+  font-size: .85em;
+  color: var(--color-muted);
+  white-space: nowrap;
+}
+
+/* prose 给 ul / p 的默认上下间距在简历里太松，收紧 */
+.prose .entry__body           { margin-top: .45rem; }
+.prose .entry__body ul,
+.prose .entry__body ol        { margin: 0; padding-left: 1.15rem; }
+.prose .entry__body li        { margin: .2rem 0; }
+.prose .entry__body > :first-child { margin-top: 0; }
+.prose .entry__body > :last-child  { margin-bottom: 0; }
+
+
+/* ==========================================================================
+   评论区
+   ========================================================================== */
+
+.comments {
+  margin-top: 3.5rem;
+  padding-top: 1.6rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.comments__title {
+  margin: 0 0 1.1rem;
+  font-size: .72rem;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--color-muted);
+}
+
+/* giscus iframe 自带宽度 100%，这里只保证它不被 prose 的样式影响 */
+.comments .giscus { width: 100%; }
+
+
+/* ==========================================================================
    图片灯箱
    ========================================================================== */
 

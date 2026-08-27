@@ -49,3 +49,15 @@ defaultContentLanguageInSubdir = false
 [params]
     author = 'Sakura'
     github = 'https://github.com/o-Sakurajimamai-o'
+
+# 评论区（giscus）。categoryId 填上之后评论区才会出现，留空则整块不渲染。
+# repo / repoId 已按你的仓库填好，不用动。
+[params.giscus]
+    repo          = 'o-Sakurajimamai-o/o-Sakurajimamai-o.github.io'
+    repoId        = 'R_kgDOUFEZEA'
+    category      = 'Comments'
+    categoryId    = 'DIC_kwDOUFEZEM4DESCq'
+    # 'specific' = 中英文两个版本共用一条讨论帖（term 自动取文件夹名 blog1）
+    # 想让中英文各自独立成帖，把这里改成 'pathname'
+    mapping       = 'specific'
+    inputPosition = 'top'

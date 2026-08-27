@@ -12,3 +12,9 @@ other = "欢迎，"
 
 [toc]
 other = "目录"
+
+[comments]
+other = "评论"
+
+[about]
+other = "关于我"

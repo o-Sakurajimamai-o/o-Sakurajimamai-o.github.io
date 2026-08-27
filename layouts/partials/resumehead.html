@@ -1,0 +1,16 @@
+{{- /* 简历页眉。front matter 里没有 resume 字段就整块不输出，
+       所以普通文章挂着这个 partial 也没有副作用。 */ -}}
+{{- with .Params.resume -}}
+<div class="resume-head">
+  {{- with .name }}<p class="resume-name">{{ . }}</p>{{ end -}}
+  {{- with .tagline }}<p class="resume-tagline">{{ . | markdownify }}</p>{{ end -}}
+  {{- with .links }}
+  <p class="resume-contact">
+    {{- range $i, $l := . -}}
+      {{- if $i }}<span class="resume-sep">·</span>{{ end -}}
+      <a href="{{ $l.url }}"{{ if hasPrefix $l.url "http" }} rel="noopener"{{ end }}>{{ $l.label }}</a>
+    {{- end -}}
+  </p>
+  {{- end -}}
+</div>
+{{- end -}}

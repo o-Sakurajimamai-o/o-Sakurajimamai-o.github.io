@@ -1,0 +1,69 @@
+{{- $g := site.Params.giscus -}}
+{{- /* categoryId 没填就整块不渲染：配置没配好时页面照常，不会留个报错的空框 */ -}}
+{{- if and $g $g.repo $g.repoId $g.category $g.categoryId -}}
+
+{{- $mapping := $g.mapping | default "pathname" -}}
+{{- $term := $g.term | default "" -}}
+{{- if and (eq $mapping "specific") (not $term) -}}
+  {{- with .File }}{{ $term = .ContentBaseName }}{{ end -}}
+{{- end -}}
+
+<section class="comments">
+  <h2 class="comments__title">{{ i18n "comments" }}</h2>
+  <div id="giscus-host"
+       data-repo="{{ $g.repo }}"
+       data-repo-id="{{ $g.repoId }}"
+       data-category="{{ $g.category }}"
+       data-category-id="{{ $g.categoryId }}"
+       data-mapping="{{ $mapping }}"
+       {{- with $term }} data-term="{{ . }}"{{ end }}
+       data-lang="{{ if eq site.Language.Lang "zh" }}zh-CN{{ else }}en{{ end }}"
+       data-input-position="{{ $g.inputPosition | default "top" }}"></div>
+</section>
+
+<script>
+(function () {
+  var host = document.getElementById('giscus-host');
+  if (!host) return;
+  var d = host.dataset;
+
+  // giscus 自带的 preferred_color_scheme 跟的是系统设置，会和右上角那个手动开关打架，
+  // 所以深浅色这里自己算，跟着 html.dark 走
+  function theme() {
+    return document.documentElement.classList.contains('dark') ? 'dark' : 'light';
+  }
+
+  // 用 JS 建 script 标签，而不是直接写在 HTML 里：
+  // 这样首帧就能带上正确的 data-theme，不会先亮一下再变暗
+  var s = document.createElement('script');
+  s.src = 'https://giscus.app/client.js';
+  s.async = true;
+  s.crossOrigin = 'anonymous';
+  s.setAttribute('data-repo', d.repo);
+  s.setAttribute('data-repo-id', d.repoId);
+  s.setAttribute('data-category', d.category);
+  s.setAttribute('data-category-id', d.categoryId);
+  s.setAttribute('data-mapping', d.mapping);
+  if (d.term) s.setAttribute('data-term', d.term);
+  s.setAttribute('data-strict', '1');
+  s.setAttribute('data-reactions-enabled', '1');
+  s.setAttribute('data-emit-metadata', '0');
+  s.setAttribute('data-input-position', d.inputPosition);
+  s.setAttribute('data-lang', d.lang);
+  s.setAttribute('data-loading', 'lazy');
+  s.setAttribute('data-theme', theme());
+  host.appendChild(s);
+
+  // 切主题时给 iframe 发消息，评论区不用重新加载（重载会丢掉正在打的字）
+  window.__syncGiscusTheme = function () {
+    var f = document.querySelector('iframe.giscus-frame');
+    if (!f || !f.contentWindow) return;
+    f.contentWindow.postMessage(
+      { giscus: { setConfig: { theme: theme() } } },
+      'https://giscus.app'
+    );
+  };
+})();
+</script>
+
+{{- end -}}

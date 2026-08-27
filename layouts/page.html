@@ -18,10 +18,14 @@
 
     <h1 class="text-4xl font-medium pt-4 leading-tight">{{ .Title }}</h1>
 
+    {{ partial "resumehead.html" . }}
+
+    {{ if not .Params.hideMeta }}
     <div class="italic text-sm py-3 flex flex-row gap-4 muted">
         <span>{{ .Date | time.Format ":date_medium" }}</span>
         <span>{{ .ReadingTime }} min</span>
     </div>
+    {{ end }}
 
     {{ with .Description }}
         <p class="italic pb-4 muted">{{ . }}</p>
@@ -39,6 +43,8 @@
     <div class="pt-10 text-sm">
         <a href="{{ site.Home.RelPermalink }}" class="hover:underline muted">← {{ i18n "backHome" }}</a>
     </div>
+
+    {{ if ne .Params.comments false }}{{ partial "comments.html" . }}{{ end }}
 
 </article>
 {{ if $hasToc }}{{ partial "tocspy.html" . }}{{ end }}
