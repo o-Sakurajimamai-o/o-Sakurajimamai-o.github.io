@@ -50,3 +50,71 @@ signed main(){
 }
 
 ```
+
+## Robin Hood Archery - Rating 1900
+今天是 2026 年 8月 28 日，星期五，问题链接：[Robin Hood Archery](https://codeforces.com/contest/2014/problem/H)。
+
+首先考虑什么情况下 Sheriff 才不会输，由于 Robin Hood 总是先手出，那么在一大一小的情况下，他肯定选择拿大的，那么 Sheriff 不输的局面只有平局，因为他总是落后的，所以当两个数相等的局面，两者得到的分数才会相同，这样就不会输。
+
+再看题意，题目的查询次数较大，因此需要频繁的在区间内进行统计和查询，且不具备实时性（即可以先乱序得出答案，再按问题顺序回答），因此我们考虑[莫队](https://www.hackerearth.com/practice/notes/mos-algorithm/)，它可以使得我们在 $O(n \sqrt{n})$ 复杂度内进行区间内的修改查询。
+
+我们维护一个变量 $res$，当区间内的数频均为偶数次时 $res=0$，具体代码如下：
+```cpp
+// Retired?
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 1e6 + 10, mod = 1e9 + 7;
+int pos[N], a[N], cnt[N], mp[N];
+struct node{
+    int l, r, now;
+    bool operator< (const node &w) const{
+        return (pos[l] ^ pos[w.l]) ? pos[l] < pos[w.l] : ((pos[l] & 1) ? r < w.r : r > w.r);
+    }
+}p[N];
+void solve(){
+
+    int n, m; cin >> n >> m;
+
+    int len = sqrt(n);
+    for(int i = 1; i <= n; i++) cin >> a[i], pos[i] = i / len;
+
+    for(int i = 1; i <= m; i++){
+        int l, r; cin >> l >> r;
+        p[i] = {l, r, i};
+    }
+
+    sort(p + 1, p + 1 + m);
+
+    int res = 0;
+    auto add = [&](int x) -> void{
+        mp[a[x]]++;
+        if(mp[a[x]] % 2 == 0) res--;
+        else res++;
+    }; 
+
+    auto del = [&](int x) -> void{
+        mp[a[x]]--;
+        if(mp[a[x]] % 2 == 0) res--;
+        else res++;
+    };
+
+    int l = 1, r = 0;
+    vector<int> ans(m + 1);
+    for(int i = 1; i <= m; i++){
+        int id = p[i].now;
+        while(l < p[i].l) del(l++);
+        while(l > p[i].l) add(--l);
+        while(r < p[i].r) add(++r);
+        while(r > p[i].r) del(r--);
+        ans[id] = res;
+    }
+
+    for(int i = 1; i <= m; i++) cout << (ans[i] ? "NO" : "YES") << '\n';
+    for(int i = 1; i <= n; i++) mp[a[i]] = 0;
+
+}
+signed main(){
+    std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);int t;cin>>t;while(t--)solve();
+}
+```
