@@ -80,6 +80,18 @@ body {
 }
 .prose a:hover, main a.link:hover { color: var(--color-accent); }
 
+/* 行内代码：Tailwind Typography 默认会用伪元素画反引号并加粗，压掉它，
+   改成常规的浅底圆角样式；:not(pre) 保证不影响代码块内部 */
+.prose :not(pre) > code {
+  font-weight: 400;
+  font-size: .875em;
+  background-color: var(--color-code-bg);
+  border-radius: .375rem;
+  padding: .15em .4em;
+}
+.prose :not(pre) > code::before,
+.prose :not(pre) > code::after { content: none; }
+
 /* 全站边框统一走变量，深浅模式自动适配 */
 footer, .section-rule { border-color: var(--color-border); }
 
@@ -164,6 +176,7 @@ html.dark .code-copy.is-done {
 }
 @media (max-width: 640px) {
   :lang(zh) .prose { text-align: start; }
+  :lang(en) .prose { text-align: start; }
 }
 
 

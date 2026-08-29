@@ -1,6 +1,6 @@
 ---
 title: "Daily Codeforces Problem"
-date: 2026-08-27
+date: 2026-08-28
 description: "Starting Monday, solve one Codeforces problem each day, in order of increasing difficulty"
 ---
 
