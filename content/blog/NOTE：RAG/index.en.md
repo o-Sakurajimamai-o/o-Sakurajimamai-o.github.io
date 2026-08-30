@@ -40,7 +40,7 @@ MIPS is responsible for quickly finding, among the vast collection of knowledge-
 - The user inputs a question $x$.
 - $\text{BERT}_q$ turns it into a vector $q(x)$.
 - $q(x)$ is used to run inner-product search (MIPS) over the frozen document store, retrieving the Top-K documents $z$ and their retrieval probabilities $p(z\vert{}x)$.
-- The generator BART concatenates the question $x$ with a document $z$ as input and generates the answer word by word, yielding the generation probability $p(y_i\vert{}x, z, y_{<i})$.
+- The generator BART concatenates the question $x$ with a document $z$ as input and generates the answer word by word, yielding the generation probability $p(y_i\vert{}x, z, y_{\lt i})$.
 - The retrieval probability and the generation probability are combined (marginalized) to compute the final value of the loss function (i.e., the negative marginal log-likelihood above).
 ### Backward and Fine-tuning:
 - BART: gradients flow back into BART's encoder (understanding question + document) and decoder (generating the answer). The weight matrices of BART's internal Self-Attention, Cross-Attention, and FFN layers are updated. Through this, BART learns how to better extract knowledge from the concatenated text and organize it into fluent sentences.    
