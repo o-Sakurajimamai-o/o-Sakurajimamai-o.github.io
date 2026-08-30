@@ -22,6 +22,12 @@ RAG-Token: every time a token is generated, the model consults the different doc
 $$p_{\text{RAG-Token}}(y\vert{}x) \approx \prod_{i}^N \sum_{z \in \text{top-k}(p(\cdot\vert{}x))} p_\eta(z\vert{}x) p_\theta(y_i\vert{}x, z, y_{1:i-1})$$
 
 ## Retriever: DPR
+DPR employs a Bi-encoder architecture, whose core working mechanism is as follows:
+- **Text vectorization:**
+    - Document encoder: A $\text{BERT}_{\text{BASE}}$-based document encoder is used to map each document $z$ to a dense vector representation, denoted as $d(z)$. The formula is expressed as: $d(z) = \text{BERT}_d(z)$.
+    - Query encoder: Similarly, a $\text{BERT}_{\text{BASE}}$-based query encoder is used to map the user’s input query $x$ to a dense vector representation, denoted as $q(x)$. The formula is: $q(x) = \text{BERT}_q(x)$.
+- **Similarity Calculation and Probability Distribution:** The probability $p_\eta(z\vert{}x)$ of retrieving a particular document is proportional to the exponential of the dot product (inner product) between the query vector and the document vector. Mathematically, this is expressed as:
+$$p_\eta(z\vert{}x) \propto \exp(d(z)^\top q(x))$$
 
 "Parametric memory" refers to knowledge that the model compresses and stores inside itself through its weights (e.g., the connection weights of a neural network) during training. The parameters of pre-trained models such as BERT or BART are their parametric memory.
 
