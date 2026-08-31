@@ -118,3 +118,65 @@ signed main(){
     std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);int t;cin>>t;while(t--)solve();
 }
 ```
+
+## Stepan and Permutation - Rating 1100
+今天是 2026 年 8月 31 日，星期一，问题链接：[Stepan and Permutation](https://codeforces.com/contest/2244/problem/C)。
+
+我们可以根据交换条件得出可以随意交换的位置为分成组的，组内可以随便交换，组外不可交换。考虑通过并查集来分组，对于 $a_i$ 来说，它与 $a_{i + j * x}$ 和 $a_{i + j * y}$ 一组, 其中 $j \in {0,1,2...}$，那么我们在组内就可以直接排序，然后记录一下每一组所占的位置，按顺序安置。这样只需要检查最终结果是否为增序的排列即可。
+
+代码如下：
+```cpp
+// Retired?
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 1e6 + 10, mod = 1e9 + 7;
+void solve(){
+
+    int n, x, y; cin >> n >> x >> y;
+    
+    vector<int> a(n + 1), p(n + 1);
+    for(int i = 1; i <= n; i++) cin >> a[i], p[i] = i;
+
+    function<int(int)> find = [&](int x) -> int{
+        if(x != p[x]) p[x] = find(p[x]);
+        return p[x];
+    };
+
+    for(int i = 1; i <= n; i++){
+        if(i + x <= n){
+            if(find(a[i]) != find(a[i + x])){
+                p[find(a[i + x])] = find(a[i]);
+            }
+        }
+        if(i + y <= n){
+            if(find(a[i]) != find(a[i + y])){
+                p[find(a[i + y])] = find(a[i]);
+            }
+        }
+    }
+
+    vector<int> b(n + 1);
+    vector<vector<int>> v(n + 1), pos(n + 1);
+    for(int i = 1; i <= n; i++) v[find(a[i])].push_back(a[i]), pos[find(a[i])].push_back(i);
+    for(int i = 1; i <= n; i++) sort(v[i].begin(), v[i].end());
+    for(int i = 1; i <= n; i++){
+        for(int j = 0; j < v[i].size(); j++){
+            b[pos[i][j]] = v[i][j];
+        }
+    }
+
+    for(int i = 1; i <= n; i++){
+        if(b[i] != i){
+            cout << "NO" << '\n';
+            return;
+        } 
+    }
+
+    cout << "YES" << '\n';
+
+}
+signed main(){
+    std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);int t;cin>>t;while(t--)solve();
+}
+```
