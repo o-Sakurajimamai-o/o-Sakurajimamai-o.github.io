@@ -1,6 +1,6 @@
 ---
 title: "Codeforces 每日一题"
-date: 2026-08-28
+date: 2026-09-01
 description: "从周一开始，每天按难度递增解决 Codeforces 上的一道题"
 ---
 
@@ -174,6 +174,67 @@ void solve(){
     }
 
     cout << "YES" << '\n';
+
+}
+signed main(){
+    std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);int t;cin>>t;while(t--)solve();
+}
+```
+
+## Risky Tower - Rating 1400
+今天是 2026 年 9 月 1 日，星期二，问题链接：[Risky Tower](https://codeforces.com/problemset/problem/2252/C)。
+
+首先考虑贪心策略：要摧毁第 $i$ 行，我们需要选取若干个木块使得总攻击力 $\geq v_i$，且每行最多选 $m$ 个木块。为了使操作次数最少，显然应优先选最大的木块。
+
+考虑塔从上到下依次摧毁，摧毁第 $i$ 行时，第 $i$ 行及其下方（第 $i, i+1, \ldots, n$ 行）的所有木块都可以使用。因此，我们从第 $1$ 行开始枚举，每处理完一行就将该行的木块从可用集合中移除。
+
+我们用一个计数器 $mp$ 统计所有木块的出现次数，并将所有不同的木块值存入数组 $que$ 后按降序排列。对于当前枚举的第 $i$ 行，我们从 $que$ 头部依次取最大的木块，将其值累加至 $sum$，直到 $sum \geq v_i$ 或已取满 $m$ 个。若当前最大值 $top$ 的剩余次数 $mp[top]$ 为 $0$，则跳过。处理完第 $i$ 行后，将该行所有木块的计数各减一。答案为所有行所需最小操作次数的最小值，且不超过 $m$。
+
+代码如下：
+```cpp
+// Retired?
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 1e6 + 10, mod = 1e9 + 7;
+void solve(){
+
+    int n, m; cin >> n >> m;
+
+    vector<int> v(n + 1);
+    for(int i = 1; i <= n; i++) cin >> v[i];
+
+    map<int, int> mp;
+    vector<int> que;
+    vector<vector<int>> a(n + 1, vector<int>(m + 1));
+    for(int i = 1; i <= n; i++){
+        for(int j = 1; j <= m; j++){
+            cin >> a[i][j];
+            if(!mp.count(a[i][j])) que.push_back(a[i][j]);
+            mp[a[i][j]]++;
+        }
+    }
+
+    sort(que.begin(), que.end());
+    reverse(que.begin(), que.end());
+
+    int res = LLONG_MAX;
+    for(int i = 1; i <= n; i++){
+        int sum = 0, cnt = 0, pos = 0;
+        while(sum < v[i] && cnt < m){
+            int top = que[pos];
+            while(mp[top] == 0) top = que[++pos];
+            if(sum + top * mp[top] >= v[i]){
+                int need = (v[i] - sum + top - 1) / top;
+                sum += top * need, cnt += need;
+            } else sum += top * mp[top], cnt += mp[top];
+            pos++;
+        }
+        res = min(res, cnt);
+        for(int j = 1; j <= m; j++) mp[a[i][j]]--;
+    }
+
+    cout << min(res, m) << '\n';
 
 }
 signed main(){
