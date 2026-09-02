@@ -239,3 +239,62 @@ signed main(){
     std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);int t;cin>>t;while(t--)solve();
 }
 ```
+
+## Prefix Equality - Rating 1800 
+Today is Wednesday, September 2, 2026. Problem link: [Prefix Equality](https://atcoder.jp/contests/abc250/tasks/abc250_e).
+
+Interesting problem. Since each query asks about the elements from index $1$ to $i$ and $1$ to $j$, operation therefore have a certain prefix-like nature.
+
+Let us first take the array $a$ as an example.
+
+ - For a specific position $i$ in array $a$, we denote the nearest and furthest positions in array $b$ that match the set $\{a_1, \dots, a_i\}$ as $La$ and $Ra$ respectively. Then we maintain two sets `set_a` and `set_b`, to keep track of the distinct elements in the prefixes of $a$ and $b$.
+
+ - If $a_i$ can't make a difference to `set_a`, then we initialize $La_i = La_{i - 1}$ and $Ra_i = Ra_{i - 1}$. As long as $b_j$ is in `set_a`, we can advance $j$ and updata $Ra_i = j$. Additionally, when $b_j$ is encountered for the first time, place $j$ should be recorded as $La_i$ since the set of $<j$ cannot contain all elements required in set $\{a_1, \dots, a_i\}$.
+
+So we can calculate $La$、$Ra$、$Lb$ and $Rb$, if `x` and `y` is a correct pair, it should meet `la[x] <= y && y <= ra[x]` and `lb[y] <= x && x <= rb[y]`. Time complexity $O(N \log N + Q)$.
+
+The code is as fllows：
+```cpp
+// Retired?
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 1e6 + 10, mod = 1e9 + 7;
+signed main(){
+    std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);
+
+    int n; cin >> n;
+
+    vector<int> a(n + 1), b(n + 1);
+    for(int i = 1; i <= n; i++) cin >> a[i];
+    for(int i = 1; i <= n; i++) cin >> b[i];
+
+    auto work = [&](const vector<int>& A, const vector<int>& B) {
+        vector<int> l(n + 1), r(n + 1);
+        set<int> seA, seB;
+        for(int i = 1, j = 1; i <= n; i++){
+            if(seA.count(A[i])) l[i] = l[i - 1], r[i] = r[i - 1];
+            else seA.insert(A[i]);
+            while(j <= n && seA.count(B[j])){
+                r[i] = j;
+                if(!seB.count(B[j])) l[i] = j;
+                seB.insert(B[j++]);
+            }
+        }
+        return make_pair(l, r);
+    };
+
+    auto [la, ra] = work(a, b);
+    auto [lb, rb] = work(b, a);
+
+    int Q; cin >> Q;
+    for(int i = 1; i <= Q; i++){
+        int x, y; cin >> x >> y;
+        if((la[x] <= y && y <= ra[x]) && (lb[y] <= x && x <= rb[y])){
+            cout << "Yes" << '\n';
+        } else cout << "No" << '\n';
+    }
+
+    return 0;
+}
+```

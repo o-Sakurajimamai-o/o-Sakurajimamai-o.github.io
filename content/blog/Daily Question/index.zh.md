@@ -241,3 +241,62 @@ signed main(){
     std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);int t;cin>>t;while(t--)solve();
 }
 ```
+
+
+今天是2026年9月2日星期三。题目链接：[Prefix Equality](https://atcoder.jp/contests/abc250/tasks/abc250_e)。
+
+这是一道有趣的题目。由于每次查询都涉及数组$a$中索引$1$到$i$以及$1$到$j$的元素，因此这些操作具有某种前缀般的性质。
+
+我们先以数组 $a$ 为例。
+
+ - 对于数组 $a$ 中的特定位置 $i$，我们将数组 $b$ 中与集合 $\{a_1, \dots, a_i\}$ 匹配的最近和最远位置分别记为 $La$ 和 $Ra$。然后，我们维护两个集合 `set_a` 和 `set_b`，用于记录 $a$ 和 $b$ 前缀中的不同元素。
+
+ - 如果 $a_i$ 不会对 `set_a` 产生影响，则初始化 $La_i = La_{i - 1}$ 和 $Ra_i = Ra_{i - 1}$。只要 $b_j$ 属于 `set_a`，我们就可以将 $j$ 递增，并将 $Ra_i$ 更新为 $j$。此外，当首次遇到 $b_j$ 时，应将 $j$ 记录为 $La_i$，因为 $<j$ 的集合无法包含集合 $\{a_1, \dots, a_i\}$ 中所需的所有元素。
+
+因此我们可以计算 $La$、$Ra$、$Lb$ 和 $Rb$。如果 $x$ 和 $y$ 是一对正确的组合，则应满足 `la[x] <= y && y <= ra[x]` and `lb[y] <= x && x <= rb[y]`。时间复杂度为 $O(N \log N + Q)$。
+
+代码如下：
+```cpp
+// Retired?
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 1e6 + 10, mod = 1e9 + 7;
+signed main(){
+    std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);
+
+    int n; cin >> n;
+
+    vector<int> a(n + 1), b(n + 1);
+    for(int i = 1; i <= n; i++) cin >> a[i];
+    for(int i = 1; i <= n; i++) cin >> b[i];
+
+    auto work = [&](const vector<int>& A, const vector<int>& B) {
+        vector<int> l(n + 1), r(n + 1);
+        set<int> seA, seB;
+        for(int i = 1, j = 1; i <= n; i++){
+            if(seA.count(A[i])) l[i] = l[i - 1], r[i] = r[i - 1];
+            else seA.insert(A[i]);
+            while(j <= n && seA.count(B[j])){
+                r[i] = j;
+                if(!seB.count(B[j])) l[i] = j;
+                seB.insert(B[j++]);
+            }
+        }
+        return make_pair(l, r);
+    };
+
+    auto [la, ra] = work(a, b);
+    auto [lb, rb] = work(b, a);
+
+    int Q; cin >> Q;
+    for(int i = 1; i <= Q; i++){
+        int x, y; cin >> x >> y;
+        if((la[x] <= y && y <= ra[x]) && (lb[y] <= x && x <= rb[y])){
+            cout << "Yes" << '\n';
+        } else cout << "No" << '\n';
+    }
+
+    return 0;
+}
+```
