@@ -1,6 +1,6 @@
 ---
 title: "Codeforces 每日一题"
-date: 2026-09-01
+date: 2026-09-02
 description: "从周一开始，每天按难度递增解决 Codeforces 上的一道题"
 ---
 

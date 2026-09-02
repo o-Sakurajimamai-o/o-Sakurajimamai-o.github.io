@@ -125,55 +125,134 @@ html.dark .chroma .cp  { color: #ff7b72; }   /* 取 syntax-dark.css 的 .k */
 html.dark .chroma .cpf { color: #a5d6ff; }   /* 取 syntax-dark.css 的 .s */
 
 
-/* --- 复制按钮 --- */
+/* --- 代码块外框：语言标签 + 复制 + 折叠（由 render-codeblock.html 生成） --- */
 
-/* 定位父级。Chroma 输出的 .highlight 直接复用，手写 <pre> 由 JS 补一层 div。
-   按钮挂在外层而不是 pre 里面，这样代码横向滚动时它不会跟着跑掉。 */
-.prose .code-box { position: relative; }
+/* 边框、圆角、背景都由外框承担，里面的 pre 只管内容和横向滚动 */
+.prose .code-box {
+  position: relative;
+  margin: 1.6em 0;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-code-bg);
+  overflow: hidden;
+  /* 淡出遮罩的起点色要跟代码块底色一致，深色模式下不能从黑色透明渐出来 */
+  --code-fade: rgba(255, 255, 255, 0);
+}
+html.dark .prose .code-box { --code-fade: rgba(15, 17, 21, 0); }
 
-.code-copy {
-  position: absolute;
-  top: .5rem;
-  right: .5rem;
+.prose .code-box pre {
+  margin: 0;
+  padding: .9rem 1rem;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.prose .code-box .code-body {
+  position: relative;
+  overflow: hidden;
+  transition: max-height .22s ease;
+}
+
+/* bar 走非衬线，跟正文的衬线体拉开区分 */
+.code-bar {
   display: flex;
   align-items: center;
-  justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  padding: 0;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
-  background: var(--color-code-bg);
+  gap: .5rem;
+  padding: .35rem .45rem .35rem .8rem;
+  border-bottom: 1px solid var(--color-border);
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+               'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: .75rem;
+  line-height: 1;
   color: var(--color-muted);
-  opacity: 0;
+}
+
+.code-lang       { letter-spacing: .03em; }
+.code-lines      { opacity: .7; }
+.code-bar__gap   { flex: 1; }
+
+.code-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.7rem;
+  height: 1.7rem;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-muted);
+  opacity: .55;
   transition: opacity .15s ease, color .15s ease, border-color .15s ease;
 }
 
-.code-copy svg { width: 1rem; height: 1rem; }
+.code-btn svg { width: .95rem; height: .95rem; }
 
-/* 悬停代码块才浮现；键盘 Tab 过去时也得看得见 */
-.code-box:hover .code-copy,
-.code-copy:focus-visible { opacity: 1; }
+.code-box:hover .code-btn,
+.code-btn:focus-visible { opacity: 1; }
 
-.code-copy:hover {
-  color: var(--color-text);
-  border-color: var(--color-muted);
-}
+.code-btn:hover { color: var(--color-text); border-color: var(--color-border); }
 
-.code-copy.is-done {
-  opacity: 1;
-  color: #1a7f37;
-  border-color: #1a7f37;
-}
-html.dark .code-copy.is-done {
-  color: #3fb950;
-  border-color: #3fb950;
-}
+.code-btn.is-done { opacity: 1; color: #1a7f37; border-color: #1a7f37; }
+html.dark .code-btn.is-done { color: #3fb950; border-color: #3fb950; }
 
-/* 触屏没有 hover，常驻显示 */
+/* 触屏没有 hover，按钮常驻显示 */
 @media (hover: none) {
-  .code-copy { opacity: .6; }
+  .code-btn { opacity: .75; }
 }
+
+/* 缩进式代码块没有外框，复制按钮退回浮在右上角 */
+.code-box--bare { position: relative; }
+.code-copy--float {
+  position: absolute;
+  top: .5rem;
+  right: .5rem;
+  border-color: var(--color-border);
+  background: var(--color-code-bg);
+}
+
+/* --- 折叠 --- */
+
+/* 折叠按钮是核心交互，折叠态下常驻可见；只在不折叠（短代码）时回归默认淡显 */
+.code-box.is-foldable .code-fold { opacity: 1; }
+
+.code-chev { transition: transform .2s ease; }
+.code-box.is-open .code-chev { transform: rotate(180deg); }
+
+/* 底部淡出，提示下面还有内容。收起状态下才显示 */
+.code-fade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3.2rem;
+  background: linear-gradient(to bottom, var(--code-fade), var(--color-code-bg));
+  pointer-events: none;
+  transition: opacity .15s ease;
+}
+.code-box.is-open .code-fade { opacity: 0; }
+
+.code-more {
+  display: block;
+  width: 100%;
+  padding: .45rem;
+  border: 0;
+  border-top: 1px solid var(--color-border);
+  background: transparent;
+  color: var(--color-muted);
+  font-family: ui-sans-serif, system-ui, -apple-system, 'Segoe UI',
+               'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: .78rem;
+  cursor: pointer;
+  transition: color .15s ease, background-color .15s ease;
+}
+.code-more:hover { color: var(--color-text); background: rgba(127, 127, 127, .07); }
+
+/* JS 没跑起来时全部展开，绝不能让代码被永久藏住 */
+.no-js .code-box .code-body { max-height: none !important; }
+.no-js .code-fade, .no-js .code-more { display: none; }
+
 @media (max-width: 640px) {
   :lang(zh) .prose { text-align: start; }
   :lang(en) .prose { text-align: start; }

@@ -1,0 +1,162 @@
+<script>
+(function () {
+  var LABEL   = {{ i18n "copy" }};
+  var DONE_L  = {{ i18n "copied" }};
+  var EXPAND  = {{ i18n "expand" }};
+  var COLLAPSE= {{ i18n "collapse" }};
+
+  var ICON_COPY =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"' +
+    ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<rect x="9" y="9" width="13" height="13" rx="2"/>' +
+    '<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+
+  var ICON_DONE =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"' +
+    ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M20 6 9 17l-5-5"/></svg>';
+
+  /* 折叠时露出的高度 = 预览行数 × 行高 + pre 的内边距。
+     行高只能实测：正文是 clamp() 流式字号，写死 em 会随视口漂移。 */
+  function previewHeight(box) {
+    if (box.classList.contains('is-full')) return 0;
+    var pre = box.querySelector('pre');
+    if (!pre) return 0;
+    var cs = getComputedStyle(pre);
+    var lh = parseFloat(cs.lineHeight);
+    if (!lh) lh = parseFloat(cs.fontSize) * 1.6;   // line-height: normal 时拿不到数值
+    var pad = (parseFloat(cs.paddingTop) || 0) + (parseFloat(cs.paddingBottom) || 0);
+    var n = parseInt(box.dataset.preview, 10) || 7;
+    return Math.round(lh * n + pad);
+  }
+
+  function setOpen(box, open, animate) {
+    var body = box.querySelector('.code-body');
+    var pre  = box.querySelector('pre');
+    if (!body || !pre) return;
+
+    if (!animate) body.style.transition = 'none';
+
+    if (open) {
+      box.classList.add('is-open');
+      body.style.maxHeight = pre.scrollHeight + 'px';
+    } else {
+      // max-height 停在 none 上是没法过渡的，先定住当前实际高度再收
+      if (!body.style.maxHeight) {
+        body.style.maxHeight = body.scrollHeight + 'px';
+        void body.offsetHeight;
+      }
+      body.style.maxHeight = previewHeight(box) + 'px';
+      box.classList.remove('is-open');
+    }
+
+    var more = box.querySelector('.code-more');
+    if (more) more.textContent = open ? more.dataset.less : more.dataset.more;
+
+    var btn = box.querySelector('.code-fold');
+    if (btn) {
+      btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      btn.title = open ? COLLAPSE : EXPAND;
+      btn.setAttribute('aria-label', open ? COLLAPSE : EXPAND);
+    }
+
+    if (!animate) { void body.offsetHeight; body.style.transition = ''; }
+  }
+
+  var boxes = [].slice.call(document.querySelectorAll('[data-code-box].is-foldable'));
+
+  boxes.forEach(function (box) {
+    var body = box.querySelector('.code-body');
+    var pre  = box.querySelector('pre');
+
+    setOpen(box, false, false);
+
+    // 展开动画跑完就把高度交还给内容，这样窗口变宽、代码重排后不会被写死的值截断
+    body.addEventListener('transitionend', function (e) {
+      if (e.propertyName === 'max-height' && box.classList.contains('is-open')) {
+        body.style.maxHeight = 'none';
+      }
+    });
+
+    function toggle() { setOpen(box, !box.classList.contains('is-open'), true); }
+
+    var fold = box.querySelector('.code-fold');
+    if (fold) fold.addEventListener('click', toggle);
+
+    var more = box.querySelector('.code-more');
+    if (more) more.addEventListener('click', toggle);
+
+    var copy = box.querySelector('.code-copy');
+    if (copy) bindCopy(copy, pre);
+  });
+
+  // 字号随视口变化、webfont 晚到，都会让实测行高失效，重算一遍
+  function refold() {
+    boxes.forEach(function (box) {
+      if (!box.classList.contains('is-open')) {
+        box.querySelector('.code-body').style.maxHeight = previewHeight(box) + 'px';
+      }
+    });
+  }
+
+  var timer;
+  window.addEventListener('resize', function () {
+    clearTimeout(timer);
+    timer = setTimeout(refold, 150);
+  });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(refold);
+
+  /* ---------------------------------------------------------------------
+     复制按钮
+     --------------------------------------------------------------------- */
+
+  function bindCopy(btn, pre) {
+    var timer;
+    btn.addEventListener('click', function () {
+      var code = pre.querySelector('code') || pre;
+      // 用 textContent 而不是 innerText：Chroma 给每行套了 display:flex 的
+      // .line，innerText 会按渲染结果补出多余空行。
+      var text = code.textContent.replace(/\n+$/, '');
+      if (!navigator.clipboard) return;
+
+      navigator.clipboard.writeText(text).then(function () {
+        btn.innerHTML = ICON_DONE;
+        btn.title = DONE_L;
+        btn.setAttribute('aria-label', DONE_L);
+        btn.classList.add('is-done');
+
+        clearTimeout(timer);
+        timer = setTimeout(function () {
+          btn.innerHTML = ICON_COPY;
+          btn.title = LABEL;
+          btn.setAttribute('aria-label', LABEL);
+          btn.classList.remove('is-done');
+        }, 1600);
+      });
+    });
+  }
+
+  /* 缩进式代码块不走 render hook，没有外框。这里补一层，只给复制按钮，
+     不折叠——拿不到语言，也没有可靠的办法数行。 */
+  [].forEach.call(document.querySelectorAll('.prose pre'), function (pre) {
+    if (pre.closest('.code-box') || !navigator.clipboard) return;
+
+    var box = pre.parentElement;
+    if (!box.classList.contains('highlight')) {
+      box = document.createElement('div');
+      pre.parentNode.insertBefore(box, pre);
+      box.appendChild(pre);
+    }
+    box.classList.add('code-box', 'code-box--bare');
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'code-btn code-copy code-copy--float';
+    btn.title = LABEL;
+    btn.setAttribute('aria-label', LABEL);
+    btn.innerHTML = ICON_COPY;
+    box.appendChild(btn);
+    bindCopy(btn, pre);
+  });
+})();
+</script>

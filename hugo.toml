@@ -54,6 +54,16 @@ defaultContentLanguageInSubdir = false
     author = 'Sakura'
     github = 'https://github.com/o-Sakurajimamai-o'
 
+# 代码块折叠。三级开关，越靠前的优先级越高：
+#   1. 单块：```python {fold=false}   false 不折叠 / true 强制折叠 / full 整块收起
+#   2. 单篇：文章 front matter 里写 codeFold: false
+#   3. 全站：下面这几个值
+[params.codeFold]
+    enable       = true      # 改成 false，全站都不折叠，折叠按钮也不渲染
+    threshold    = 10        # 少于这么多行就不折叠，三行代码还让人点是添乱
+    previewLines = 7         # 折叠时露出几行
+    style        = 'peek'    # peek = 截断预览式；full = 整块收起式
+
 # 评论区（giscus）。categoryId 填上之后评论区才会出现，留空则整块不渲染。
 # repo / repoId 已按你的仓库填好，不用动。
 [params.giscus]

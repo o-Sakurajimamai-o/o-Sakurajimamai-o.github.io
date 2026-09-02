@@ -1,0 +1,86 @@
+{{- /*
+    代码块渲染钩子：接管所有围栏代码块，套一层带语言标签、复制按钮、折叠
+    按钮的外框。
+
+    折叠与否按三级开关判定，越靠前优先级越高：
+      1. 单块：```python {fold=false}   —— false 不折叠 / true 强制折叠 / full 完全收起
+      2. 单篇：front matter 里 codeFold: false
+      3. 全站：hugo.toml 的 [params.codeFold]
+    另外，行数少于 threshold 的块永远不折叠，短代码套个折叠按钮是添乱。
+*/ -}}
+
+{{- $code := trim .Inner "\n" -}}
+{{- $lines := 1 -}}
+{{- with $code }}{{ $lines = len (split . "\n") }}{{ end -}}
+
+{{- /* Hugo 会把 params 的键名转成小写，codeFold 和 codefold 都认一遍 */ -}}
+{{- $cfg := dict -}}
+{{- if isset site.Params "codefold" }}{{ $cfg = index site.Params "codefold" }}
+{{- else if isset site.Params "codeFold" }}{{ $cfg = index site.Params "codeFold" }}{{ end -}}
+
+{{- $enable   := true -}}{{ if isset $cfg "enable"       }}{{ $enable   = $cfg.enable }}{{ end }}
+{{- $minLines := 10   -}}{{ if isset $cfg "threshold"    }}{{ $minLines = int $cfg.threshold }}{{ end }}
+{{- $preview  := 7    -}}{{ if isset $cfg "previewLines" }}{{ $preview  = int $cfg.previewLines }}{{ end }}
+{{- $defStyle := "peek" }}{{ if isset $cfg "style" }}{{ $defStyle = $cfg.style }}{{ end }}
+
+{{- /* 这里必须用 isset 而不是 with：开关值是布尔 false 时，with 会当成空值
+       整个跳过，导致 fold=false 等于没写。 */ -}}
+{{- $attr := "" -}}{{- if isset .Attributes "fold" }}{{ $attr = printf "%v" (index .Attributes "fold") }}{{ end -}}
+{{- $page := "" -}}
+{{- if isset .Page.Params "codefold" }}{{ $page = printf "%v" (index .Page.Params "codefold") }}
+{{- else if isset .Page.Params "codeFold" }}{{ $page = printf "%v" (index .Page.Params "codeFold") }}{{ end -}}
+
+{{- $mode := "fold" -}}
+{{- if or (eq $attr "false") (eq $page "false") (not $enable) -}}
+    {{- $mode = "open" -}}
+{{- else if eq $attr "true" -}}
+    {{- $mode = "fold" -}}
+{{- else if eq $attr "full" -}}
+    {{- $mode = "full" -}}
+{{- else if lt $lines $minLines -}}
+    {{- $mode = "open" -}}
+{{- else if eq $defStyle "full" -}}
+    {{- $mode = "full" -}}
+{{- else -}}
+    {{- $mode = "fold" -}}
+{{- end -}}
+
+{{- $lang := .Type | default "code" -}}
+{{- $open := eq $mode "open" -}}
+
+<div class="code-box{{ if not $open }} is-foldable{{ if eq $mode "full" }} is-full{{ end }}{{ end }}"
+     data-code-box data-preview="{{ $preview }}">
+  <div class="code-bar">
+    <span class="code-lang">{{ $lang }}</span>
+    <span class="code-lines">{{ i18n "nLines" $lines }}</span>
+    <span class="code-bar__gap"></span>
+    <button type="button" class="code-btn code-copy"
+            title="{{ i18n "copy" }}" aria-label="{{ i18n "copy" }}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <rect x="9" y="9" width="13" height="13" rx="2"/>
+        <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+      </svg>
+    </button>
+    {{ if not $open }}
+    <button type="button" class="code-btn code-fold" aria-expanded="false"
+            title="{{ i18n "expand" }}" aria-label="{{ i18n "expand" }}">
+      <svg class="code-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M6 9l6 6 6-6"/>
+      </svg>
+    </button>
+    {{ end }}
+  </div>
+
+  <div class="code-body">
+    {{ highlight .Inner .Type (default (dict) .Options) }}
+    {{ if not $open }}<div class="code-fade" aria-hidden="true"></div>{{ end }}
+  </div>
+
+  {{ if not $open }}
+  <button type="button" class="code-more"
+          data-more="{{ i18n "expandLines" $lines }}"
+          data-less="{{ i18n "collapse" }}">{{ i18n "expandLines" $lines }}</button>
+  {{ end }}
+</div>

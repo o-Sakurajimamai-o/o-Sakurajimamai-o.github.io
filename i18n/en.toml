@@ -22,6 +22,18 @@ other = "Copy"
 [copied]
 other = "Copied"
 
+[expand]
+other = "Expand"
+
+[collapse]
+other = "Collapse"
+
+[nLines]
+other = "{{ . }} lines"
+
+[expandLines]
+other = "Expand all {{ . }} lines"
+
 [about]
 other = "About me"
 

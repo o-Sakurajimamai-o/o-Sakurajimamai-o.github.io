@@ -1,9 +1,10 @@
 <!doctype html>
-<html lang="{{ site.Language.LanguageCode }}">
+<html lang="{{ site.Language.LanguageCode }}" class="no-js">
 <head>
     <meta charset="utf-8">
     <script>
         (function () {
+            document.documentElement.classList.remove('no-js');
             var t = localStorage.getItem('theme');
             if (!t) {
             t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
@@ -120,5 +121,6 @@
 
 </div>
 {{ partial "search.html" . }}
+{{ partial "codefold.html" . }}
 </body>
 </html>
