@@ -1,6 +1,6 @@
 ---
 title: "Daily Codeforces Problem"
-date: 2026-09-02
+date: 2026-09-03
 description: "Starting Monday, solve one Codeforces problem each day, in order of increasing difficulty"
 ---
 
@@ -249,7 +249,7 @@ Let us first take the array $a$ as an example.
 
  - For a specific position $i$ in array $a$, we denote the nearest and furthest positions in array $b$ that match the set $\{a_1, \dots, a_i\}$ as $La$ and $Ra$ respectively. Then we maintain two sets `set_a` and `set_b`, to keep track of the distinct elements in the prefixes of $a$ and $b$.
 
- - If $a_i$ can't make a difference to `set_a`, then we initialize $La_i = La_{i - 1}$ and $Ra_i = Ra_{i - 1}$. As long as $b_j$ is in `set_a`, we can advance $j$ and updata $Ra_i = j$. Additionally, when $b_j$ is encountered for the first time, place $j$ should be recorded as $La_i$ since the set of $<j$ cannot contain all elements required in set $\{a_1, \dots, a_i\}$.
+ - If $a_i$ can't make a difference to `set_a`, then we initialize $La_i = La_{i - 1}$ and $Ra_i = Ra_{i - 1}$. As long as $b_j$ is in `set_a`, we can advance $j$ and updata $Ra_i = j$. Additionally, when $b_j$ is encountered for the first time, place $j$ should be recorded as $La_i$ since the set of <$j$ cannot contain all elements required in set $\{a_1, \dots, a_i\}$.
 
 So we can calculate $La$、$Ra$、$Lb$ and $Rb$, if `x` and `y` is a correct pair, it should meet `la[x] <= y && y <= ra[x]` and `lb[y] <= x && x <= rb[y]`. Time complexity $O(N \log N + Q)$.
 
@@ -296,5 +296,72 @@ signed main(){
     }
 
     return 0;
+}
+```
+
+## Sanae, Cross and Color - Rating 1900
+Today is Thursday, September 3, 2026. Problem link: [Sanae, Cross and Color](https://codeforces.com/problemset/problem/2228/D). 
+
+Under what conditions does the number of valid cutting solutions increase? If a coordinate transformation does not cross any point, the colors of the points remain unchanged; therefore, every valid cut must cross at least one point.
+
+Under what conditions can we ensure that all four quadrants contain points? First, we fix the vertical line `x`. Considering the leftmost `x`, our $k_1$ must be greater than or equal to `x`; this ensures that at least one point remains on the left after $k_1 + 0.5$. At the same time, $k_1$ must be less than the rightmost `x`.
+
+With the vertical lines fixed, let’s consider the conditions under which all four quadrants will contain points.
+ 1. Top-left corner: $k_2$ is less than the largest `y`; let’s denote this as `LmaxY`
+ 2. Top-right corner: $k_2$ is less than the largest `y`; let’s denote this as `RmaxY`
+ 3. Lower-left corner: $k_2$ is greater than or equal to the smallest `y`; let this be `LminY`
+ 4. Lower-right corner: $k_2$ is greater than or equal to the smallest `y`; let this be `RminY`
+Therefore, for a valid `x`, our `y` must satisfy `max{LminY, RminY} <= y <= min{LmaxY, RmaxY} - 1`. As long as `y` is a valid `y` coordinate that has not appeared before, this constitutes a completely new solution.
+
+Next, consider how to solve this in $O(n)$ time complexity. For distinct `y` values, we precompute a prefix sum `preY`, where `preY[y]` represents the number of values less than or equal to `y`. This allows us to find valid `y` values for any interval in $O(1)$ time complexity. Then, group points with the same `x` value together. For each group, we compute its $L\{min/max\}Y$ and $R\{min/max\}Y$. We can then sort the `x` values in ascending order and divide the `y` values into left and right groups. When computing a group of `x` values, first add all the `y` values from that group to the left group.
+
+The code is as follows:
+```cpp
+// Retired?
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 1e6 + 10, mod = 1e9 + 7;
+void solve(){
+
+    int n; cin >> n;
+
+    vector<vector<int>> xtoy(n + 1);
+    vector<pair<int, int>> point(n + 1);
+    vector<int> cnty(n + 1), cntx(n + 1);
+    for(int i = 1; i <= n; i++){
+        int x, y; cin >> x >> y;
+        point[i] = {x, y}, xtoy[x].push_back(y); 
+        cnty[y]++, cntx[x]++;
+    }
+
+    vector<int> prey(n + 1), difx;
+    for(int i = 1; i <= n; i++){
+        prey[i] = prey[i - 1] + (cnty[i] != 0);
+        if(cntx[i]) difx.push_back(i);
+    }
+    
+    int m = difx.size();
+    vector<int> Lminy(m, n + 1), Rminy(m, n + 1), Lmaxy(m), Rmaxy(m);
+    for(int i = 0, j = m - 1; i < m; i++, j--){
+        if(i != 0){
+            Lminy[i] = Lminy[i - 1], Lmaxy[i] = Lmaxy[i - 1];
+            Rminy[j] = Rminy[j + 1], Rmaxy[j] = Rmaxy[j + 1];
+        }
+        for(auto y : xtoy[difx[i]]) Lminy[i] = min(Lminy[i], y), Lmaxy[i] = max(Lmaxy[i], y);
+        for(auto y : xtoy[difx[j]]) Rminy[j] = min(Rminy[j], y), Rmaxy[j] = max(Rmaxy[j], y);
+    }   
+
+    int res = 0;
+    for(int i = 0; i < m - 1; i++){
+        if(min(Lmaxy[i], Rmaxy[i + 1]) - 1 < max(Lminy[i], Rminy[i + 1])) continue;
+        res += prey[min(Lmaxy[i], Rmaxy[i + 1]) - 1] - prey[max(Lminy[i], Rminy[i + 1]) - 1];
+    }
+
+    cout << res << '\n';
+
+}
+signed main(){
+    std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);int t;cin>>t;while(t--)solve();
 }
 ```

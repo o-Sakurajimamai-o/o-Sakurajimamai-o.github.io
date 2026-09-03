@@ -1,6 +1,6 @@
 ---
 title: "Codeforces 每日一题"
-date: 2026-09-02
+date: 2026-09-03
 description: "从周一开始，每天按难度递增解决 Codeforces 上的一道题"
 ---
 
@@ -242,7 +242,7 @@ signed main(){
 }
 ```
 
-
+## Prefix Equality - Rating 1800 
 今天是2026年9月2日星期三。题目链接：[Prefix Equality](https://atcoder.jp/contests/abc250/tasks/abc250_e)。
 
 这是一道有趣的题目。由于每次查询都涉及数组$a$中索引$1$到$i$以及$1$到$j$的元素，因此这些操作具有某种前缀般的性质。
@@ -251,7 +251,7 @@ signed main(){
 
  - 对于数组 $a$ 中的特定位置 $i$，我们将数组 $b$ 中与集合 $\{a_1, \dots, a_i\}$ 匹配的最近和最远位置分别记为 $La$ 和 $Ra$。然后，我们维护两个集合 `set_a` 和 `set_b`，用于记录 $a$ 和 $b$ 前缀中的不同元素。
 
- - 如果 $a_i$ 不会对 `set_a` 产生影响，则初始化 $La_i = La_{i - 1}$ 和 $Ra_i = Ra_{i - 1}$。只要 $b_j$ 属于 `set_a`，我们就可以将 $j$ 递增，并将 $Ra_i$ 更新为 $j$。此外，当首次遇到 $b_j$ 时，应将 $j$ 记录为 $La_i$，因为 $<j$ 的集合无法包含集合 $\{a_1, \dots, a_i\}$ 中所需的所有元素。
+ - 如果 $a_i$ 不会对 `set_a` 产生影响，则初始化 $La_i = La_{i - 1}$ 和 $Ra_i = Ra_{i - 1}$。只要 $b_j$ 属于 `set_a`，我们就可以将 $j$ 递增，并将 $Ra_i$ 更新为 $j$。此外，当首次遇到 $b_j$ 时，应将 $j$ 记录为 $La_i$，因为 <$j$ 的集合无法包含集合 $\{a_1, \dots, a_i\}$ 中所需的所有元素。
 
 因此我们可以计算 $La$、$Ra$、$Lb$ 和 $Rb$。如果 $x$ 和 $y$ 是一对正确的组合，则应满足 `la[x] <= y && y <= ra[x]` and `lb[y] <= x && x <= rb[y]`。时间复杂度为 $O(N \log N + Q)$。
 
@@ -298,5 +298,71 @@ signed main(){
     }
 
     return 0;
+}
+```
+
+## Sanae, Cross and Color - Rating 1900
+今天是2026年9月3日星期四。题目链接：[Sanae, Cross and Color](https://codeforces.com/problemset/problem/2228/D)。
+
+什么情况下会增加有效的切割方案？如果一次坐标变换没有跨过任何一个点，那么各个点所属的颜色不变，所以每次有效的切割必须跨过至少一个点。
+
+什么情况下能够使得四个象限都有点？我们首先固定竖线 `x`，考虑最左边的 `x`，我们的 $k_1$ 肯定要大于等于 `x`，这样 $k_1+0.5$ 之后，左边保底有一个点，同时，$k_1$ 要小于最右边的 `x`。
+
+竖线固定后，考虑什么情况下会让四个象限都有点。
+ 1. 左上角：$k_2$ 小于最大的 `y`，设为 `LmaxY`
+ 2. 右上角：$k_2$ 小于最大的 `y`，设为 `RmaxY`
+ 3. 左下角：$k_2$ 大于等于最小的 `y`，设为 `LminY`
+ 4. 右下角：$k_2$ 大于等于最小的 `y`，设为 `RminY`
+因此，对于一个合法的 `x`，我们的 `y` 必须满足 `max{LminY，RminY} <= y <= min{LmaxY，RmaxY} - 1`，只要 `y` 是一个真实存在的 `y` 值坐标且没出现过，那么这就是一种全新的方案。
+
+接下来考虑怎么在 $O(n)$ 的复杂度内解决，对于不重复的 `y` 来说，我们预先处理一个前缀和 `preY`，`preY[y]` 表示小于等于 `y` 有几个，那么可以在 $O(1)$ 的复杂度内可以得到任意区间的合法 `y`，然后将 `x` 相同的点分到一组内，对于每一组，我们计算它的 $L\{min/max\}Y$ 和 $R\{min/max\}Y$，那么我们就可以将 `x` 按升序排列，然后 `y` 分为左和右，计算一组 `x` 时，先把这一组的 `y` 全部加到左边的一组。
+代码如下：
+```cpp
+// Retired?
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 1e6 + 10, mod = 1e9 + 7;
+void solve(){
+
+    int n; cin >> n;
+
+    vector<vector<int>> xtoy(n + 1);
+    vector<pair<int, int>> point(n + 1);
+    vector<int> cnty(n + 1), cntx(n + 1);
+    for(int i = 1; i <= n; i++){
+        int x, y; cin >> x >> y;
+        point[i] = {x, y}, xtoy[x].push_back(y); 
+        cnty[y]++, cntx[x]++;
+    }
+
+    vector<int> prey(n + 1), difx;
+    for(int i = 1; i <= n; i++){
+        prey[i] = prey[i - 1] + (cnty[i] != 0);
+        if(cntx[i]) difx.push_back(i);
+    }
+    
+    int m = difx.size();
+    vector<int> Lminy(m, n + 1), Rminy(m, n + 1), Lmaxy(m), Rmaxy(m);
+    for(int i = 0, j = m - 1; i < m; i++, j--){
+        if(i != 0){
+            Lminy[i] = Lminy[i - 1], Lmaxy[i] = Lmaxy[i - 1];
+            Rminy[j] = Rminy[j + 1], Rmaxy[j] = Rmaxy[j + 1];
+        }
+        for(auto y : xtoy[difx[i]]) Lminy[i] = min(Lminy[i], y), Lmaxy[i] = max(Lmaxy[i], y);
+        for(auto y : xtoy[difx[j]]) Rminy[j] = min(Rminy[j], y), Rmaxy[j] = max(Rmaxy[j], y);
+    }   
+
+    int res = 0;
+    for(int i = 0; i < m - 1; i++){
+        if(min(Lmaxy[i], Rmaxy[i + 1]) - 1 < max(Lminy[i], Rminy[i + 1])) continue;
+        res += prey[min(Lmaxy[i], Rmaxy[i + 1]) - 1] - prey[max(Lminy[i], Rminy[i + 1]) - 1];
+    }
+
+    cout << res << '\n';
+
+}
+signed main(){
+    std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);int t;cin>>t;while(t--)solve();
 }
 ```
