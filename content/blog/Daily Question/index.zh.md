@@ -1,6 +1,6 @@
 ---
 title: "Codeforces 每日一题"
-date: 2026-09-03
+date: 2026-09-04
 description: "从周一开始，每天按难度递增解决 Codeforces 上的一道题"
 ---
 
@@ -366,3 +366,49 @@ signed main(){
     std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);int t;cin>>t;while(t--)solve();
 }
 ```
+
+## Fence Divercity - Rating 2300
+
+今天是 2026 年 9 月 4 日，星期五。题目链接：[Fence Divercity](https://codeforces.com/problemset/problem/659/G)。
+
+通读题意后，我们得到以下约束条件：
+1. 被切除的部分必须是连通的，且必须严格从顶部向下切，每块木板切除后剩余的高度必须为正数（$h \ge 1$）。
+2. 只有相邻的木板才能作为一个连通块一起被切除。
+
+由于方案数较多，我们考虑使用动态规划（DP）。接下来计算在第 $i$ 列有多少种切除方案。设 `dp[i]` 为仅切除第 $i$ 列并延伸至第 $i + 1$ 列的合法方案数。分为以下几种情况：
+
+- 情况 1：仅切除第 $i$ 列，忽略第 $i - 1$ 列和第 $i + 1$ 列。在这种情况下，有 $h_i - 1$ 种切法。
+- 情况 2：仅考虑第 $i$ 列和第 $i - 1$ 列。在这种情况下，若 $h_i > h_{i - 1}$，切除的高度不能高于 $h_{i - 1}$，因此合法方案数为 $h_{i - 1} - 1$；当 $h_i < h_{i - 1}$ 时，合法方案数为 $h_i - 1$。所以根据乘法原理，总合法方案数为 $(\min(h_i, h_{i-1}) - 1) \times \text{dp}[i - 1]$。
+- 情况 3：仅考虑第 $i$ 列和第 $i + 1$ 列。从第 $i$ 列开始一段新的切除并延伸至第 $i + 1$ 列。因此合法方案数为 $\min(h_i, h_{i + 1}) - 1$。
+- 情况 4：同时考虑第 $i - 1$ 列、第 $i$ 列和第 $i + 1$ 列。合法方案数为 $(\min(\{h_{i-1}, h_i, h_{i+1}\}) - 1) \times \text{dp}[i - 1]$。
+
+因此，我们递推维护 `dp` 数组，并累加记录最终答案 `res`。最终答案由情况 1 和情况 2 构成。
+
+代码如下：
+```cpp
+// Retired?
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 1e6 + 10, mod = 1e9 + 7;
+signed main(){
+    std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);
+
+    int n; cin >> n;
+
+    vector<int> h(n + 2);
+    for(int i = 1; i <= n; i++) cin >> h[i];
+
+    int res = 0;
+    vector<int> dp(n + 1);
+    for(int i = 1; i <= n; i++){
+        dp[i] = ((min({h[i - 1], h[i], h[i + 1]}) - 1) * dp[i - 1] + min(h[i], h[i + 1]) - 1) % mod;
+        res += (h[i] - 1 + (min(h[i - 1], h[i]) - 1) * dp[i - 1]) % mod;
+        res %= mod;
+    }
+
+    cout << res << '\n';
+
+    return 0;
+}
+``` 

@@ -1,6 +1,6 @@
 ---
 title: "Daily Codeforces Problem"
-date: 2026-09-03
+date: 2026-09-04
 description: "Starting Monday, solve one Codeforces problem each day, in order of increasing difficulty"
 ---
 
@@ -365,3 +365,51 @@ signed main(){
     std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);int t;cin>>t;while(t--)solve();
 }
 ```
+
+
+## Fence Divercity - Rating 2300
+
+Today is Friday, September 4, 2026. Problem link: [Fence Divercity](https://codeforces.com/problemset/problem/659/G).
+
+Through reading the problem, we get some constraints.
+1. The removed portion must be connected and strictly cut from the top, leaving each plank with a positive remaining height ($h \ge 1$).
+2. Only adjacent planks can be cut together as part of the same connected component.
+
+Because there are multiple ways, we consider dp. Then let us calculate how many ways we can delete in col $i$. Let `dp[i]` be the number of valid cuts which just delete col $i$ and col $i + 1$. Here are some cases:
+
+- Case 1: Only delete col $i$, ignore col $i - 1$ and $i + 1$. In this situation we have $h_i - 1$ ways to cut. 
+- Case 2: Just consider col $i$ and $i - 1$. In this situation, we cannot delete the boards which are higher than $h_{i - 1}$ if $h_i$ > $h_{i - 1}$. So the number of correct ways is $h_{i - 1} - 1$. The number of correct ways is $h_i - 1$ when $h_i$ < $h_{i - 1}$. So the total number of correct ways is $(\min(h_i, h_{i-1}) - 1) \times \text{dp}[i - 1]$ by the rule of product.
+- Case 3: Just consider col $i$ and $i + 1$. A new cut starts at column $i$ and extends into column $i + 1$. So the number of correct ways is $min(h_i, h_{i + 1}) - 1$.
+- Case 4: Consider col $i - 1$, $i$, $i + 1$. The number of correct ways is $(\min(\{h_{i-1}, h_i, h_{i+1}\}) - 1) \times \text{dp}[i - 1]$.
+
+So we maintain the update `dp`, and record the final answer `res`. The final answer considers Case 1 and 2.
+
+The code is as follows:
+
+```cpp
+// Retired?
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 1e6 + 10, mod = 1e9 + 7;
+signed main(){
+    std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);
+
+    int n; cin >> n;
+
+    vector<int> h(n + 2);
+    for(int i = 1; i <= n; i++) cin >> h[i];
+
+    int res = 0;
+    vector<int> dp(n + 1);
+    for(int i = 1; i <= n; i++){
+        dp[i] = ((min({h[i - 1], h[i], h[i + 1]}) - 1) * dp[i - 1] + min(h[i], h[i + 1]) - 1) % mod;
+        res += (h[i] - 1 + (min(h[i - 1], h[i]) - 1) * dp[i - 1]) % mod;
+        res %= mod;
+    }
+
+    cout << res << '\n';
+
+    return 0;
+}
+``` 
