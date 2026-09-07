@@ -1,6 +1,6 @@
 ---
 title: "Daily Codeforces Problem"
-date: 2026-09-04
+date: 2026-09-07
 description: "Starting Monday, solve one Codeforces problem each day, in order of increasing difficulty"
 ---
 
@@ -413,3 +413,43 @@ signed main(){
     return 0;
 }
 ``` 
+
+## RemovevomeR - Rating 1000
+
+Today is Monday, September 7, 2026. Problem link: [RemovevomeR](https://codeforces.com/problemset/problem/2241/C)
+
+Easy problem. If there are multiple identical character appear consecutively, we can reduce theme to one character by $size - 1$ operations. 
+
+So the situation is `s_new` = $xyxyxyxyxy...$ after step 1. Noting that $xyx$ can change to $x$ and $xyxy$ can change to $x$ or $y$. Hence, if the size of `s_new` > 3, we could reduce its size to 1. But if `s_new` is $xy$, we cannot do any thing to change it.
+
+The code is as follows:
+
+```cpp
+// Retired?
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 1e6 + 10, mod = 1e9 + 7;
+void solve(){
+
+    int n; cin >> n;
+    string s; cin >> s;
+    s = " " + s;
+
+    string news = "";
+    for(int i = 1; i <= n; i++){
+        int j = i + 1;
+        news.push_back(s[i]);
+        while(j <= n && s[i] == s[j]) j++;
+        i = j - 1;
+    }
+
+    if(news.size() >= 3) cout << 1 << '\n';
+    else cout << news.size() << '\n';
+
+
+}
+signed main(){
+    std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);int t;cin>>t;while(t--)solve();
+}
+```

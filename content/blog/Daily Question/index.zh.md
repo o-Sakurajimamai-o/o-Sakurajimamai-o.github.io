@@ -1,6 +1,6 @@
 ---
 title: "Codeforces 每日一题"
-date: 2026-09-04
+date: 2026-09-07
 description: "从周一开始，每天按难度递增解决 Codeforces 上的一道题"
 ---
 
@@ -412,3 +412,43 @@ signed main(){
     return 0;
 }
 ``` 
+
+## RemovevomeR - Rating 1000
+
+今天是2026年9月7日星期一。题目链接：[RemovevomeR](https://codeforces.com/problemset/problem/2241/C)
+
+这道题很简单。如果出现多个相同的字符连续出现，我们可以通过 $size - 1$ 次操作将其简化为一个字符。
+
+因此，在第 1 步之后，情况变为 `s_new` = $xyxyxyxyxy...$。需要注意的是，$xyx$ 可以变为 $x$，而 $xyxy$ 可以变为 $x$ 或 $y$。因此，如果 `s_new` 的大小 > 3，我们可以将其大小缩减为 1。但如果 `s_new` 是 $xy$，我们就无法对其进行任何操作。
+
+代码如下：
+
+```cpp
+// Retired?
+#include <bits/stdc++.h>
+#define int long long
+using namespace std;
+const int N = 1e6 + 10, mod = 1e9 + 7;
+void solve(){
+
+    int n; cin >> n;
+    string s; cin >> s;
+    s = " " + s;
+
+    string news = "";
+    for(int i = 1; i <= n; i++){
+        int j = i + 1;
+        news.push_back(s[i]);
+        while(j <= n && s[i] == s[j]) j++;
+        i = j - 1;
+    }
+
+    if(news.size() >= 3) cout << 1 << '\n';
+    else cout << news.size() << '\n';
+
+
+}
+signed main(){
+    std::ios::sync_with_stdio(false), cin.tie(0), cout.tie(0);int t;cin>>t;while(t--)solve();
+}
+```
