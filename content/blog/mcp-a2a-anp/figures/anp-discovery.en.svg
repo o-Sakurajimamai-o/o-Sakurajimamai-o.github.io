@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1132" viewBox="0 0 720 1132" role="img" aria-labelledby="title desc" xml:lang="en">
+<title id="title">ANP discovery, authentication, and authorization</title>
+<desc id="desc">An illustrative did:wba flow. B publishes a collection of Agent Description URLs at the /.well-known/agent-descriptions endpoint for an optional discovery index. A may query the index and retrieve B's description and interfaces, or retrieve them directly. A sends B a signed HTTPS request. B resolves A's DID document, obtains the public key, verifies the signature, checks business access rights, and responds. Discovery indexes are optional; authentication does not imply authorization.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#678097"/></marker>
+<marker id="arrowStart" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 9 1 L 1 5 L 9 9 z" fill="#678097"/></marker>
+</defs>
+<rect width="720" height="1132" rx="24" fill="#ffffff"/>
+<g font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">
+<text x="360" y="54" font-size="27" text-anchor="middle" font-weight="700" fill="#203348">ANP: discovery, authentication, access</text>
+<text x="360" y="90" font-size="20" text-anchor="middle" font-weight="400" fill="#5b6e80">Example: signed HTTPS requests with did:wba</text>
+<rect x="44" y="134" width="632" height="120" rx="18" fill="#f4f0ff" stroke="#d5c8ef" stroke-width="2"/>
+<circle cx="80" cy="167" r="18" fill="#7652a2"/>
+<text x="80" y="174" font-size="20" text-anchor="middle" font-weight="700" fill="#ffffff">1</text>
+<text x="114" y="175" font-size="22" text-anchor="start" font-weight="650" fill="#203348">B publishes description URLs</text>
+<text x="114" y="212" font-size="20" text-anchor="start" font-weight="500" fill="#7652a2">/.well-known/agent-descriptions</text>
+<text x="114" y="240" font-size="18" text-anchor="start" font-weight="400" fill="#526476">An index may read it; A may also access it directly</text>
+<path d="M 360 261 L 360 275" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="44" y="282" width="632" height="120" rx="18" fill="#f4f0ff" stroke="#d5c8ef" stroke-width="2"/>
+<circle cx="80" cy="315" r="18" fill="#7652a2"/>
+<text x="80" y="322" font-size="20" text-anchor="middle" font-weight="700" fill="#ffffff">2</text>
+<text x="114" y="323" font-size="22" text-anchor="start" font-weight="650" fill="#203348">A queries an optional discovery index</text>
+<text x="114" y="360" font-size="20" text-anchor="start" font-weight="500" fill="#7652a2">Find candidate agent B</text>
+<text x="114" y="388" font-size="18" text-anchor="start" font-weight="400" fill="#526476">An index is one discovery route, not a requirement</text>
+<path d="M 360 409 L 360 423" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="44" y="430" width="632" height="120" rx="18" fill="#eef5ff" stroke="#bcd4f6" stroke-width="2"/>
+<circle cx="80" cy="463" r="18" fill="#2563a6"/>
+<text x="80" y="470" font-size="20" text-anchor="middle" font-weight="700" fill="#ffffff">3</text>
+<text x="114" y="471" font-size="22" text-anchor="start" font-weight="650" fill="#203348">A retrieves B's description and interfaces</text>
+<text x="114" y="508" font-size="20" text-anchor="start" font-weight="500" fill="#2563a6">Learn B's capabilities and how to call them</text>
+<text x="114" y="536" font-size="18" text-anchor="start" font-weight="400" fill="#526476">A may also obtain this information without an index</text>
+<path d="M 360 557 L 360 571" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="44" y="578" width="632" height="120" rx="18" fill="#eef5ff" stroke="#bcd4f6" stroke-width="2"/>
+<circle cx="80" cy="611" r="18" fill="#2563a6"/>
+<text x="80" y="618" font-size="20" text-anchor="middle" font-weight="700" fill="#ffffff">4</text>
+<text x="114" y="619" font-size="22" text-anchor="start" font-weight="650" fill="#203348">A sends B a signed HTTPS request</text>
+<text x="114" y="656" font-size="20" text-anchor="start" font-weight="500" fill="#2563a6">Use A's identity and request signature</text>
+<text x="114" y="684" font-size="18" text-anchor="start" font-weight="400" fill="#526476">Send the request to B's service endpoint</text>
+<path d="M 360 705 L 360 719" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="44" y="726" width="632" height="120" rx="18" fill="#edf9f7" stroke="#b8ddd7" stroke-width="2"/>
+<circle cx="80" cy="759" r="18" fill="#147d70"/>
+<text x="80" y="766" font-size="20" text-anchor="middle" font-weight="700" fill="#ffffff">5</text>
+<text x="114" y="767" font-size="22" text-anchor="start" font-weight="650" fill="#203348">B resolves A's DID document</text>
+<text x="114" y="804" font-size="20" text-anchor="start" font-weight="500" fill="#147d70">Obtain the public key and verify the signature</text>
+<text x="114" y="832" font-size="18" text-anchor="start" font-weight="400" fill="#526476">Authenticate the requester</text>
+<path d="M 360 853 L 360 867" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="44" y="874" width="632" height="120" rx="18" fill="#edf9f7" stroke="#b8ddd7" stroke-width="2"/>
+<circle cx="80" cy="907" r="18" fill="#147d70"/>
+<text x="80" y="914" font-size="20" text-anchor="middle" font-weight="700" fill="#ffffff">6</text>
+<text x="114" y="915" font-size="22" text-anchor="start" font-weight="650" fill="#203348">B checks access rights and responds</text>
+<text x="114" y="952" font-size="20" text-anchor="start" font-weight="500" fill="#147d70">Apply business rules to the requested operation</text>
+<text x="114" y="980" font-size="18" text-anchor="start" font-weight="400" fill="#526476">Successful authentication still requires authorization</text>
+<text x="360" y="1058" font-size="19" text-anchor="middle" font-weight="500" fill="#526476">Illustrative did:wba flow; the discovery index is optional.</text>
+<text x="360" y="1092" font-size="19" text-anchor="middle" font-weight="500" fill="#526476">Authentication identifies you; authorization grants access.</text>
+</g>
+</svg>

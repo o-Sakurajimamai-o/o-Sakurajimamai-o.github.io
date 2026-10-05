@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="944" viewBox="0 0 720 944" role="img" aria-labelledby="title desc" xml:lang="en">
+<title id="title">A conceptual A2A task lifecycle</title>
+<desc id="desc">A submitted task executes and can complete successfully. It may wait for input or authentication, then resume execution. Failure, cancellation, or rejection may also occur at different stages. This is a simplified conceptual illustration, not a full transition table; not every task passes through every state.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#678097"/></marker>
+<marker id="arrowStart" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 9 1 L 1 5 L 9 9 z" fill="#678097"/></marker>
+</defs>
+<rect width="720" height="944" rx="24" fill="#ffffff"/>
+<g font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">
+<text x="360" y="54" font-size="28" text-anchor="middle" font-weight="700" fill="#203348">A2A: tasks can pause, resume, or end</text>
+<text x="360" y="90" font-size="20" text-anchor="middle" font-weight="400" fill="#5b6e80">A conceptual view of task states</text>
+<rect x="250" y="132" width="220" height="76" rx="18" fill="#eef5ff" stroke="#bcd4f6" stroke-width="2"/>
+<text x="360" y="179" font-size="25" text-anchor="middle" font-weight="650" fill="#203348">Submit task</text>
+<path d="M 360 218 L 360 256" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="250" y="270" width="220" height="104" rx="18" fill="#eef5ff" stroke="#bcd4f6" stroke-width="2"/>
+<text x="360" y="316" font-size="25" text-anchor="middle" font-weight="650" fill="#203348">Execute task</text>
+<text x="360" y="348" font-size="19" text-anchor="middle" font-weight="400" fill="#526476">Work and updates</text>
+<path d="M 360 386 L 360 730" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="391" y="677" font-size="19" text-anchor="start" font-weight="600" fill="#147d70">Success</text>
+<path d="M 238 326 L 169 326 L 169 444" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="77" y="396" width="184" height="30" rx="8" fill="#ffffff"/>
+<text x="169" y="419" font-size="18" text-anchor="middle" font-weight="500" fill="#7652a2">Needs input / auth</text>
+<rect x="40" y="458" width="258" height="156" rx="18" fill="#f4f0ff" stroke="#d5c8ef" stroke-width="2"/>
+<text x="169" y="500" font-size="22" text-anchor="middle" font-weight="650" fill="#203348">Wait for input</text>
+<text x="169" y="533" font-size="22" text-anchor="middle" font-weight="650" fill="#203348">or authentication</text>
+<text x="169" y="580" font-size="18" text-anchor="middle" font-weight="400" fill="#526476">Then resume execution</text>
+<path d="M 310 536 L 329 536 L 329 420 L 288 420 L 288 386" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<path d="M 482 326 L 551 326 L 551 444" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="480" y="396" width="142" height="30" rx="8" fill="#ffffff"/>
+<text x="551" y="419" font-size="18" text-anchor="middle" font-weight="500" fill="#526476">Other endings</text>
+<rect x="422" y="458" width="258" height="156" rx="18" fill="#f8fafc" stroke="#d5dee7" stroke-width="2"/>
+<text x="551" y="500" font-size="21" text-anchor="middle" font-weight="650" fill="#203348">Fail / cancel / reject</text>
+<text x="551" y="548" font-size="18" text-anchor="middle" font-weight="400" fill="#526476">May occur at different</text>
+<text x="551" y="580" font-size="18" text-anchor="middle" font-weight="400" fill="#526476">stages of a task</text>
+<rect x="250" y="744" width="220" height="80" rx="18" fill="#edf9f7" stroke="#b8ddd7" stroke-width="2"/>
+<text x="360" y="793" font-size="25" text-anchor="middle" font-weight="650" fill="#203348">Complete task</text>
+<text x="360" y="876" font-size="19" text-anchor="middle" font-weight="500" fill="#526476">Simplified illustration, not a full transition table.</text>
+<text x="360" y="908" font-size="19" text-anchor="middle" font-weight="400" fill="#526476">A task does not have to pass through every state.</text>
+</g>
+</svg>

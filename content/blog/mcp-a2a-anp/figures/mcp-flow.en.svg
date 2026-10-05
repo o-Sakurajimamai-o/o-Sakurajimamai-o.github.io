@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="962" viewBox="0 0 720 962" role="img" aria-labelledby="title desc" xml:lang="en">
+<title id="title">MCP host, client, and server</title>
+<desc id="desc">A host contains both the LLM and an MCP client. The application coordinates them. The client communicates with an MCP server through the standard MCP protocol. The server offers tools, resources, and prompts and integrates with business APIs and data sources.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#678097"/></marker>
+<marker id="arrowStart" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 9 1 L 1 5 L 9 9 z" fill="#678097"/></marker>
+</defs>
+<rect width="720" height="962" rx="24" fill="#ffffff"/>
+<g font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">
+<text x="360" y="54" font-size="30" text-anchor="middle" font-weight="700" fill="#203348">MCP: connect capabilities to an app</text>
+<text x="360" y="92" font-size="20" text-anchor="middle" font-weight="400" fill="#5b6e80">The host coordinates the model and its client</text>
+<rect x="52" y="134" width="616" height="288" rx="18" fill="#eef5ff" stroke="#bcd4f6" stroke-width="2"/>
+<text x="80" y="173" font-size="24" text-anchor="start" font-weight="650" fill="#203348">Host · AI application</text>
+<rect x="160" y="199" width="400" height="76" rx="18" fill="#f8fafc" stroke="#d5dee7" stroke-width="2"/>
+<text x="360" y="232" font-size="25" text-anchor="middle" font-weight="650" fill="#203348">LLM</text>
+<text x="360" y="258" font-size="18" text-anchor="middle" font-weight="400" fill="#526476">Understand tasks; propose calls</text>
+<path d="M 360 282 L 360 316" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<text x="392" y="307" font-size="18" text-anchor="start" font-weight="400" fill="#526476">App coordination</text>
+<rect x="160" y="326" width="400" height="70" rx="18" fill="#eef5ff" stroke="#bcd4f6" stroke-width="2"/>
+<text x="360" y="369" font-size="25" text-anchor="middle" font-weight="650" fill="#203348">MCP Client</text>
+<path d="M 360 438 L 360 508" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)" marker-start="url(#arrowStart)"/>
+<text x="395" y="481" font-size="21" text-anchor="start" font-weight="600" fill="#2563a6">MCP protocol</text>
+<rect x="52" y="522" width="616" height="168" rx="18" fill="#edf9f7" stroke="#b8ddd7" stroke-width="2"/>
+<text x="360" y="567" font-size="27" text-anchor="middle" font-weight="650" fill="#203348">MCP Server</text>
+<rect x="82" y="600" width="176" height="48" rx="12" fill="#f8fafc" stroke="#d5dee7" stroke-width="2"/>
+<text x="170" y="631" font-size="21" text-anchor="middle" font-weight="600" fill="#203348">tools</text>
+<rect x="271" y="600" width="176" height="48" rx="12" fill="#f8fafc" stroke="#d5dee7" stroke-width="2"/>
+<text x="359" y="631" font-size="21" text-anchor="middle" font-weight="600" fill="#203348">resources</text>
+<rect x="460" y="600" width="176" height="48" rx="12" fill="#f8fafc" stroke="#d5dee7" stroke-width="2"/>
+<text x="548" y="631" font-size="21" text-anchor="middle" font-weight="600" fill="#203348">prompts</text>
+<path d="M 360 706 L 360 774" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)" marker-start="url(#arrowStart)"/>
+<text x="395" y="747" font-size="20" text-anchor="start" font-weight="400" fill="#526476">Server integration</text>
+<rect x="136" y="788" width="448" height="90" rx="18" fill="#f8fafc" stroke="#d5dee7" stroke-width="2"/>
+<text x="360" y="826" font-size="24" text-anchor="middle" font-weight="650" fill="#203348">Business APIs / data sources</text>
+<text x="360" y="854" font-size="18" text-anchor="middle" font-weight="400" fill="#526476">Databases, search, external services</text>
+<text x="360" y="928" font-size="19" text-anchor="middle" font-weight="500" fill="#526476">The host contains an MCP client; they are distinct.</text>
+</g>
+</svg>

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="1132" viewBox="0 0 720 1132" role="img" aria-labelledby="title desc" xml:lang="zh">
+<title id="title">ANP 中的发现、身份认证与业务授权示意</title>
+<desc id="desc">以 did:wba 为例。B 在 /.well-known/agent-descriptions 端点公布 Agent Description URLs 集合，供可选发现索引读取。A 可查询索引找到 B，取得其描述与接口；也可以直接取得描述。A 向 B 发出签名 HTTPS 请求，B 解析 A 的 DID 文档并取得公钥验签，随后检查业务权限并返回结果。发现索引可选，认证不等于授权。</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M 1 1 L 9 5 L 1 9 z" fill="#678097"/></marker>
+<marker id="arrowStart" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M 9 1 L 1 5 L 9 9 z" fill="#678097"/></marker>
+</defs>
+<rect width="720" height="1132" rx="24" fill="#ffffff"/>
+<g font-family="Segoe UI, Microsoft YaHei, Noto Sans CJK SC, Arial, sans-serif">
+<text x="360" y="54" font-size="27" text-anchor="middle" font-weight="700" fill="#203348">ANP：从发现到身份验证与授权</text>
+<text x="360" y="90" font-size="20" text-anchor="middle" font-weight="400" fill="#5b6e80">以 did:wba 签名 HTTPS 请求为例</text>
+<rect x="44" y="134" width="632" height="120" rx="18" fill="#f4f0ff" stroke="#d5c8ef" stroke-width="2"/>
+<circle cx="80" cy="167" r="18" fill="#7652a2"/>
+<text x="80" y="174" font-size="20" text-anchor="middle" font-weight="700" fill="#ffffff">1</text>
+<text x="114" y="175" font-size="23" text-anchor="start" font-weight="650" fill="#203348">B 发布描述地址集合</text>
+<text x="114" y="212" font-size="20" text-anchor="start" font-weight="500" fill="#7652a2">/.well-known/agent-descriptions</text>
+<text x="114" y="240" font-size="18" text-anchor="start" font-weight="400" fill="#526476">供发现索引读取，也可直接提供给 A</text>
+<path d="M 360 261 L 360 275" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="44" y="282" width="632" height="120" rx="18" fill="#f4f0ff" stroke="#d5c8ef" stroke-width="2"/>
+<circle cx="80" cy="315" r="18" fill="#7652a2"/>
+<text x="80" y="322" font-size="20" text-anchor="middle" font-weight="700" fill="#ffffff">2</text>
+<text x="114" y="323" font-size="23" text-anchor="start" font-weight="650" fill="#203348">A 查询可选的发现索引</text>
+<text x="114" y="360" font-size="20" text-anchor="start" font-weight="500" fill="#7652a2">发现候选 Agent B</text>
+<text x="114" y="388" font-size="18" text-anchor="start" font-weight="400" fill="#526476">索引是发现方式之一，并非必经组件</text>
+<path d="M 360 409 L 360 423" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="44" y="430" width="632" height="120" rx="18" fill="#eef5ff" stroke="#bcd4f6" stroke-width="2"/>
+<circle cx="80" cy="463" r="18" fill="#2563a6"/>
+<text x="80" y="470" font-size="20" text-anchor="middle" font-weight="700" fill="#ffffff">3</text>
+<text x="114" y="471" font-size="23" text-anchor="start" font-weight="650" fill="#203348">A 获取 B 的描述与接口</text>
+<text x="114" y="508" font-size="20" text-anchor="start" font-weight="500" fill="#2563a6">了解 B 提供的能力和调用方式</text>
+<text x="114" y="536" font-size="18" text-anchor="start" font-weight="400" fill="#526476">也可跳过索引，直接获取这些信息</text>
+<path d="M 360 557 L 360 571" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="44" y="578" width="632" height="120" rx="18" fill="#eef5ff" stroke="#bcd4f6" stroke-width="2"/>
+<circle cx="80" cy="611" r="18" fill="#2563a6"/>
+<text x="80" y="618" font-size="20" text-anchor="middle" font-weight="700" fill="#ffffff">4</text>
+<text x="114" y="619" font-size="23" text-anchor="start" font-weight="650" fill="#203348">A 向 B 发送签名 HTTPS 请求</text>
+<text x="114" y="656" font-size="20" text-anchor="start" font-weight="500" fill="#2563a6">以 A 的身份标识与签名发起请求</text>
+<text x="114" y="684" font-size="18" text-anchor="start" font-weight="400" fill="#526476">请求到达 B 提供的服务接口</text>
+<path d="M 360 705 L 360 719" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="44" y="726" width="632" height="120" rx="18" fill="#edf9f7" stroke="#b8ddd7" stroke-width="2"/>
+<circle cx="80" cy="759" r="18" fill="#147d70"/>
+<text x="80" y="766" font-size="20" text-anchor="middle" font-weight="700" fill="#ffffff">5</text>
+<text x="114" y="767" font-size="23" text-anchor="start" font-weight="650" fill="#203348">B 解析 A 的 DID 文档</text>
+<text x="114" y="804" font-size="20" text-anchor="start" font-weight="500" fill="#147d70">从文档取得公钥并验证请求签名</text>
+<text x="114" y="832" font-size="18" text-anchor="start" font-weight="400" fill="#526476">验证请求者身份</text>
+<path d="M 360 853 L 360 867" fill="none" stroke="#678097" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" marker-end="url(#arrow)"/>
+<rect x="44" y="874" width="632" height="120" rx="18" fill="#edf9f7" stroke="#b8ddd7" stroke-width="2"/>
+<circle cx="80" cy="907" r="18" fill="#147d70"/>
+<text x="80" y="914" font-size="20" text-anchor="middle" font-weight="700" fill="#ffffff">6</text>
+<text x="114" y="915" font-size="23" text-anchor="start" font-weight="650" fill="#203348">B 校验业务权限并返回结果</text>
+<text x="114" y="952" font-size="20" text-anchor="start" font-weight="500" fill="#147d70">根据访问规则判断操作是否允许</text>
+<text x="114" y="980" font-size="18" text-anchor="start" font-weight="400" fill="#526476">认证成功后仍然需要授权判断</text>
+<text x="360" y="1058" font-size="19" text-anchor="middle" font-weight="500" fill="#526476">示意为 did:wba 流程；发现索引可选。</text>
+<text x="360" y="1092" font-size="19" text-anchor="middle" font-weight="500" fill="#526476">认证回答“你是谁”，授权判断“你能做什么”。</text>
+</g>
+</svg>
