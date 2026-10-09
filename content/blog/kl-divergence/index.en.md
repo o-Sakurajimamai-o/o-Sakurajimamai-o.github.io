@@ -112,8 +112,7 @@ This is simply the log probability ratio of the sampled token. For a fixed prefi
 
 $$
 \begin{aligned}
-&\mathbb E_{a\sim\pi_\theta(\cdot\mid h)} \left[k_1(a,h;\theta)\right]\\
-&\quad= D_{\mathrm{KL}}\!\left( \pi_\theta(\cdot\mid h) \Vert \pi_{\mathrm{ref}}(\cdot\mid h) \right).
+&\mathbb E_{a\sim\pi_\theta(\cdot\mid h)} \left[k_1(a,h;\theta)\right] = D_{\mathrm{KL}}\!\left( \pi_\theta(\cdot\mid h) \Vert \pi_{\mathrm{ref}}(\cdot\mid h) \right).
 \end{aligned}
 $$
 
@@ -127,8 +126,7 @@ $$
 
 $$
 \begin{aligned}
-&\widehat D_{\mathrm{KL}}^{(k_1,N)}(h;\theta)\\
-&\quad= \frac{1}{N}\sum_{n=1}^{N} \log \frac{\pi_\theta(a^{(n)}\mid h)} {\pi_{\mathrm{ref}}(a^{(n)}\mid h)}.
+&\widehat D_{\mathrm{KL}}^{(k_1,N)}(h;\theta) = \frac{1}{N}\sum_{n=1}^{N} \log \frac{\pi_\theta(a^{(n)}\mid h)} {\pi_{\mathrm{ref}}(a^{(n)}\mid h)}.
 \end{aligned}
 $$
 
@@ -238,8 +236,7 @@ $$
 
 $$
 \begin{aligned}
-\hat d_{i,t}(\theta) &= \frac{\pi_{\mathrm{ref}}(o_{i,t}\mid h_{i,t})} {\pi_\theta(o_{i,t}\mid h_{i,t})}\\
-&\quad- \log \frac{\pi_{\mathrm{ref}}(o_{i,t}\mid h_{i,t})} {\pi_\theta(o_{i,t}\mid h_{i,t})} -1.
+\hat d_{i,t}(\theta) &= \frac{\pi_{\mathrm{ref}}(o_{i,t}\mid h_{i,t})} {\pi_\theta(o_{i,t}\mid h_{i,t})} - \log \frac{\pi_{\mathrm{ref}}(o_{i,t}\mid h_{i,t})} {\pi_\theta(o_{i,t}\mid h_{i,t})} -1.
 \end{aligned}
 $$
 
@@ -247,8 +244,7 @@ We call the expression above $k_3$. When discussing a candidate token under a fi
 
 $$
 \begin{aligned}
-k_3(a,h;\theta) &= \frac{\pi_{\mathrm{ref}}(a\mid h)} {\pi_\theta(a\mid h)}\\
-&\quad- \log\frac{\pi_{\mathrm{ref}}(a\mid h)} {\pi_\theta(a\mid h)} -1.
+k_3(a,h;\theta) &= \frac{\pi_{\mathrm{ref}}(a\mid h)} {\pi_\theta(a\mid h)} - \log\frac{\pi_{\mathrm{ref}}(a\mid h)} {\pi_\theta(a\mid h)} -1.
 \end{aligned}
 $$
 
@@ -299,8 +295,7 @@ Substitute equations (1) and (2) into the expectation of $k_3$:
 
 $$
 \begin{aligned}
-&\mathbb E_{a\sim\pi_\theta(\cdot\mid h)} \Biggl[ \frac{\pi_{\mathrm{ref}}(a\mid h)} {\pi_\theta(a\mid h)}\\
-&\qquad\qquad- \log\frac{\pi_{\mathrm{ref}}(a\mid h)} {\pi_\theta(a\mid h)} -1 \Biggr]\\
+&\mathbb E_{a\sim\pi_\theta(\cdot\mid h)} \Biggl[ \frac{\pi_{\mathrm{ref}}(a\mid h)} {\pi_\theta(a\mid h)} - \log\frac{\pi_{\mathrm{ref}}(a\mid h)} {\pi_\theta(a\mid h)} -1 \Biggr]\\
 &\quad= 1+ \mathbb E_{a\sim\pi_\theta(\cdot\mid h)} \left[ \log\frac{\pi_\theta(a\mid h)} {\pi_{\mathrm{ref}}(a\mid h)} \right]-1\\
 &\quad= D_{\mathrm{KL}}\!\left( \pi_\theta(\cdot\mid h) \Vert \pi_{\mathrm{ref}}(\cdot\mid h) \right).
 \end{aligned}
@@ -335,9 +330,7 @@ In the outcome-supervised GRPO considered here, each token's contribution is def
 
 $$
 \begin{aligned}
-\ell_{i,t}(\theta) &= \min\Bigl( \rho_{i,t}(\theta)\hat A_i,\\
-&\qquad \operatorname{clip}\bigl( \rho_{i,t}(\theta),1-\epsilon,1+\epsilon \bigr)\hat A_i \Bigr)\\
-&\quad-\beta\,\hat d_{i,t}(\theta).
+\ell_{i,t}(\theta) &= \min\Bigl( \rho_{i,t}(\theta)\hat A_i, \operatorname{clip}\bigl( \rho_{i,t}(\theta),1-\epsilon,1+\epsilon \bigr)\hat A_i \Bigr) -\beta\,\hat d_{i,t}(\theta).
 \end{aligned}
 $$
 
@@ -345,8 +338,7 @@ The GRPO optimization objective is:
 
 $$
 \begin{aligned}
-&J_{\mathrm{GRPO}}(\theta)\\
-&\quad= \mathbb E_{ \substack{ q\sim\mathcal D\\
+&J_{\mathrm{GRPO}}(\theta) = \mathbb E_{ \substack{ q\sim\mathcal D\\
 \{o_i\}_{i=1}^{G} \sim P_{\mathrm{old}}(\cdot\mid q) } } \left[ \frac{1}{G}\sum_{i=1}^{G} \frac1{|o_i|} \sum_{t=1}^{|o_i|} \ell_{i,t}(\theta) \right].
 \end{aligned}
 $$
@@ -363,8 +355,7 @@ Substitute the full probability expression for $k_3$:
 
 $$
 \begin{aligned}
-&\frac{1}{G}\sum_{i=1}^{G} \frac1{|o_i|} \sum_{t=1}^{|o_i|} \Biggl[ \frac{\pi_{\mathrm{ref}}(o_{i,t}\mid h_{i,t})} {\pi_\theta(o_{i,t}\mid h_{i,t})}\\
-&\qquad\qquad- \log \frac{\pi_{\mathrm{ref}}(o_{i,t}\mid h_{i,t})} {\pi_\theta(o_{i,t}\mid h_{i,t})} -1 \Biggr].
+&\frac{1}{G}\sum_{i=1}^{G} \frac1{|o_i|} \sum_{t=1}^{|o_i|} \Biggl[ \frac{\pi_{\mathrm{ref}}(o_{i,t}\mid h_{i,t})} {\pi_\theta(o_{i,t}\mid h_{i,t})} - \log \frac{\pi_{\mathrm{ref}}(o_{i,t}\mid h_{i,t})} {\pi_\theta(o_{i,t}\mid h_{i,t})} -1 \Biggr].
 \end{aligned}
 $$
 
