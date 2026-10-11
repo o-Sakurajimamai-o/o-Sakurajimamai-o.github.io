@@ -1,7 +1,7 @@
 ---
-title: "The PPO Algorithm in RLHF"
-date: 2026-05-08
-description: "A complete derivation from policy gradient to GAE, importance sampling, and PPO-Clip"
+title: "PPO to GRPO"
+date: 2026-10-11
+description: "A complete derivation from policy gradient to GAE, importance sampling, and PPO-Clip, and GRPO"
 ---
 
 ## The PPO Algorithm
@@ -180,3 +180,79 @@ $$Loss_{ppo2} = - \frac{1}{N} \sum_{n=1}^N \sum_{t=1}^{T_n} \min \left( \color{#
 - $\text{clip}(r_t(\theta), 1-\varepsilon, 1+\varepsilon)$: the clipping function. If the ratio $r_t(\theta)$ exceeds $1+\varepsilon$, it is forcibly held at $1+\varepsilon$; if it falls below $1-\varepsilon$, it is forcibly held at $1-\varepsilon$.
 
 Clipping is the mainstream approach in industry today, and it is also simple to implement; the min function here forces the model to make conservative updates, making training more robust.
+
+## GRPO
+PPO now has a complete path from rewards to policy updates: use a critic to construct advantages, then optimize the clipped objective. GRPO changes the advantage-construction step. When several answers address the same question, their rewards provide a local comparison without a separate value prediction.
+
+In the outcome-reward setting used here, sample $G\geq2$ answers $o_1,\ldots,o_G$ from $\pi_{\mathrm{old}}$ for question $q$. Score the completed answers to obtain $r_1,\ldots,r_G$. Here $G$ is the group size, unlike the earlier return $G_t$; $r_i$ scores an entire answer, unlike a step reward $r_t$.
+
+First compute the group's mean reward and subtract it from each answer's reward. This centers the comparison on the question's sampled answers:
+
+$$
+\bar r=\frac1G\sum_{j=1}^G r_j,
+\qquad
+\text{centered reward}_i=r_i-\bar r.
+$$
+
+Second, divide by the group's reward standard deviation to scale the differences. The original GRPO-style advantage used here is:
+
+$$
+\sigma_r=\sqrt{\frac1G\sum_{j=1}^G(r_j-\bar r)^2},
+\qquad
+\hat A_i=\frac{r_i-\bar r}{\sigma_r+\varepsilon_{\mathrm{num}}}.
+$$
+
+GRPO uses the same current-versus-old comparison as PPO. For token $t$ in answer $o_i$, the state is the question $q$ followed by the prefix $o_{i,<t}$. The token probability ratio is:
+
+$$
+\rho_{i,t}(\theta)
+=\frac{\pi_\theta(o_{i,t}\mid q,o_{i,<t})}
+{\pi_{\mathrm{old}}(o_{i,t}\mid q,o_{i,<t})}.
+$$
+
+| Policy /        | Role /                                                  | When it changes                                    |
+| -------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| $\pi_\theta$         | Generates the probabilities being optimized.。 | Changes at each optimization step.       |
+| $\pi_{\mathrm{old}}$ | Generates the current batch and supplies the importance-ratio denominator. | Fixed during this batch's updates; refreshed for later sampling. |
+| $\pi_{\mathrm{ref}}$ | Supplies the comparison distribution for the KL penalty. | Usually fixed throughout training. |
+
+At a fixed prefix $s$, one relevant KL direction is:
+
+$$
+D_{\mathrm{KL}}\!\left(
+\pi_\theta(\cdot\mid s)\,\|\,\pi_{\mathrm{ref}}(\cdot\mid s)
+\right)
+=\sum_v\pi_\theta(v\mid s)
+\log\frac{\pi_\theta(v\mid s)}{\pi_{\mathrm{ref}}(v\mid s)}.
+$$
+
+The complete objective can now be assembled one token at a time. Its reward term uses the same clipped ratio as PPO, with the answer's group-relative advantage $\hat A_i$. The reference penalty is then subtracted:
+
+
+$$
+\ell_{i,t}(\theta)
+=\min\left(
+\rho_{i,t}(\theta)\hat A_i,\;
+\operatorname{clip}(\rho_{i,t}(\theta),1-\epsilon,1+\epsilon)\hat A_i
+\right)
+-\beta\hat d_{i,t}(\theta).
+$$
+
+The original GRPO averaging convention first averages over tokens within each answer, then over answers within the group. Questions $q$ are sampled from the training-question distribution $\mathcal D$. Let $|o_i|$ be the number of generated tokens in answer $i$:
+
+$$
+\begin{aligned}
+J_{\mathrm{GRPO}}(\theta)
+&=\mathbb E_{\substack{
+q\sim\mathcal D\\
+\{o_i\}_{i=1}^G\sim\pi_{\mathrm{old}}(\cdot\mid q)
+}}
+\left[
+\frac1G\sum_{i=1}^G
+\frac1{|o_i|}\sum_{t=1}^{|o_i|}\ell_{i,t}(\theta)
+\right].
+\end{aligned}
+$$
+
+Fllowed table provides a schematic comparison of common model configurations:
+![alt text](image.png)

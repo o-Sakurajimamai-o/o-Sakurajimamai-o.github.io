@@ -1,7 +1,7 @@
 ---
 title: "RLHF-PPO 算法"
 date: 2026-05-08
-description: "从 Policy Gradient 到 GAE、重要性采样与 PPO-Clip 的完整推导笔记"
+description: "从 Policy Gradient 到 GAE、重要性采样与 PPO-Clip、GRPO 的完整推导笔记"
 ---
 
 ## PPO 算法
@@ -180,3 +180,83 @@ $$Loss_{ppo2} = - \frac{1}{N} \sum_{n=1}^N \sum_{t=1}^{T_n} \min \left( \color{#
 - $\text{clip}(r_t(\theta), 1-\varepsilon, 1+\varepsilon)$：截断函数。如果比率 $r_t(\theta)$ 大于 $1+\varepsilon$，就强行把它按在 $1+\varepsilon$；如果小于 $1-\varepsilon$，就强行托在 $1-\varepsilon$。
 
 clip 目前是业界主流的用法，同时，它实现也为简单，min 函数在这里是为了让模型进行保守更新，使得模型更新更加稳健。
+
+## GRPO
+
+至此，PPO 已经形成了从奖励到策略更新的完整路径：借助价值模型构造优势，再优化裁剪目标。GRPO 改变的重点是优势的来源。对于同一道题，如果已经生成了多个回答，就可以用它们的奖励建立局部比较，而不必额外预测一个状态价值。
+
+本节采用回答结束后评分的结果奖励设置。对于问题 $q$，用 $\pi_{\mathrm{old}}$ 采样 $G\geq2$ 个回答 $o_1,\ldots,o_G$，再得到对应奖励 $r_1,\ldots,r_G$。这里的 $G$ 是每组回答数量，与前面的回报 $G_t$ 不同；$r_i$ 是整条回答的评分，也需要与逐步奖励 $r_t$ 区分。
+
+第一步，计算组内平均奖励，再从每个回答的奖励中减去它。这样，比较依据就变成了这道题已经采样到的回答：
+
+$$
+\bar r=\frac1G\sum_{j=1}^G r_j,
+\qquad
+\text{centered reward}_i=r_i-\bar r.
+$$
+
+第二步，用组内奖励的标准差对这些差值做尺度调整。本节采用的原始 GRPO 形式为：
+
+$$
+\sigma_r=\sqrt{\frac1G\sum_{j=1}^G(r_j-\bar r)^2},
+\qquad
+\hat A_i=\frac{r_i-\bar r}{\sigma_r+\varepsilon_{\mathrm{num}}}.
+$$
+
+GRPO 同样使用 PPO 中当前策略与旧策略的比较。对于回答 $o_i$ 的第 $t$ 个 token，状态由问题 $q$ 和此前的前缀 $o_{i,<t}$ 组成，其概率比为：
+
+$$
+\rho_{i,t}(\theta)
+=\frac{\pi_\theta(o_{i,t}\mid q,o_{i,<t})}
+{\pi_{\mathrm{old}}(o_{i,t}\mid q,o_{i,<t})}.
+$$
+
+
+
+| 策略        | 用途                                                  | 何时改变                                   |
+| -------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| $\pi_\theta$         | 给出正在优化的动作概率。 | 随优化步骤更新。       |
+| $\pi_{\mathrm{old}}$ | 生成当前批次，并提供重要性比的分母。 | 本批更新时固定，后续采样时刷新。 |
+| $\pi_{\mathrm{ref}}$ | 提供 KL 惩罚的比较分布。 | 通常在整个训练过程中固定。 |
+
+
+对于一个固定前缀 $s$，这里关注的一种 KL 方向为：
+
+$$
+D_{\mathrm{KL}}\!\left(
+\pi_\theta(\cdot\mid s)\,\|\,\pi_{\mathrm{ref}}(\cdot\mid s)
+\right)
+=\sum_v\pi_\theta(v\mid s)
+\log\frac{\pi_\theta(v\mid s)}{\pi_{\mathrm{ref}}(v\mid s)}.
+$$
+
+现在可以从一个 token 的贡献开始，逐步拼出完整目标。奖励部分沿用 PPO 的裁剪比率，但把优势换成该回答的组内相对优势 $\hat A_i$，然后减去参考策略惩罚：
+
+
+$$
+\ell_{i,t}(\theta)
+=\min\left(
+\rho_{i,t}(\theta)\hat A_i,\;
+\operatorname{clip}(\rho_{i,t}(\theta),1-\epsilon,1+\epsilon)\hat A_i
+\right)
+-\beta\hat d_{i,t}(\theta).
+$$
+
+原始 GRPO 的平均方式，是先对每条回答内部的 token 求平均，再对组内回答求平均。问题 $q$ 从训练问题分布 $\mathcal D$ 中采样，记 $|o_i|$ 为第 $i$ 条回答生成的 token 数：
+
+$$
+\begin{aligned}
+J_{\mathrm{GRPO}}(\theta)
+&=\mathbb E_{\substack{
+q\sim\mathcal D\\
+\{o_i\}_{i=1}^G\sim\pi_{\mathrm{old}}(\cdot\mid q)
+}}
+\left[
+\frac1G\sum_{i=1}^G
+\frac1{|o_i|}\sum_{t=1}^{|o_i|}\ell_{i,t}(\theta)
+\right].
+\end{aligned}
+$$
+
+下表给出了常见模型配置下的示意对比
+![alt text](image.png)
