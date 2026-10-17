@@ -1,6 +1,6 @@
 ---
-title: "RLHF-PPO 算法"
-date: 2026-05-08
+title: "PPO to GRPO"
+date: 2026-10-11
 description: "从 Policy Gradient 到 GAE、重要性采样与 PPO-Clip、GRPO 的完整推导笔记"
 ---
 
