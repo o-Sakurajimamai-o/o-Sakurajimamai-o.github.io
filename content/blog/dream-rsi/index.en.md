@@ -24,6 +24,8 @@ Dream-RSI consists of online exploration and offline planning, alternating throu
 
 > Online exploration → save the discovery tree → evaluate and modify policies offline → select a policy for deployment → another round of online exploration.
 
+![Figure 1 ](figures/image.png)
+
 ### 1. Online Exploration
 
 First, an initial workspace is set up as the root node $r$. Each non-root node records its parent, preceding context, workspace snapshot, evaluation diagnostics, and score. Let $t$ index the outer online–offline loop, and let $\pi_t$ denote the executable scheduling policy code used online in round $t$.
@@ -89,6 +91,8 @@ On the same historical tree, different policies may:
 - Organize valuable attempts into parallel batches.
 
 Without replay, comparing each policy version usually requires another round of real exploration. Replay allows existing results to be used to screen policies before promising versions are deployed online.
+
+![Figure 2 ](figures/image2.png)
 
 ## Limitations of RSI
 
