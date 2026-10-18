@@ -1,7 +1,7 @@
 ---
 title: "Dream-RSI: Reading Notes"
 date: 2026-10-16T00:00:00+08:00
-lastmod: 2026-10-16T21:26:20+08:00
+lastmod: 2026-10-17T10:18:08+08:00
 description: "Notes on Dream-RSI: its motivation, online exploration and offline replay, and a few thoughts on its limitations."
 draft: false
 ---
@@ -96,9 +96,15 @@ Without replay, comparing each policy version usually requires another round of 
 
 ## Limitations of RSI
 
-1. Different tasks require different evaluation methods, which must be designed for the dataset or task setting.
+1. Its scope is limited. Different tasks require different evaluation methods, which must be designed for the dataset or task setting. The framework does not thereby gain the freedom to add arbitrary capabilities, modify evaluation criteria, or change task interfaces. More importantly, its scheduling program remains fixed during execution. This means it is not suited to general-purpose settings and lacks cross-scenario generalization under a unified policy.
 2. Only leaf nodes or the root can be selected, so the tree consists of several chains. **Opening new child branches from an earlier parent node could be considered, but the details remain open for discussion.** This means branching again from an internal node that already has a successor. It is a proposed extension, rather than an operation supported in the paper.
-3. The paper does not separately define a branch termination rule that stops a branch once its current task is complete. If the scheduler keeps extending an already completed leaf without improving the best score, this increases the attempt cost and reduces $V$.
-4. Averaging over all historical trees can reduce reliance on any single tree. However, these histories are also used for policy development, so overfitting remains possible.
+3. The task state must support saving, branching, and repeated attempts. Code workspaces are relatively easy to save and restore. However, actions such as sending emails, modifying shared systems, or interacting with other people may affect the real external environment. They cannot be freely rolled back like code snapshots. Organizing such tasks into independent, replayable exploration branches requires additional design.
+4. Historical replay has limited validity because it only provides outcomes that have already occurred. If the task, user goal, or environment changes, old results may no longer carry the same meaning. The framework is therefore better suited to discovery problems where candidate solutions can be repeatedly tested and compared. It does not cover all general-purpose agent tasks.
+5. The paper does not separately define a branch termination rule that stops a branch once its current task is complete. If the scheduler keeps extending an already completed leaf without improving the best score, this increases the attempt cost and reduces $V$.
+6. Averaging over all historical trees can reduce reliance on any single tree. However, these histories are also used for policy development, so overfitting remains possible.
+
+## Summary
+
+Dream-RSI provides a meta-exploration framework that can be reused across domains. However, existing validation mainly covers discovery tasks where candidates can be generated repeatedly, evaluated automatically, and their exploration state saved. Its application depends on task-specific scoring and execution interfaces. The ability of a single scheduling policy to generalize across heterogeneous tasks and changing user needs has not yet been sufficiently demonstrated. It can automatically improve scheduling rules within predefined interfaces, but cannot automatically solve goal definition, state replayability, or cross-scenario adaptation.
 
 Paper: [Dream-RSI: Recursive Self-Improvement through Evolving Worlds](https://arxiv.org/abs/2609.14858v1).
