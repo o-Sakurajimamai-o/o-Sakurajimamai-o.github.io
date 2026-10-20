@@ -65,8 +65,8 @@ Traditional agent memory systems often use simplified storage paradigms, mainly 
 ## Memory Storage
 
 <figure class="fig">
-  <img src="/blog/graph-based-agent-memory/figures/F006.png" width="2590" height="1055" alt="Figure 6. Taxonomy of graph construction paradigms for agent memory, comparing construction methods, corresponding memory functions, advantages, and limitations." loading="lazy" decoding="async">
-  <figcaption>Figure 6. Taxonomy of graph construction paradigms for agent memory, comparing construction methods, corresponding memory functions, advantages, and limitations.</figcaption>
+  <img src="/blog/graph-based-agent-memory/figures/F006.png" width="2590" height="1055" alt="Figure 3. Taxonomy of graph construction paradigms for agent memory, comparing construction methods, corresponding memory functions, advantages, and limitations." loading="lazy" decoding="async">
+  <figcaption>Figure 3. Taxonomy of graph construction paradigms for agent memory, comparing construction methods, corresponding memory functions, advantages, and limitations.</figcaption>
 </figure>
 
 ### Knowledge Graph Structures

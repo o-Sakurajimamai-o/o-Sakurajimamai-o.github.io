@@ -66,8 +66,8 @@ isCJKLanguage: true
 ## 记忆存储
 
 <figure class="fig">
-  <img src="/blog/graph-based-agent-memory/figures/F006.png" width="2590" height="1055" alt="图 6：智能体记忆系统图构建范式的全面分类体系：涵盖构建方法论、对应的记忆功能，以及各项技术的优缺点对比分析。" loading="lazy" decoding="async">
-  <figcaption>图 6：智能体记忆系统图构建范式的全面分类体系：涵盖构建方法论、对应的记忆功能，以及各项技术的优缺点对比分析。</figcaption>
+  <img src="/blog/graph-based-agent-memory/figures/F006.png" width="2590" height="1055" alt="图 3：智能体记忆系统图构建范式的全面分类体系：涵盖构建方法论、对应的记忆功能，以及各项技术的优缺点对比分析。" loading="lazy" decoding="async">
+  <figcaption>图 3：智能体记忆系统图构建范式的全面分类体系：涵盖构建方法论、对应的记忆功能，以及各项技术的优缺点对比分析。</figcaption>
 </figure>
 
 ### 知识图谱结构
