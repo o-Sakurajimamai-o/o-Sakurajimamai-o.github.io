@@ -182,10 +182,17 @@ isCJKLanguage: true
 1. 识别关键实体作为定位锚点，具体方法通过 NER 或者相似度检索作为候选锚点：
 
    $$
-   \begin{aligned}
-   V_{\text{anchor}} &= \text{TopK}_{v_i \in V_t} \big( \text{sim}(\mathbf{q}, \mathbf{h}_i) \big),\\
-   \text{其中 } \text{sim}(\mathbf{q}, \mathbf{h}_i) &= \frac{\mathbf{q}^\top \mathbf{h}_i}{\Vert{}\mathbf{q}\Vert{} \Vert{}\mathbf{h}_i\Vert{}}
-   \end{aligned}
+   V_{\text{anchor}}
+   = \underset{v_i\in V_t}{\operatorname{TopK}}
+   \left(\operatorname{sim}(\mathbf{q},\mathbf{h}_i)\right).
+   $$
+
+   其中，余弦相似度定义为：
+
+   $$
+   \operatorname{sim}(\mathbf{q},\mathbf{h}_i)
+   = \frac{\mathbf{q}^{\top}\mathbf{h}_i}
+   {\lVert\mathbf{q}\rVert\cdot\lVert\mathbf{h}_i\rVert}.
    $$
 2. 在锚点集上扩展，算子往外走 $n$ 步，这里可以通过 $BFS$ 或者关系受限的遍历（即只选和自己有关联的邻近节点）
 3. 对节点或路径进行评分和剪枝，具体的实现方法这里不详细给出。

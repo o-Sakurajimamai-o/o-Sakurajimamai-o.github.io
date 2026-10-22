@@ -185,10 +185,17 @@ Consider a memory graph $G_t=(V_t,E_t,X_t)$. The node set $V_t$ contains entitie
 1. Identify key entities as anchors, using NER or similarity retrieval to generate candidate anchors:
 
    $$
-   \begin{aligned}
-   V_{\text{anchor}} &= \text{TopK}_{v_i \in V_t} \big( \text{sim}(\mathbf{q}, \mathbf{h}_i) \big),\\
-   \text{where } \text{sim}(\mathbf{q}, \mathbf{h}_i) &= \frac{\mathbf{q}^\top \mathbf{h}_i}{\Vert{}\mathbf{q}\Vert{} \Vert{}\mathbf{h}_i\Vert{}}
-   \end{aligned}
+   V_{\text{anchor}}
+   = \underset{v_i\in V_t}{\operatorname{TopK}}
+   \left(\operatorname{sim}(\mathbf{q},\mathbf{h}_i)\right).
+   $$
+
+   Here, the cosine similarity is defined as:
+
+   $$
+   \operatorname{sim}(\mathbf{q},\mathbf{h}_i)
+   = \frac{\mathbf{q}^{\top}\mathbf{h}_i}
+   {\lVert\mathbf{q}\rVert\cdot\lVert\mathbf{h}_i\rVert}.
    $$
 2. Expand from the anchor set, moving outward by $n$ steps. This can use breadth-first search (BFS) or relation-constrained traversal that selects only relevant neighboring nodes.
 3. Score and prune nodes or paths; the implementation details are not discussed here.
