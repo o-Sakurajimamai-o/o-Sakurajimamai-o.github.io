@@ -1,8 +1,8 @@
 ---
 title: "Graph-based Agent Memory: Reading Notes"
 date: 2026-10-20T00:00:00+08:00
-lastmod: 2026-10-20T22:58:00+08:00
-description: "The agent memory lifecycle, taxonomy, and graph storage structures: knowledge graphs, hierarchical memory, temporal graphs, hypergraphs, and hybrid architectures."
+lastmod: 2026-10-22T22:36:04+08:00
+description: "The agent memory lifecycle and taxonomy, with graph-based memory storage, retrieval, and continual evolution."
 draft: false
 ---
 
@@ -162,4 +162,93 @@ Knowledge memory is usually stable, structured, and context-independent, making 
 
 Experience memory is dynamic, personalized, and context-specific. It therefore often benefits from graphs emphasizing temporal sequences, interaction trajectories, or user–action relationships. Such graphs record how the agent's interactions and preferences evolve over time.
 
-Paper and figures: [Graph-based Agent Memory: Taxonomy, Techniques, and Applications](https://arxiv.org/abs/2602.05665v1). Captions are adapted from the paper's descriptions of Figures 1, 2, and 6.
+## Memory Retrieval
+
+### Similarity-Based Retrieval Operators
+
+Similarity-based retrieval is a coarse-grained operator that encodes a user query as a vector. It retrieves the top-$k$ most similar memory entries in the embedding space.
+
+Direct vector similarity search often works well in relatively simple applications. It can also serve a supporting role, such as filtering irrelevant memories through query–query similarity.
+
+However, it has several limitations: **lexical or semantic similarity does not necessarily imply relevance; complex queries often depend on unmentioned related entities and require multiple retrieval steps; and temporal awareness is lacking**.
+
+### Graph- and Rule-Based Retrieval Operators
+
+Rule-based operators in graph memory use symbolic rules and filters to identify relevant memories.
+
+For knowledge memory, they can select candidates in the initial retrieval stage for downstream processing. They can also validate retrieved candidates and remove memories that violate the rules. Experience memory is inherently noisy and continually evolving. These operators can restrict candidates to compatible entity or relation types and prioritize high-confidence triples. Two common advanced implementations are outlined below.
+
+#### The Retrieval Process
+
+Consider a memory graph $G_t=(V_t,E_t,X_t)$. The node set $V_t$ contains entities, events, or text chunks, while $E_t\subseteq V_t\times V_t$ is the set of relational edges. Node and edge attributes or features are represented by $X_t$, including textual descriptions and vector embeddings $\mathbf{h}_i\in\mathbb{R}^d$. Given a user query $q$, the operator aims to return **a compact subgraph $\mathcal{S}_t\subseteq G_t$ that is highly relevant to the task**.
+
+1. Identify key entities as anchors, using NER or similarity retrieval to generate candidate anchors:
+
+   $$
+   \begin{aligned}
+   V_{\text{anchor}} &= \text{TopK}_{v_i \in V_t} \big( \text{sim}(\mathbf{q}, \mathbf{h}_i) \big),\\
+   \text{where } \text{sim}(\mathbf{q}, \mathbf{h}_i) &= \frac{\mathbf{q}^\top \mathbf{h}_i}{\Vert{}\mathbf{q}\Vert{} \Vert{}\mathbf{h}_i\Vert{}}
+   \end{aligned}
+   $$
+2. Expand from the anchor set, moving outward by $n$ steps. This can use breadth-first search (BFS) or relation-constrained traversal that selects only relevant neighboring nodes.
+3. Score and prune nodes or paths; the implementation details are not discussed here.
+4. Cross-graph traversal changes the procedure in step 2. G-Memory uses bidirectional traversal across three layers: an insight graph at the top, a query graph in the middle, and an interaction graph below. It first retrieves candidates from the middle layer by similarity. It then searches upward for similar tasks and traverses downward to find the corresponding original interaction graph.
+
+### Reinforcement Learning-Based Retrieval Operators
+
+Reinforcement learning (RL) is increasingly used to train operators that autonomously learn adaptive retrieval policies by optimizing downstream task rewards defined over the underlying memory.
+
+Knowledge memory provides a stable foundation and hard constraints for RL operators, while experience memory supports context-aware adaptation. This means recalling and ranking historical state–action–reward fragments that match the current state, adapting retrieval actions to the agent's current task state. Both aim to retrieve consistently useful, high-value evidence while suppressing semantically similar but systematically misleading candidates.
+
+A common implementation augments embedding-based candidate generation with a learned action-value function $Q(s,a)$. The state $s$ summarizes the current query and, optionally, the agent's internal state. The action $a$ represents a retrieval decision, such as selecting a memory unit, choosing a graph navigation step, or invoking an external tool. Some recent work formulates memory retrieval as sequential decision-making and trains dedicated memory agents using policy optimization algorithms such as PPO/GRPO.
+
+### Agent-Based Retrieval Operators
+
+Agent-based operators treat retrieval as an open planning–feedback loop in which an agent can act beyond its internal memory graph. The key difference from RL-based approaches is the ability to call external tools and APIs to supplement internal memory. Verified results can then be written back for reuse. Retrieval therefore extends beyond passive filtering within a static, closed knowledge base.
+
+For knowledge memory, the agent plans graph traversals to gather supporting facts. Traversal finds reasoning chains in structured memory. When graph coverage is incomplete, the agent can use the model's parametric knowledge for supplementary checking.
+
+For experience memory, the agent follows action chains across interaction episodes to recover situational context, rather than traversing a static semantic graph. It reconstructs event sequences from timestamped logs to guide current decisions, rather than retrieving through structured semantic relations.
+
+## Memory Evolution and Continual Learning
+
+As agents interact with dynamic environments over long periods, their internal memory must evolve. It needs to absorb new information, resolve factual inconsistencies, and adapt to changing contexts. Graph-based memory naturally supports these needs through explicit representations of relationships, temporal dependencies, and factual validity. Direct operations on nodes, edges, and subgraphs allow flexible updates.
+
+Memory evolution can be divided into two complementary paradigms. **Internal self-evolution** maintains logical consistency through intrinsic graph operations without external environmental input. **External self-exploration** grounds and refines memory through active interaction with physical or digital environments. These mechanisms turn passive knowledge repositories into adaptive systems capable of proactive learning.
+
+<figure class="fig">
+  <img src="/blog/graph-based-agent-memory/figures/memory-evolution.png" width="2590" height="815" alt="Figure 4. Memory evolution mechanisms. Left: internal self-evolution through memory consolidation, graph reasoning, and reorganization. Right: external self-exploration through environmental interaction, including feedback-driven adaptation and active inquiry." loading="lazy" decoding="async">
+  <figcaption>Figure 4. Memory evolution mechanisms. Left: internal self-evolution through memory consolidation, graph reasoning, and reorganization. Right: external self-exploration through environmental interaction, including feedback-driven adaptation and active inquiry.</figcaption>
+</figure>
+
+### Internal Self-Evolution
+
+During interaction, agents accumulate large amounts of experience memory as concrete interaction trajectories and execution logs. Current mainstream approaches include **generalizing memories into skills or facts through graph merging to create standardized representations, and identifying implicit contradictions through internal reasoning, such as logical deduction or graph traversal**.
+
+#### Graph Reasoning
+
+Beyond consolidating existing nodes, internal evolution discovers latent connections to address memory sparsity. The agent scans its memory graph for missing edges or new relationships that were never explicitly observed but can be deduced from existing facts. This transforms isolated, sparse trajectories into a densely connected knowledge network.
+
+**Latent Link Prediction**: using an LLM's semantic understanding, the agent can predict relationships between disconnected subgraphs. For example, given $(A\xrightarrow{cause}B)$ and $(B\xrightarrow{cause}C)$, it can infer and insert a transitive edge $(A\xrightarrow{leads\_to}C)$. This computationally models associative thinking, linking events separated in time without new external input.
+
+**Inductive Knowledge Enrichment**: the agent can derive new attributes or facts through path-based reasoning. Multi-hop traversal identifies higher-order association patterns, enriching the graph with inferred covariates or higher-order relationships.
+
+### External Self-Exploration
+
+Internal self-evolution can refine memory through internal consistency, but it cannot directly verify the *objective validity* of knowledge against the real world.
+
+#### Feedback-Driven Adaptation
+
+This approach optimizes memory content and management policies using the actual outcomes of past actions. Raw interaction logs in open, dynamic environments often contain substantial noise. Agents therefore use task success and failure as strong supervisory signals to extract useful action knowledge.
+
+Rather than relying on rigid, hardcoded rules, systems such as Memory-R1 and Inside Out treat memory operations as learnable discrete actions within an RL framework. These operations include insertion, modification, and deletion. End-to-end rewards reflecting downstream task accuracy allow the agent to learn optimal policies for maintaining graph health.
+
+#### Active Inquiry
+
+Recent frameworks allow agents to identify uncertainty in their memory graphs and set goals autonomously to resolve these blind spots. ProMem supports reflection on missing nodes or ambiguous edges, generating targeted queries to fill knowledge gaps. AgentEvolver extends this capability to task generation. It synthesizes new subtasks that encourage exploration of unknown states, adding diverse experience to memory proactively.
+
+KIMI K2.5 introduces a scalable swarm mechanism, spawning parallel subagents to explore disjoint branches of a problem space. The central memory repository can rapidly gather diverse perspectives and edge cases. This transforms the system from a passive container of experience into an active engine for knowledge construction.
+
+Despite progress in feedback-driven adaptation and active inquiry, explicitly using graph topology to guide external exploration remains an open research direction.
+
+Paper and figures: [Graph-based Agent Memory: Taxonomy, Techniques, and Applications](https://arxiv.org/abs/2602.05665v1). Figures 1–4 follow the order in the note and correspond to Figures 1, 2, 6, and 8 in the paper. Captions are adapted from the corresponding paper descriptions.
