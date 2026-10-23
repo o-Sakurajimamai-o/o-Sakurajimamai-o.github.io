@@ -54,7 +54,8 @@
         <link rel="stylesheet" id="hl-dark" href="{{ .RelPermalink }}" disabled>
     {{ end }}
     {{ with resources.Get "css/custom.css" }}
-        <link rel="stylesheet" href="{{ .RelPermalink }}">
+        {{ $css := . | fingerprint }}
+        <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
     {{ end }}
 
 
