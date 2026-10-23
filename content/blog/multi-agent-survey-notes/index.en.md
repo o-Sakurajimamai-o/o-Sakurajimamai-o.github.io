@@ -1,16 +1,10 @@
 ---
-title: "Multi-Agent Systems Survey Notes: Individual Intelligence, Reasoning, and Memory"
+title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
 lastmod: 2026-10-23T16:37:38+08:00
 description: "Reading notes on Beyond Individual Intelligence, covering multi-agent system challenges, individual reasoning enhancement, and memory methods."
 draft: false
 ---
-
-<style>
-.prose .survey-table { max-width: 100%; overflow-x: auto; margin: 1.5rem 0; }
-.prose .survey-table table { min-width: 58rem; width: 100%; }
-.prose .survey-table th, .prose .survey-table td { white-space: nowrap; padding: .5rem .7rem; }
-</style>
 
 Recent LLM capabilities have grown linearly or exponentially, sometimes exceeding even AI developers' expectations. OpenAI reported that an internal model coordinated around 10,000 concurrent agents to produce [a solution to the Navier–Stokes Millennium Prize problem](https://openai.com/index/navier-stokes-solution/). Anthropic researchers also described [genetics research conducted with Claude and domain experts](https://www.anthropic.com/research/claude-shaped-science). Google's Gemini 4 Argon helped researchers [extend mathematical solutions related to magnetic confinement in fusion](https://www.techradar.com/pro/its-over-ai-won-google-gemini-4-argon-shatters-59-year-old-nuclear-fusion-conjecture-in-just-a-few-hours) through multi-agent collaboration. This work relates to Grad's 59-year-old conjecture.
 
@@ -81,8 +75,13 @@ The second detects hallucinations without external knowledge by measuring consis
 
 **Table 1.** Comparison of reasoning enhancement methods, organized by intervention stage and subtype.
 
-[Original table image](/blog/multi-agent-survey-notes/tables/reasoning-comparison.png)
-
+<details class="survey-details">
+<summary>
+  <svg class="survey-details__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+  <span>Editable table transcription</span>
+  <svg class="survey-details__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+</summary>
+<div class="survey-details__body">
 
 Subtypes: KE = knowledge enhancement; PE = perceptual enhancement; ESS = expanding search space; VRP = verification of reasoning paths; OV = output verification; RC = response correction. Task scope: Ma = mathematics; QA = question answering; Co = code; LF = long-form generation; Ag = agent; Mu = multitask. Primary source: Evid = external evidence; Inter = internal states; Consis = cross-sample consistency; Log = logic/verification; Tool = tool-based. Correction: SF = self-feedback; Refl = reflection; TV = tool verification; SC = self-consistency. Ext. Ret. indicates external retrieval; TF means training-free; TTC indicates test-time compute scaling.
 
@@ -139,14 +138,22 @@ Subtypes: KE = knowledge enhancement; PE = perceptual enhancement; ESS = expandi
 
 </div>
 
+</div>
+</details>
+
 ### Memory
 
 Memory concepts were covered in [an earlier post](/blog/graph-based-agent-memory/). Here, only a comparison of memory enhancement methods organized along the memory lifecycle is provided.
 
 **Table 2.** Comparison of memory enhancement methods along the memory lifecycle.
 
-[Original table image](/blog/multi-agent-survey-notes/tables/memory-comparison.png)
-
+<details class="survey-details">
+<summary>
+  <svg class="survey-details__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+  <span>Editable table transcription</span>
+  <svg class="survey-details__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+</summary>
+<div class="survey-details__body">
 
 Formation describes how raw experience becomes memory: Record = raw logging; Distill = abstractive summarization; Routing = typed classification. Storage describes the underlying structure: Flat = flat storage; Tiered = main context plus archival memory; Graph = graph structure; Tree = tree structure; Typed = separate type-specific stores; Unified = unified storage across memory types.
 
@@ -180,4 +187,5 @@ Memory type symbols are ordered E (episodic), S (semantic), P (procedural): fill
 
 </div>
 
-Paper and figures: [Beyond Individual Intelligence: Surveying Collaboration, Failure Attribution, and Self-Evolution in LLM-based Multi-Agent Systems](https://arxiv.org/abs/2605.14892v2). Figures follow the note's order: Figures 1 and 2 correspond to Figures 1 and 3 in the paper. Table reference numbers follow the paper's bibliography.
+</div>
+</details>

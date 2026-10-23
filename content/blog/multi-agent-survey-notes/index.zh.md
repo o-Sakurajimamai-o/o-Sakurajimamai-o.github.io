@@ -1,17 +1,11 @@
 ---
-title: "多智能体系统综述笔记：个体智能、推理与记忆"
+title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
 lastmod: 2026-10-23T16:37:38+08:00
 description: "《Beyond Individual Intelligence》阶段性阅读笔记，整理多智能体系统的问题、个体推理增强与记忆方法。"
 draft: false
 isCJKLanguage: true
 ---
-
-<style>
-.prose .survey-table { max-width: 100%; overflow-x: auto; margin: 1.5rem 0; }
-.prose .survey-table table { min-width: 58rem; width: 100%; }
-.prose .survey-table th, .prose .survey-table td { white-space: nowrap; padding: .5rem .7rem; }
-</style>
 
 近期 LLM 的能力呈线性或指数级上升，甚至大模型能力已然超出 AI 开发者的意料。OpenAI 团队称，内部模型通过约 10,000 个并行智能体协作，给出了 [Navier–Stokes 千禧年难题的解答](https://openai.com/index/navier-stokes-solution/)；Anthropic 研究员也介绍了 [Claude 与领域专家合作开展的遗传学研究](https://www.anthropic.com/research/claude-shaped-science)；Google 的 Gemini 4 Argon 则通过多智能体协作，帮助研究人员[扩展了核聚变磁约束相关问题的数学解](https://www.techradar.com/pro/its-over-ai-won-google-gemini-4-argon-shatters-59-year-old-nuclear-fusion-conjecture-in-just-a-few-hours)，这项研究与已有 59 年历史的 Grad 猜想有关。由此可见，随着任务规模和执行时长的增长，任务所要求的多元能力越来越难以全部集中在单个智能体中，多智能体协同提供了一种原则性的解决方案。
 
@@ -72,8 +66,13 @@ CoT、ToT、GoT 依赖人工设计的提示协议，DeepSeek-R1 通过大规模�
 
 **表 1.** 推理增强方法对比，按干预阶段和子类型编排。
 
-[原表图片](/blog/multi-agent-survey-notes/tables/reasoning-comparison.png)
-
+<details class="survey-details">
+<summary>
+  <svg class="survey-details__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+  <span>Editable table transcription</span>
+  <svg class="survey-details__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+</summary>
+<div class="survey-details__body">
 
 子类型：KE 知识增强；PE 感知增强；ESS 扩展搜索空间；VRP 推理路径验证；OV 输出验证；RC 响应修正。任务范围：评估领域——Ma 数学；QA 问答；Co 代码；LF 长文本生成；Ag 智能体；Mu 多任务。主要来源：主要信息源——Evid = 外部证据；Inter = 内部状态；Consis = 跨样本一致性；Log = 逻辑/验证；Tool = 基于工具。修正：错误修正机制——SF = 自我反馈；Refl = 反思；TV = 工具验证；SC = 自洽性。Ext. Ret.：使用外部检索。TF：免训练。TTC：支持测试时计算扩展。
 
@@ -130,6 +129,9 @@ CoT、ToT、GoT 依赖人工设计的提示协议，DeepSeek-R1 通过大规模�
 
 </div>
 
+</div>
+</details>
+
 
 ### 记忆
 
@@ -137,8 +139,13 @@ CoT、ToT、GoT 依赖人工设计的提示协议，DeepSeek-R1 通过大规模�
 
 **表 2.** 沿记忆生命周期组织的记忆增强方法比较。
 
-[原表图片](/blog/multi-agent-survey-notes/tables/memory-comparison.png)
-
+<details class="survey-details">
+<summary>
+  <svg class="survey-details__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+  <span>Editable table transcription</span>
+  <svg class="survey-details__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+</summary>
+<div class="survey-details__body">
 
 形成（Formation）：原始经验如何转化为记忆——Record = 原始记录；Distill = 生成式摘要；Routing = 类型化分类。存储（Storage）：保存记忆的数据结构——Flat 扁平存储；Tiered 主上下文 + 归档；Graph 图结构；Tree 树结构；Typed 类型分离存储；Unified 多类型统一存储。维护（Maintenance）：记忆如何更新或淘汰——Decay = 基于时间的遗忘；Eviction = 受预算约束的驱逐；CRUD = 创建/读取/更新/删除；Evolution = 追溯性细化；Versioning = 双时态追踪；Lifecycle = 统一管理；Learned = 基于强化学习的选择。检索（Retrieval）：相关条目如何被召回——Multi-factor = 新近度 + 重要性 + 相关性；Injection = 全缓冲区注入；Autonomous = 通过函数调用自主驱动；Graph/Tree trav. = 在对应结构上遍历；Type-aware = 每种类型 top-k 检索后合并；Hybrid = 语义 + 关键词 + 图；Routed = 多路由检索；Utility-driven = 相似度 + Q 值重排序。记忆类型（Mem. Type）：E（情景记忆），S（语义记忆），P（程序记忆）；实心 = 支持，空心 = 缺失。任务领域（Task Domain）：Conv = 对话；Ent = 企业。
 
@@ -166,4 +173,5 @@ CoT、ToT、GoT 依赖人工设计的提示协议，DeepSeek-R1 通过大规模�
 
 </div>
 
-论文与图表来源：[Beyond Individual Intelligence: Surveying Collaboration, Failure Attribution, and Self-Evolution in LLM-based Multi-Agent Systems](https://arxiv.org/abs/2605.14892v2)。图片按笔记顺序编号，图 1、2 对应原论文图 1、3；表格引用编号对应原论文参考文献。
+</div>
+</details>
