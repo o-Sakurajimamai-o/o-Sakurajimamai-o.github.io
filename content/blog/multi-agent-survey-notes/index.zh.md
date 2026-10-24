@@ -1,8 +1,8 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-23T16:37:38+08:00
-description: "《Beyond Individual Intelligence》阶段性阅读笔记，整理多智能体系统的问题、个体推理增强与记忆方法。"
+lastmod: 2026-10-24T18:28:42+08:00
+description: "《Beyond Individual Intelligence》阅读笔记：个体能力、推理、记忆、规划、角色分配与多智能体通信。"
 draft: false
 isCJKLanguage: true
 ---
@@ -30,6 +30,8 @@ LLM 在自动化软件工程、科学实验设计以及多步网页导航等复�
   <img src="/blog/multi-agent-survey-notes/figures/individual-capabilities.png" width="1822" height="1131" alt="图 2：沿推理管线组织的个体智能体能力架构。记忆贯穿其中，提供检索上下文并吸收执行反馈；规划与工具使用构成其他核心能力。" loading="lazy" decoding="async">
   <figcaption>图 2：沿推理管线组织的个体智能体能力架构。记忆贯穿其中，提供检索上下文并吸收执行反馈；规划与工具使用构成其他核心能力。</figcaption>
 </figure>
+
+模块化优化占据主导地位，但模块间的耦合仍未经深入研究。推理、记忆、规划和工具使用在每一个时间步上都相互依存，**然而现有方法几乎完全孤立地优化单个模块。各模块之间的能力不匹配往往成为端到端部署中的真正瓶颈**，但这种故障模式对于目前的基准测试而言却是不可见的，因为现有基准大多只针对一到两种能力。
 
 ### 推理
 
@@ -175,3 +177,157 @@ CoT、ToT、GoT 依赖人工设计的提示协议，DeepSeek-R1 通过大规模�
 
 </div>
 </details>
+
+### 规划
+
+与单步推理不同，规划需要在长视野跨度下考虑子任务依赖性、环境反馈以及潜在的执行失败。现在将方法划分为两种范式：基于分解的规划以及基于搜索的规划
+
+#### 基于分解的规划
+
+基于分解的方法可以简单理解为：将长程任务或复杂任务分解成多个易于管理、易于并行、易于执行的子任务，主要区别在于分解相对于执行过程发生的时间节点。
+
+##### 前瞻性分解
+
+前瞻性分解在采取任何动作之前生成一份完整的规划。Least-to-Most 引入了将问题逐步分解为更简单的子问题并依序求解的思想。Plan-and-Solve 则用显式的规划阶段及随后的依序执行取代了通用的“think step by step”。HuggingGPT 将用户的**多模态**请求分解为任务依赖图（即拆解为任务1、2、3...，其中任务3依赖任务2，任务2依赖任务1），随后根据规划出的每个子任务去HuggingFace上去寻找对口模型进行工作。
+
+LLM 做长链规划的时候有**逻辑不严密**、**自回归生成太慢**、**容易在细节里迷失方向**。Planning Anything (LLMFP)通过运筹学的规划器把任何自然语言规划问题写成一段调用形式化求解器，但使用场景较为局限。Plan-and-Act 专门针对长视野 Web 任务，将高层规划与底层动作执行相分离，模型通过训练集来理解应该先去做什么以此来进行规划，证明了显式前瞻性规划在复杂 Web 基准测试中显著优于反应式方法。
+
+#### 基于搜索的规划
+
+基于搜索的方法显式探索多条候选路径，并通过评估、剪枝或回溯在其中做出选择
+
+##### 步骤级搜索
+
+步骤级搜索在每个决策点展开并评估候选方案。蒙特卡洛树搜索（MCTS）已被证明对基于大语言模型的规划尤为有效。MCTS 的决策公式可表现为：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+a^* = \arg\max_{a} \left[ \underset{\text{利用 : 历史平均回报}}{Q(s, a)} + c \cdot \underset{\text{先验概率 }}{P(s, a)} \cdot \underset{\text{探索: 越少走过的路分越高}}{\frac{\sqrt{N(s)}}{1 + N(s, a)}} \right]
+$$
+
+</div>
+
+在决定下一步的时候，它会选择得分最高的节点，其中 $Q$ 是以前走过的路（效果有多好），$N$ 为在该状态下执行动作的次数有多少，$N$ 越小决策就越鼓励去尝试新方法。
+
+在此基础上，LLM-MCTS、RAP、REST-MCTS 都相继进行了优化和改进，其中 REST 利用了 PRM 模型来针对于每个决策节点进行评分从而进行微调达到性能提升。
+
+除此之外，AFlow 使用了类似 Dream-RSI 的方法（可以说 Dream-RSI 参考了 AFlow），在任务动作节点上进行扩展，缺点是成本太高。ToolChain 利用了 A* 算法来进行启发式扩展，也有利用扩展模型进行隐式搜索的方法。
+
+**表 3.** 按规划范式组织的规划增强方法比较
+
+<details class="survey-details">
+<summary>
+  <svg width="24" height="24" class="survey-details__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+  <span>Table 3</span>
+  <svg width="24" height="24" class="survey-details__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+</summary>
+<div class="survey-details__body">
+
+策略（Strategy）：规划与执行之间的时间关系（表 A 部分）或搜索算法（表 B 部分）——Proactive 执行前完整规划；Progressive 规划与执行交织循环；MCTS 蒙特卡洛树搜索；A _启发式 A_ 搜索；Retrieve 检索引导；Diffusion 基于扩散；Greedy 贪心。结构（Structure）：规划表征（表 A 部分）或搜索空间（表 B 部分）——Seq = 顺序序列；DAG = 有向无环图；Tree = 树状结构；Program = 编程式；State/Action/Plan = 相应的搜索空间。执行模式（Exec Mode）：Seq = 顺序执行；Hier = 分层执行；Intlv = 与规划交织。
+
+<div class="survey-table" tabindex="0" role="region" aria-label="表 3">
+
+| **Method** | **Strategy** | **Structure** | **Exec** **Mode** | **Replan** | **Task** **Domain** | **Year** |
+| --- | --- | --- | --- | --- | --- | --- |
+| *A. Decomposition-Based Planning* |  |  |  |  |  |  |
+| Least-to-Most [130](https://arxiv.org/html/2605.14892v2#bib.bib130) | Proactive | Seq | Seq | — | General | 2023 |
+| Plan-and-Solve [131](https://arxiv.org/html/2605.14892v2#bib.bib131) | Proactive | Seq | Seq | — | General | 2023 |
+| HuggingGPT [132](https://arxiv.org/html/2605.14892v2#bib.bib132) | Proactive | DAG | Hier | — | General | 2023 |
+| LLM-Planner [134](https://arxiv.org/html/2605.14892v2#bib.bib134) | Proactive | Seq | Seq | ✓ | Robotics | 2023 |
+| LLM+P [135](https://arxiv.org/html/2605.14892v2#bib.bib135) | Proactive | Seq | Seq | — | Robotics | 2023 |
+| ReAct [18](https://arxiv.org/html/2605.14892v2#bib.bib18) | Progressive | Seq | Intlv | — | General | 2023 |
+| DEPS [142](https://arxiv.org/html/2605.14892v2#bib.bib142) | Progressive | Seq | Intlv | ✓ | General | 2023 |
+| LLMCompiler [133](https://arxiv.org/html/2605.14892v2#bib.bib133) | Proactive | DAG | Hier | ✓ | Tool | 2024 |
+| Skeleton-of-Thought [137](https://arxiv.org/html/2605.14892v2#bib.bib137) | Proactive | Tree | Hier | — | General | 2024 |
+| Voyager [128](https://arxiv.org/html/2605.14892v2#bib.bib128) | Progressive | Seq | Intlv | ✓ | General | 2024 |
+| ADaPT [139](https://arxiv.org/html/2605.14892v2#bib.bib139) | Progressive | Tree | Intlv | ✓ | General | 2024 |
+| CodeAct [141](https://arxiv.org/html/2605.14892v2#bib.bib141) | Progressive | Program | Intlv | ✓ | General | 2024 |
+| KnowAgent [143](https://arxiv.org/html/2605.14892v2#bib.bib143) | Progressive | Seq | Intlv | ✓ | General | 2024 |
+| Planning Anything [136](https://arxiv.org/html/2605.14892v2#bib.bib136) | Proactive | Program | Seq | — | General | 2025 |
+| Plan-and-Act [138](https://arxiv.org/html/2605.14892v2#bib.bib138) | Proactive | Seq | Hier | — | Web | 2025 |
+| SelfGoal [140](https://arxiv.org/html/2605.14892v2#bib.bib140) | Progressive | Tree | Intlv | ✓ | General | 2025 |
+| *B. Search-Based Planning* |  |  |  |  |  |  |
+| LLM-MCTS [145](https://arxiv.org/html/2605.14892v2#bib.bib145) | MCTS | State | Seq | — | Robotics | 2023 |
+| RAP [147](https://arxiv.org/html/2605.14892v2#bib.bib147) | MCTS | State | Seq | — | General | 2023 |
+| PromptAgent [146](https://arxiv.org/html/2605.14892v2#bib.bib146) | MCTS | State | Seq | — | General | 2024 |
+| ToolChain* [150](https://arxiv.org/html/2605.14892v2#bib.bib150) | A* | Action | Seq | — | Tool | 2024 |
+| REST-MCTS* [148](https://arxiv.org/html/2605.14892v2#bib.bib148) | MCTS | State | Seq | — | General | 2024 |
+| PlanRAG [153](https://arxiv.org/html/2605.14892v2#bib.bib153) | Retrieve | Plan | Seq | ✓ | QA | 2024 |
+| AFlow [149](https://arxiv.org/html/2605.14892v2#bib.bib149) | MCTS | Plan | Seq | — | General | 2025 |
+| DiffuSearch [151](https://arxiv.org/html/2605.14892v2#bib.bib151) | Diffusion | State | Seq | — | General | 2025 |
+| Agent S [127](https://arxiv.org/html/2605.14892v2#bib.bib127) | Greedy | Plan | Hier | ✓ | Web | 2025 |
+
+</div>
+
+</div>
+</details>
+
+## 多智能体协同
+
+多智能体系统（MAS）类似于人类社会中的分工与合作，其中智能体通过协同解决复杂问题。通过整合具备不同能力的智能体，多智能体系统能够应对超出任何单个智能体能力范围的任务。在本文中，我们将多智能体系统 $S$ 形式化定义为
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+S=(\mathcal{A},\;\mathcal{E},\;\mathcal{C},\;\mathcal{G},\;\Pi),
+$$
+
+</div>
+
+其中 $\mathcal{A}=\{a_{1},\ldots,a_{N}\}$ 为智能体集合； $\mathcal{E}$ 表示可能影响多智能体系统 $S$ 运行的共享环境； $\mathcal{C}$ 为规范消息交换的通信协议；$\mathcal{G}$ 表示描述多智能体系统 $S$ 架构的编排拓扑； $\Pi$ 表示协同策略集合。
+
+### 角色
+
+理解角色需要回答两个基本问题：智能体能够做什么，以及责任如何在它们之间分配。因此，我们将角色分解为两个维度：角色能力回答第一个问题，而角色分配则通过映射函数 $\rho(\cdot)$ 分配这些能力来回答第二个问题。
+
+#### 角色能力
+
+顾名思义，角色能力就是 LLM 自身所具备的能力，角色能力大致分为同质角色能力和异质角色能力两种。
+
+##### 同质角色能力
+
+在 MAS 中，同质角色能力指的是由相同的 LLM 驱动，即多智能体均由同一智能体驱动，拥有**完全对称的推理能力、相同的工具集和相同的视野范围**。它们之间唯一的区别，仅仅是 Prompt 里写的人设句子不同（比如一个被告知“你是甲方提问者”，另一个被告知“你是乙方回答者”）。
+
+- **优点**：工程实现极简（一套模型接口和工具集到处复用），且在学术研究上提供了**控制变量的纯净环境**（排除不同模型能力差异的干扰，纯粹研究协作协议本身）。
+- **缺点**：遇到高难任务时，同 LLM 的知识盲区一样，难以突破。
+
+##### 异质角色能力
+
+与上一部分相反，由不同 LLM 进行驱动，可以合理利用各 LLM 擅长的能力，组合将能力、成本、性价比最优化。让不同 Agent 在**底座模型、动作权限、或信息视野**上真正产生本质差异。
+
+可以通过固定不同的 LLM、按照职能切分、通过后训练和 RL 来自行决定等方法来进行分配。
+
+#### 角色分配
+
+**静态角色分配**：指定智能体或子智能体担任的角色和职责，在任务分配之前安排好，过程中不会改变，这使得工作流程边界清晰、零临场组队开销、极其稳定。同时这种分配只适用于较为局限的场景下，对于动态或不确定的场景下性能表现较差。
+
+**动态角色分配**：动态角色分配允许系统在运行时根据当前任务有多难、进行到哪一步了，实时改变子智能体的分配策略。及其灵活，具备较高的通用性，但相对的，动态分配的策略依赖于 Agent 架构和主 LLM 的能力，因此实现较为复杂，并且管理复杂度也会上升。
+
+### 多智能体通信
+
+多智能体通信可以分为通信模式和通信协议
+
+#### 通信模式
+
+**显式通信**：目前最主流的通信方式，智能体与智能体之间通过标准化的文字、或以聊天形式呈现。该方式可以通过约束聊天内容来减少 Token 消耗，不过整体依然很冗余，效率并不高。
+
+**隐式通信**：智能体与智能体之间可以不直接发消息，可以通过观察环境变化、动作轨迹来判断其它子智能体做了什么。
+
+**更少见的**，可以通过潜空间亦或是隐变量交流（LatentMAS），**我认为这是未来一两年的研究主流，也是 RSI 的必经之路**，但这种缺点在于不好控制、容易触发安全红线，因为我们看不到智能体之间在交流什么。一个近期较为具体的例子是最近 OpenAI 的 Hugging Face 事件是若干独立智能体在爬取 HF 网站的时候，通过轨迹、日志判断出还有其它智能体进行着相似任务，从而它们绕过监督进行了交流，造成了大规模入侵事件。
+
+#### 通信协议
+
+主流通信协议有以下三类：
+
+- **A2T (Agent-to-Tool)**：智能体 $\leftrightarrow$ 外部工具/数据库
+- **A2A (Agent-to-Agent)**：智能体 $\leftrightarrow$ 智能体
+- **A2S (Agent-to-System)**：智能体 $\leftrightarrow$ 宿主平台/前端网关
+
+A2T 目前 MCP 成为主流，相关的内容我之前的博客里面也有写。
+
+A2A 是 Google 联合 50+ 科技巨头共同提出的，它负责解决不同责任的 Agent 之间的通信
+
+**核心机制**：每个 Agent 对外公布一张名片叫 **`Agent Card`**（一个 JSON 文件，写明我擅长干什么、收什么格式的参数、怎么鉴权）。然后两个黑盒 Agent 就能像发 HTTP 请求一样直接点对点派活、通过 SSE 实时同步长任务的进度，以及互传产出物。
+
+其中， **Agora** 是由牛津大学提出的“自适应语言切换”协议，它认为智能体之间应该由低频的二进制语言或其它被压缩过的语言进行交流，这一点很接近上述潜空间的定义。

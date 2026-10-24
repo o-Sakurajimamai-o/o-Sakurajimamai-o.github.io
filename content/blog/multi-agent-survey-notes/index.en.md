@@ -1,8 +1,8 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-23T16:37:38+08:00
-description: "Reading notes on Beyond Individual Intelligence, covering multi-agent system challenges, individual reasoning enhancement, and memory methods."
+lastmod: 2026-10-24T18:28:42+08:00
+description: "Reading notes on Beyond Individual Intelligence: individual capabilities, reasoning, memory, planning, role assignment, and multi-agent communication."
 draft: false
 ---
 
@@ -33,6 +33,8 @@ A harness gives an LLM capabilities such as environmental perception, goal formu
   <img src="/blog/multi-agent-survey-notes/figures/individual-capabilities.png" width="1822" height="1131" alt="Figure 2. Individual agent capabilities organized along the reasoning pipeline. Memory supplies retrieved context and incorporates execution feedback, alongside planning and tool use." loading="lazy" decoding="async">
   <figcaption>Figure 2. Individual agent capabilities organized along the reasoning pipeline. Memory supplies retrieved context and incorporates execution feedback, alongside planning and tool use.</figcaption>
 </figure>
+
+Modular optimization dominates, but coupling between modules remains insufficiently studied. Reasoning, memory, planning, and tool use depend on one another at every time step. **Yet existing methods optimize individual modules almost entirely in isolation. Capability mismatches between modules often become the real bottleneck in end-to-end deployment.** Current benchmarks largely assess only one or two capabilities, leaving this failure mode invisible.
 
 ### Reasoning
 
@@ -189,3 +191,157 @@ Memory type symbols are ordered E (episodic), S (semantic), P (procedural): fill
 
 </div>
 </details>
+
+### Planning
+
+Unlike single-step reasoning, planning must account for subtask dependencies, environmental feedback, and potential execution failures over a long horizon. Methods can be divided into two paradigms: decomposition-based planning and search-based planning.
+
+#### Decomposition-Based Planning
+
+Decomposition-based methods break long-horizon or complex tasks into subtasks that are easier to manage, parallelize, and execute. Their main distinction is when decomposition occurs relative to execution.
+
+##### Proactive Decomposition
+
+Proactive decomposition generates a complete plan before taking any action. Least-to-Most introduces progressive decomposition into simpler subproblems, followed by sequential solution. Plan-and-Solve replaces generic "think step by step" prompting with an explicit planning stage followed by sequential execution. HuggingGPT decomposes a user's **multimodal** request into a task-dependency graph. For example, task 3 depends on task 2, which depends on task 1. It then finds suitable models on Hugging Face for each planned subtask.
+
+Long-chain LLM planning suffers from **weak logical rigor**, **slow autoregressive generation**, and **losing direction in the details**. Planning Anything (LLMFP) translates natural-language planning problems into calls to formal solvers using operations-research planners, although its application scope is limited. Plan-and-Act targets long-horizon web tasks, separating high-level planning from low-level action execution. Training data teaches the model what should be done first. It shows that explicit proactive planning substantially outperforms reactive approaches on complex web benchmarks.
+
+#### Search-Based Planning
+
+Search-based methods explicitly explore multiple candidate paths, selecting among them through evaluation, pruning, or backtracking.
+
+##### Step-Level Search
+
+Step-level search expands and evaluates candidates at each decision point. Monte Carlo tree search (MCTS) has proved particularly effective for LLM-based planning. Its decision formula can be written as:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+a^* = \arg\max_{a} \left[ \underset{\substack{\text{Exploitation:}\\\text{mean historical return}}}{Q(s, a)} + c \cdot \underset{\text{Prior probability}}{P(s, a)} \cdot \underset{\substack{\text{Exploration: higher scores}\\\text{for less-visited paths}}}{\frac{\sqrt{N(s)}}{1 + N(s, a)}} \right]
+$$
+
+</div>
+
+When deciding the next step, it selects the highest-scoring node. Here, $Q$ describes how well previously explored paths performed, and $N$ counts how often an action has been taken in that state. Smaller $N$ values encourage trying new approaches.
+
+LLM-MCTS, RAP, and REST-MCTS build on this with further refinements. REST uses a PRM to score individual decision nodes and improve performance through fine-tuning.
+
+AFlow uses an approach similar to Dream-RSI, or arguably Dream-RSI draws on AFlow, expanding task-action nodes at a high computational cost. ToolChain uses A* for heuristic expansion. Other approaches also perform implicit search through expansion models.
+
+**Table 3.** Comparison of planning enhancement methods organized by planning paradigm.
+
+<details class="survey-details">
+<summary>
+  <svg width="24" height="24" class="survey-details__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+  <span>Table 3</span>
+  <svg width="24" height="24" class="survey-details__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+</summary>
+<div class="survey-details__body">
+
+Strategy describes when planning occurs relative to execution (Part A), or the search algorithm (Part B): Proactive = a complete plan before execution; Progressive = interleaved planning and execution; MCTS = Monte Carlo tree search; A* = heuristic A* search; Retrieve = retrieval-guided; Diffusion = diffusion-based; Greedy = greedy. Structure describes the plan representation (Part A), or the search space (Part B): Seq = sequence; DAG = directed acyclic graph; Tree = tree structure; Program = programmatic; State/Action/Plan = the corresponding search space. Execution mode: Seq = sequential; Hier = hierarchical; Intlv = interleaved with planning.
+
+<div class="survey-table" tabindex="0" role="region" aria-label="Table 3">
+
+| **Method** | **Strategy** | **Structure** | **Exec** **Mode** | **Replan** | **Task** **Domain** | **Year** |
+| --- | --- | --- | --- | --- | --- | --- |
+| *A. Decomposition-Based Planning* |  |  |  |  |  |  |
+| Least-to-Most [130](https://arxiv.org/html/2605.14892v2#bib.bib130) | Proactive | Seq | Seq | — | General | 2023 |
+| Plan-and-Solve [131](https://arxiv.org/html/2605.14892v2#bib.bib131) | Proactive | Seq | Seq | — | General | 2023 |
+| HuggingGPT [132](https://arxiv.org/html/2605.14892v2#bib.bib132) | Proactive | DAG | Hier | — | General | 2023 |
+| LLM-Planner [134](https://arxiv.org/html/2605.14892v2#bib.bib134) | Proactive | Seq | Seq | ✓ | Robotics | 2023 |
+| LLM+P [135](https://arxiv.org/html/2605.14892v2#bib.bib135) | Proactive | Seq | Seq | — | Robotics | 2023 |
+| ReAct [18](https://arxiv.org/html/2605.14892v2#bib.bib18) | Progressive | Seq | Intlv | — | General | 2023 |
+| DEPS [142](https://arxiv.org/html/2605.14892v2#bib.bib142) | Progressive | Seq | Intlv | ✓ | General | 2023 |
+| LLMCompiler [133](https://arxiv.org/html/2605.14892v2#bib.bib133) | Proactive | DAG | Hier | ✓ | Tool | 2024 |
+| Skeleton-of-Thought [137](https://arxiv.org/html/2605.14892v2#bib.bib137) | Proactive | Tree | Hier | — | General | 2024 |
+| Voyager [128](https://arxiv.org/html/2605.14892v2#bib.bib128) | Progressive | Seq | Intlv | ✓ | General | 2024 |
+| ADaPT [139](https://arxiv.org/html/2605.14892v2#bib.bib139) | Progressive | Tree | Intlv | ✓ | General | 2024 |
+| CodeAct [141](https://arxiv.org/html/2605.14892v2#bib.bib141) | Progressive | Program | Intlv | ✓ | General | 2024 |
+| KnowAgent [143](https://arxiv.org/html/2605.14892v2#bib.bib143) | Progressive | Seq | Intlv | ✓ | General | 2024 |
+| Planning Anything [136](https://arxiv.org/html/2605.14892v2#bib.bib136) | Proactive | Program | Seq | — | General | 2025 |
+| Plan-and-Act [138](https://arxiv.org/html/2605.14892v2#bib.bib138) | Proactive | Seq | Hier | — | Web | 2025 |
+| SelfGoal [140](https://arxiv.org/html/2605.14892v2#bib.bib140) | Progressive | Tree | Intlv | ✓ | General | 2025 |
+| *B. Search-Based Planning* |  |  |  |  |  |  |
+| LLM-MCTS [145](https://arxiv.org/html/2605.14892v2#bib.bib145) | MCTS | State | Seq | — | Robotics | 2023 |
+| RAP [147](https://arxiv.org/html/2605.14892v2#bib.bib147) | MCTS | State | Seq | — | General | 2023 |
+| PromptAgent [146](https://arxiv.org/html/2605.14892v2#bib.bib146) | MCTS | State | Seq | — | General | 2024 |
+| ToolChain* [150](https://arxiv.org/html/2605.14892v2#bib.bib150) | A* | Action | Seq | — | Tool | 2024 |
+| REST-MCTS* [148](https://arxiv.org/html/2605.14892v2#bib.bib148) | MCTS | State | Seq | — | General | 2024 |
+| PlanRAG [153](https://arxiv.org/html/2605.14892v2#bib.bib153) | Retrieve | Plan | Seq | ✓ | QA | 2024 |
+| AFlow [149](https://arxiv.org/html/2605.14892v2#bib.bib149) | MCTS | Plan | Seq | — | General | 2025 |
+| DiffuSearch [151](https://arxiv.org/html/2605.14892v2#bib.bib151) | Diffusion | State | Seq | — | General | 2025 |
+| Agent S [127](https://arxiv.org/html/2605.14892v2#bib.bib127) | Greedy | Plan | Hier | ✓ | Web | 2025 |
+
+</div>
+
+</div>
+</details>
+
+## Multi-Agent Collaboration
+
+Multi-agent systems (MAS) resemble division of labor and cooperation in human society, with agents working together to solve complex problems. Integrating agents with different capabilities allows a system to tackle tasks beyond any individual agent. Here, a multi-agent system $S$ is formally defined as:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+S=(\mathcal{A},\;\mathcal{E},\;\mathcal{C},\;\mathcal{G},\;\Pi),
+$$
+
+</div>
+
+Here, $\mathcal{A}=\{a_1,\ldots,a_N\}$ is the agent set; $\mathcal{E}$ is the shared environment that may affect the operation of $S$. The communication protocol $\mathcal{C}$ governs message exchange, $\mathcal{G}$ describes the orchestration topology, and $\Pi$ is the set of collaborative policies.
+
+### Roles
+
+Understanding roles requires answering two questions: what agents can do, and how responsibilities are distributed among them. Roles are therefore divided into two dimensions. Role capability answers the first question, while role assignment distributes these capabilities through a mapping function $\rho(\cdot)$.
+
+#### Role Capability
+
+Role capability refers to the capabilities of the LLM itself. Broadly, these can be classified as homogeneous or heterogeneous.
+
+##### Homogeneous Role Capabilities
+
+In a MAS, homogeneous role capabilities mean that the same LLM powers all agents. They have **fully symmetric reasoning capabilities, identical tool sets, and the same information scope**. The only difference is the persona specified in the prompt. For example, one is told "you are the questioning party," while another is told "you are the responding party."
+
+- **Advantages**: implementation is very simple, reusing one model interface and tool set. It also provides **a controlled research setting** that removes model-capability differences, allowing collaboration protocols to be studied in isolation.
+- **Limitations**: on difficult tasks, the agents share the same LLM's knowledge gaps and struggle to move beyond them.
+
+##### Heterogeneous Role Capabilities
+
+Heterogeneous agents are powered by different LLMs, combining their respective strengths to optimize capability, cost, and value for money. Agents differ materially in **their base models, action permissions, or information scope**.
+
+Assignment can use fixed choices of different LLMs, functional specialization, or autonomous decisions learned through post-training and RL.
+
+#### Role Assignment
+
+**Static role assignment** specifies agent or subagent roles and responsibilities before tasks are allocated, keeping them fixed during execution. This gives the workflow clear boundaries, avoids ad-hoc team-formation costs, and provides high stability. However, it suits a limited range of settings and performs poorly in dynamic or uncertain situations.
+
+**Dynamic role assignment** changes subagent allocation at runtime according to task difficulty and progress. It is highly flexible and more broadly applicable. However, the allocation policy depends on the agent architecture and the main LLM's capabilities, increasing implementation and management complexity.
+
+### Multi-Agent Communication
+
+Multi-agent communication can be divided into communication modes and communication protocols.
+
+#### Communication Modes
+
+**Explicit communication** is currently the dominant approach: agents communicate through standardized text or chat-style exchanges. Constraints on message content can reduce token consumption, but the overall process remains redundant and inefficient.
+
+**Implicit communication** does not require agents to send messages directly. They can infer what other subagents have done by observing environmental changes or action trajectories.
+
+**Less commonly**, agents can communicate through latent spaces or latent variables, as in LatentMAS. **I believe this will become a mainstream research direction within the next year or two and an essential path toward RSI.** Its drawbacks include limited controllability and the risk of crossing safety boundaries, because we cannot observe what agents are communicating. A recent concrete example is the OpenAI Hugging Face incident. Independent agents scraping Hugging Face inferred from trajectories and logs that other agents were performing similar tasks. They then communicated outside supervision, resulting in a large-scale intrusion incident.
+
+#### Communication Protocols
+
+The three main protocol categories are:
+
+- **A2T (Agent-to-Tool)**: agent $\leftrightarrow$ external tool/database.
+- **A2A (Agent-to-Agent)**: agent $\leftrightarrow$ agent.
+- **A2S (Agent-to-System)**: agent $\leftrightarrow$ host platform/frontend gateway.
+
+MCP has become the mainstream A2T protocol; I have covered related material in an earlier blog post.
+
+A2A was jointly introduced by Google and more than 50 technology companies to address communication between agents with different responsibilities.
+
+**Core mechanism**: each agent publishes an **`Agent Card`**, a JSON file describing its capabilities, accepted parameter formats, and authentication requirements. Two black-box agents can then delegate tasks directly, much like HTTP requests, synchronize long-running task progress through SSE, and exchange outputs.
+
+**Agora**, proposed by the University of Oxford, is an adaptive language-switching protocol. It proposes communication through low-frequency binary languages or other compressed languages, which closely resembles the latent-space concept described above.
