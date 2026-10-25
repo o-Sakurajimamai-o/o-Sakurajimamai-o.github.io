@@ -1,8 +1,8 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-24T18:28:42+08:00
-description: "《Beyond Individual Intelligence》阅读笔记：个体能力、推理、记忆、规划、角色分配与多智能体通信。"
+lastmod: 2026-10-25T23:12:12+08:00
+description: "《Beyond Individual Intelligence》阅读笔记：个体能力、推理、记忆、规划、角色分配、多智能体通信与编排。"
 draft: false
 isCJKLanguage: true
 ---
@@ -277,6 +277,11 @@ $$
 
 其中 $\mathcal{A}=\{a_{1},\ldots,a_{N}\}$ 为智能体集合； $\mathcal{E}$ 表示可能影响多智能体系统 $S$ 运行的共享环境； $\mathcal{C}$ 为规范消息交换的通信协议；$\mathcal{G}$ 表示描述多智能体系统 $S$ 架构的编排拓扑； $\Pi$ 表示协同策略集合。
 
+<figure class="fig">
+  <img src="/blog/multi-agent-survey-notes/figures/collaboration-overview.png" width="1822" height="1733" alt="图 3：多智能体协同系统概览。右侧以基础层、结构层和执行层组织角色、通信、编排拓扑与交互；左侧展示从概念与领域建模到性能评估与反馈的系统生命周期。" loading="lazy" decoding="async">
+  <figcaption>图 3：多智能体协同系统概览。右侧以基础层、结构层和执行层组织角色、通信、编排拓扑与交互；左侧展示从概念与领域建模到性能评估与反馈的系统生命周期。</figcaption>
+</figure>
+
 ### 角色
 
 理解角色需要回答两个基本问题：智能体能够做什么，以及责任如何在它们之间分配。因此，我们将角色分解为两个维度：角色能力回答第一个问题，而角色分配则通过映射函数 $\rho(\cdot)$ 分配这些能力来回答第二个问题。
@@ -331,3 +336,75 @@ A2A 是 Google 联合 50+ 科技巨头共同提出的，它负责解决不同责
 **核心机制**：每个 Agent 对外公布一张名片叫 **`Agent Card`**（一个 JSON 文件，写明我擅长干什么、收什么格式的参数、怎么鉴权）。然后两个黑盒 Agent 就能像发 HTTP 请求一样直接点对点派活、通过 SSE 实时同步长任务的进度，以及互传产出物。
 
 其中， **Agora** 是由牛津大学提出的“自适应语言切换”协议，它认为智能体之间应该由低频的二进制语言或其它被压缩过的语言进行交流，这一点很接近上述潜空间的定义。
+
+**表 4.** 智能体通信协议对比。
+
+<details class="survey-details">
+<summary>
+  <svg width="24" height="24" class="survey-details__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+  <span>Table 4</span>
+  <svg width="24" height="24" class="survey-details__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+</summary>
+<div class="survey-details__body">
+
+通信类型（Comm. Type）：A2A = 智能体对智能体；A2T = 智能体对工具；A2S = 智能体对系统。消息格式（Msg. Format）描述数据序列化方式，其中 PD = Protobuf/数据驱动；NL = 自然语言；TD = 物描述；SSE = 服务器发送事件。核心功能（Core Functions）：该协议提供的主要能力或服务。
+
+<div class="survey-table" tabindex="0" role="region" aria-label="表 4">
+
+| **Protocol** | **Proposer** | **Comm.** **Type** | **Msg. Format** | **Core Functions** | **Year** |
+| --- | --- | --- | --- | --- | --- |
+| Agora [275](https://arxiv.org/html/2605.14892v2#bib.bib275) | University of Oxford | A2A | PD | Consensus formation | 2024 |
+| MCP [276](https://arxiv.org/html/2605.14892v2#bib.bib276) | Anthropic | A2T | JSON-RPC | Standardized context access | 2024 |
+| ANP [277](https://arxiv.org/html/2605.14892v2#bib.bib277) | ANP Community | A2A | JSON-LD+NL | Meta-protocol negotiation | 2024 |
+| LMOS [278](https://arxiv.org/html/2605.14892v2#bib.bib278) | Eclipse Foundation | A2S | JSON-LD+TD | Group management | 2024 |
+| ACP [279](https://arxiv.org/html/2605.14892v2#bib.bib279) | IBM | A2A | JSON-LD | Async & Sync interaction | 2025 |
+| A2A [26](https://arxiv.org/html/2605.14892v2#bib.bib26) | Google | A2A | JSON-RPC/SSE | Agent discovery | 2025 |
+| Agent Protocol [280](https://arxiv.org/html/2605.14892v2#bib.bib280) | AI Engineer Foundation | A2S | REST/HTTP | Standardized task API | 2025 |
+
+</div>
+
+</div>
+</details>
+
+### 编排
+
+编排描述了在多智能体系统 $S$ 中规范多个智能体如何组织与交互的全局协调结构。从系统级视角来看，编排可以被视为协同拓扑 $\mathcal{G}=(\mathcal{A},\mathcal{E}_{c})$：它定义了智能体 $a_{i}\in\mathcal{A}$ 如何相连、信息如何在它们之间的通信链路 $\mathcal{E}_{c}$ 中流动，以及在任务执行过程中协调决策是如何构建的。编排聚焦于更高层次的结构组织，决定了这些角色与通信如何被整合为一个连贯的协同过程。编排主要可以分为三大类：集中式编排、分布式编排、混合式编排。
+
+#### 集中式编排
+
+集中式编排为中心化一个智能体来调度下面的子智能体做任务。AOP 尝试不再让中心智能体单纯凭借知识来拆解任务分给子智能体，而是通过一个轻量级奖励模型给“子任务给子智能体的匹配度”打分，将调度分为可解性（分配的任务子智能体必须有能力完成）、完备性、非冗余性。CoRL针对于多基座模型协作通过强化学习训练了一个中心控制器，让他在每一步决定调用哪个专家模型，其目标奖励函数为：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+R(\tau, \lambda) = \underbrace{\text{Acc}(\tau)}_{\text{任务最终准确率}} - \lambda \cdot \underbrace{\sum_{t=1}^T \text{Cost}(a_t)}_{\text{沿途调用各专家模型的累计API花销}}
+$$
+
+</div>
+
+其中 $\lambda \ge 0$，当 $\lambda$ 较小的时候，意味着预算充足，可以多调用专家模型，相同的，$\lambda$ 较大则鼓励只调用少量专家来解决任务。
+
+在集群智能体（大规模的智能体协作）场景下，中心调度会出现注意力稀疏、单点崩盘的后果。
+
+#### 分布式编排
+
+顾名思义，分布式编排没有中心调度器，每个智能体都是独立的个体不受人控制，但没有了中心管理，如何让多智能体一起工作成为了主要难题。
+
+AgentNet 给每个智能体分配了一个 Router 和 Executor，网络开始是全连接的，当一个智能体收到任务时，它会判断该任务自己是否可以完成，否则拆一部分分派给其它智能体，通过 EMA 动态权重来进行动态分配，以确保分配给的智能体有能力去做这部分任务。
+
+MAAC 则通过多 LLM 训练来解决，它把每个智能体设为独立的 Actor，引入 Critic 模型评估每一步的协同价值。`CoLLM-CC`（ **CTDE：中心化训练，去中心化执行**）：在**训练阶段**用一个能看到所有人状态的全局 Critic 来指导各个 LLM 更新梯度；到了**实际部署运行阶段**，撤掉 Critic，各个 LLM 完全独立分布式运行。实验证明，在长视野稀疏奖励任务中，`CoLLM-CC` 收敛速度和协作效果远超纯启发式规则。
+
+AHKG 试图解决多智能体在工作时的视野局限性问题，没有了中心智能体就没有人能从上帝视角来看整个任务的进度，可以通过通信机制，或者通过分层知识图谱。两个 Agent 相遇或通信时对知识图谱的“高层语义节点”和“任务相关局部子图”做差异合并。
+
+#### 混合编排
+
+在宏观上保留“中心化的顶层设计与目标约束”，在微观执行上放权给底层做“去中心化的局部自治与并行沟通”。
+
+GoA 通过在局部 Agent 之间动态建立非线性的有向边，使得相邻节点自由互相补充和纠错。同时，整张图的构建和消息池化受到一个**全局预定义拓扑目标**（如信息论中的信息瓶颈压缩目标或全局任务对齐约束）的严格统领，确保局部的自由讨论最终收敛到统一的中心目标上。
+
+AdaptOrch 针对不同的任务选择了不同的拓扑编排。AdaptOrch 设了一个中心化的**自适应元协调器**。它先画出任务的依赖有向无环图 $G = (V, E)$，然后只花线性时间 $O(|V|+|E|)$ 计算图的**结构特征**（如最大宽度/并行度、最大深度/串行链长、子图耦合度），从 **4 种标准拓扑** 中动态选出最匹配的一种：
+
+1. **Parallel**：当子任务完全独立（$|E| \approx 0$）时启用；
+2. **Sequential**：当任务是单链条强因果依赖时启用；
+3. **Hierarchical**：当任务跨模块且需要中心汇总对账时启用；
+4. **Hybrid**：当任务图里既有并行簇又有长依赖链时动态组合启用。

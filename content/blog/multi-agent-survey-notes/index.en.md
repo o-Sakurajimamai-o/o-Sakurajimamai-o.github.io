@@ -1,8 +1,8 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-24T18:28:42+08:00
-description: "Reading notes on Beyond Individual Intelligence: individual capabilities, reasoning, memory, planning, role assignment, and multi-agent communication."
+lastmod: 2026-10-25T23:12:12+08:00
+description: "Reading notes on Beyond Individual Intelligence: individual capabilities, reasoning, memory, planning, role assignment, multi-agent communication, and orchestration."
 draft: false
 ---
 
@@ -291,6 +291,11 @@ $$
 
 Here, $\mathcal{A}=\{a_1,\ldots,a_N\}$ is the agent set; $\mathcal{E}$ is the shared environment that may affect the operation of $S$. The communication protocol $\mathcal{C}$ governs message exchange, $\mathcal{G}$ describes the orchestration topology, and $\Pi$ is the set of collaborative policies.
 
+<figure class="fig">
+  <img src="/blog/multi-agent-survey-notes/figures/collaboration-overview.png" width="1822" height="1733" alt="Figure 3. Overview of multi-agent collaboration. The right panel organizes roles, communication, orchestration topologies, and interaction into Foundation, Structure, and Execution layers. The left panel shows the system lifecycle from concept and domain modeling to performance evaluation and feedback." loading="lazy" decoding="async">
+  <figcaption>Figure 3. Overview of multi-agent collaboration. The right panel organizes roles, communication, orchestration topologies, and interaction into Foundation, Structure, and Execution layers. The left panel shows the system lifecycle from concept and domain modeling to performance evaluation and feedback.</figcaption>
+</figure>
+
 ### Roles
 
 Understanding roles requires answering two questions: what agents can do, and how responsibilities are distributed among them. Roles are therefore divided into two dimensions. Role capability answers the first question, while role assignment distributes these capabilities through a mapping function $\rho(\cdot)$.
@@ -345,3 +350,75 @@ A2A was jointly introduced by Google and more than 50 technology companies to ad
 **Core mechanism**: each agent publishes an **`Agent Card`**, a JSON file describing its capabilities, accepted parameter formats, and authentication requirements. Two black-box agents can then delegate tasks directly, much like HTTP requests, synchronize long-running task progress through SSE, and exchange outputs.
 
 **Agora**, proposed by the University of Oxford, is an adaptive language-switching protocol. It proposes communication through low-frequency binary languages or other compressed languages, which closely resembles the latent-space concept described above.
+
+**Table 4.** Comparison of agent communication protocols.
+
+<details class="survey-details">
+<summary>
+  <svg width="24" height="24" class="survey-details__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+  <span>Table 4</span>
+  <svg width="24" height="24" class="survey-details__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+</summary>
+<div class="survey-details__body">
+
+Communication type (Comm. Type): A2A = Agent-to-Agent; A2T = Agent-to-Tool; A2S = Agent-to-System. Message format (Msg. Format) describes data serialization: PD = Protobuf/Data-driven; NL = natural language; TD = Thing Description; SSE = Server-Sent Events. Core Functions describes the primary capability or service provided by each protocol.
+
+<div class="survey-table" tabindex="0" role="region" aria-label="Table 4">
+
+| **Protocol** | **Proposer** | **Comm.** **Type** | **Msg. Format** | **Core Functions** | **Year** |
+| --- | --- | --- | --- | --- | --- |
+| Agora [275](https://arxiv.org/html/2605.14892v2#bib.bib275) | University of Oxford | A2A | PD | Consensus formation | 2024 |
+| MCP [276](https://arxiv.org/html/2605.14892v2#bib.bib276) | Anthropic | A2T | JSON-RPC | Standardized context access | 2024 |
+| ANP [277](https://arxiv.org/html/2605.14892v2#bib.bib277) | ANP Community | A2A | JSON-LD+NL | Meta-protocol negotiation | 2024 |
+| LMOS [278](https://arxiv.org/html/2605.14892v2#bib.bib278) | Eclipse Foundation | A2S | JSON-LD+TD | Group management | 2024 |
+| ACP [279](https://arxiv.org/html/2605.14892v2#bib.bib279) | IBM | A2A | JSON-LD | Async & Sync interaction | 2025 |
+| A2A [26](https://arxiv.org/html/2605.14892v2#bib.bib26) | Google | A2A | JSON-RPC/SSE | Agent discovery | 2025 |
+| Agent Protocol [280](https://arxiv.org/html/2605.14892v2#bib.bib280) | AI Engineer Foundation | A2S | REST/HTTP | Standardized task API | 2025 |
+
+</div>
+
+</div>
+</details>
+
+### Orchestration
+
+Orchestration is the global coordination structure governing how agents are organized and interact within a multi-agent system $S$. At the system level, it can be viewed as a collaboration topology $\mathcal{G}=(\mathcal{A},\mathcal{E}_{c})$. This defines how agents $a_i\in\mathcal{A}$ are connected, how information flows through communication links $\mathcal{E}_{c}$, and how coordination decisions are structured during execution. Orchestration focuses on higher-level organization, integrating roles and communication into a coherent collaborative process. It falls into three main categories: centralized, distributed, and hybrid orchestration.
+
+#### Centralized Orchestration
+
+Centralized orchestration uses a central agent to schedule tasks for subordinate agents. AOP moves beyond relying solely on the central agent's knowledge to decompose and assign tasks. Instead, a lightweight reward model scores how well subtasks match subagents. Scheduling considers solvability, meaning the assigned agent must be capable of completing the task, along with completeness and non-redundancy. For collaboration across multiple base models, CoRL trains a central controller through reinforcement learning to choose which expert model to call at each step. Its reward function is:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+R(\tau, \lambda) = \underbrace{\text{Acc}(\tau)}_{\substack{\text{Final task}\\\text{accuracy}}} - \lambda \cdot \underbrace{\sum_{t=1}^T \text{Cost}(a_t)}_{\substack{\text{Cumulative API cost}\\\text{of expert model calls}}}
+$$
+
+</div>
+
+Here, $\lambda \ge 0$. A smaller $\lambda$ corresponds to a larger budget and allows more expert model calls. Conversely, a larger $\lambda$ encourages solving the task with fewer expert calls.
+
+In agent swarms, where many agents collaborate, central scheduling can suffer from diluted attention and single-point failures.
+
+#### Distributed Orchestration
+
+Distributed orchestration has no central scheduler: each agent is an independent entity operating without human control. Without central management, enabling agents to work together becomes the main challenge.
+
+AgentNet assigns each agent a Router and an Executor, starting with a fully connected network. When an agent receives a task, it checks whether it can complete it independently. Otherwise, it splits off part of the task and delegates it to other agents. Dynamic allocation uses EMA weights to ensure the selected agents can handle their assigned work.
+
+MAAC addresses this through multi-LLM training, treating each agent as an independent Actor and introducing a Critic to assess collaboration value at each step. `CoLLM-CC` uses **CTDE: centralized training with decentralized execution**. During **training**, a global Critic observes all agents' states and guides gradient updates for each LLM. During **deployment**, the Critic is removed, and the LLMs run independently in a distributed manner. Experiments show that `CoLLM-CC` substantially outperforms purely heuristic rules in convergence speed and collaboration on long-horizon tasks with sparse rewards.
+
+AHKG addresses the limited information scope of agents during execution. Without a central agent, nobody has a global view of overall task progress. This can be addressed through communication mechanisms or hierarchical knowledge graphs. When two agents meet or communicate, they merge differences in high-level semantic nodes and task-relevant local subgraphs.
+
+#### Hybrid Orchestration
+
+Hybrid orchestration retains centralized top-level design and goal constraints while granting decentralized local autonomy and parallel communication during execution.
+
+GoA dynamically establishes nonlinear directed edges between local agents, allowing neighboring nodes to complement and correct one another. Graph construction and message pooling remain governed by a **globally predefined topology objective**. Examples include an information-bottleneck compression objective or a global task-alignment constraint. This ensures local discussions ultimately converge toward a shared central goal.
+
+AdaptOrch selects different orchestration topologies for different tasks through a centralized **adaptive meta-coordinator**. It first constructs a task-dependency directed acyclic graph $G = (V, E)$. It then computes the graph's **structural features** in linear time $O(|V|+|E|)$, including maximum width/parallelism, maximum depth/sequential chain length, and subgraph coupling. From **four standard topologies**, it dynamically selects the best match:
+
+1. **Parallel**: used when subtasks are fully independent ($|E| \approx 0$).
+2. **Sequential**: used when tasks form a single chain of strong causal dependencies.
+3. **Hierarchical**: used when tasks span modules and require central aggregation and reconciliation.
+4. **Hybrid**: dynamically combines patterns when the task graph contains both parallel clusters and long dependency chains.
