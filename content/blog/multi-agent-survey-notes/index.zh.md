@@ -83,51 +83,51 @@ LLM 在自动化软件工程、科学实验设计以及多步网页导航等复�
 | **Method** | **Sub-type** | **Task Scope** | **Prim.** **Source** | **Correction** | **Ext.** **Ret.** | **Tool** | **TF** | **TTC** | **Year** |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | *A. Input-Stage Enhancement* |  |  |  |  |  |  |  |  |  |
-| `ViperGPT` [89](https://arxiv.org/html/2605.14892v2#bib.bib89) | PE | Mu | Inter | — | — | ✓ | ✓ | — | 2023 |
-| `RAPTOR` [90](https://arxiv.org/html/2605.14892v2#bib.bib90) | KE | QA LF | Evid | — | ✓ | — | ✓ | — | 2024 |
-| `Self-RAG` [50](https://arxiv.org/html/2605.14892v2#bib.bib50) | KE | QA LF | Evid | SF | ✓ | — | — | — | 2024 |
-| `LLaVA` [91](https://arxiv.org/html/2605.14892v2#bib.bib91) | PE | Mu | Inter | — | — | ✓ | — | — | 2024 |
-| `TopViewRS` [92](https://arxiv.org/html/2605.14892v2#bib.bib92) | PE | Mu | Inter | — | — | — | ✓ | — | 2024 |
-| `VisCoT` [93](https://arxiv.org/html/2605.14892v2#bib.bib93) | PE | Mu | Inter | — | — | — | ✓ | — | 2024 |
-| `HippoRAG2` [94](https://arxiv.org/html/2605.14892v2#bib.bib94) | KE | QA LF | Evid | — | ✓ | — | ✓ | — | 2025 |
-| `Theanine` [95](https://arxiv.org/html/2605.14892v2#bib.bib95) | KE | QA LF | Evid | — | ✓ | — | ✓ | — | 2025 |
-| `SubgraphRAG` [51](https://arxiv.org/html/2605.14892v2#bib.bib51) | KE | QA | Evid | — | ✓ | — | ✓ | — | 2025 |
+| ViperGPT [89](https://arxiv.org/html/2605.14892v2#bib.bib89) | PE | Mu | Inter | — | — | ✓ | ✓ | — | 2023 |
+| RAPTOR [90](https://arxiv.org/html/2605.14892v2#bib.bib90) | KE | QA LF | Evid | — | ✓ | — | ✓ | — | 2024 |
+| Self-RAG [50](https://arxiv.org/html/2605.14892v2#bib.bib50) | KE | QA LF | Evid | SF | ✓ | — | — | — | 2024 |
+| LLaVA [91](https://arxiv.org/html/2605.14892v2#bib.bib91) | PE | Mu | Inter | — | — | ✓ | — | — | 2024 |
+| TopViewRS [92](https://arxiv.org/html/2605.14892v2#bib.bib92) | PE | Mu | Inter | — | — | — | ✓ | — | 2024 |
+| VisCoT [93](https://arxiv.org/html/2605.14892v2#bib.bib93) | PE | Mu | Inter | — | — | — | ✓ | — | 2024 |
+| HippoRAG2 [94](https://arxiv.org/html/2605.14892v2#bib.bib94) | KE | QA LF | Evid | — | ✓ | — | ✓ | — | 2025 |
+| Theanine [95](https://arxiv.org/html/2605.14892v2#bib.bib95) | KE | QA LF | Evid | — | ✓ | — | ✓ | — | 2025 |
+| SubgraphRAG [51](https://arxiv.org/html/2605.14892v2#bib.bib51) | KE | QA | Evid | — | ✓ | — | ✓ | — | 2025 |
 | *B. Reasoning-Process Enhancement* |  |  |  |  |  |  |  |  |  |
-| `Self-Consistency` [64](https://arxiv.org/html/2605.14892v2#bib.bib64) | VRP | Ma QA | Consis | SC | — | — | ✓ | ✓ | 2023 |
-| `LATS` [96](https://arxiv.org/html/2605.14892v2#bib.bib96) | ESS | Mu | Inter | Refl | — | ✓ | ✓ | ✓ | 2024 |
-| `CoC` [97](https://arxiv.org/html/2605.14892v2#bib.bib97) | ESS | Ma QA Co | Tool | — | — | ✓ | ✓ | — | 2024 |
-| `AnyTool` [98](https://arxiv.org/html/2605.14892v2#bib.bib98) | ESS | Ag | Tool | SF | — | ✓ | ✓ | — | 2024 |
-| `RAIN` [99](https://arxiv.org/html/2605.14892v2#bib.bib99) | ESS | QA | Inter | SF | — | — | ✓ | ✓ | 2024 |
-| `Math-Shepherd` [67](https://arxiv.org/html/2605.14892v2#bib.bib67) | VRP | Ma | Log | — | — | — | — | ✓ | 2024 |
-| `CPO` [62](https://arxiv.org/html/2605.14892v2#bib.bib62) | VRP | Ma | Log | — | — | — | — | — | 2024 |
-| `rStar` [100](https://arxiv.org/html/2605.14892v2#bib.bib100) | ESS | Ma | Consis | SC | — | — | ✓ | ✓ | 2025 |
-| `rStar-Math` [101](https://arxiv.org/html/2605.14892v2#bib.bib101) | ESS | Ma | Consis | SC | — | — | — | ✓ | 2025 |
-| `TTS` [102](https://arxiv.org/html/2605.14892v2#bib.bib102) | ESS | Ma | Log | — | — | — | ✓ | ✓ | 2025 |
-| `TOPS` [103](https://arxiv.org/html/2605.14892v2#bib.bib103) | ESS | Ma | Log | — | — | — | ✓ | ✓ | 2025 |
-| `Rewarding Progress` [104](https://arxiv.org/html/2605.14892v2#bib.bib104) | VRP | Ma | Log | — | — | — | — | ✓ | 2025 |
-| `WizardMath` [68](https://arxiv.org/html/2605.14892v2#bib.bib68) | VRP | Ma | Log | — | — | — | — | ✓ | 2025 |
+| Self-Consistency [64](https://arxiv.org/html/2605.14892v2#bib.bib64) | VRP | Ma QA | Consis | SC | — | — | ✓ | ✓ | 2023 |
+| LATS [96](https://arxiv.org/html/2605.14892v2#bib.bib96) | ESS | Mu | Inter | Refl | — | ✓ | ✓ | ✓ | 2024 |
+| CoC [97](https://arxiv.org/html/2605.14892v2#bib.bib97) | ESS | Ma QA Co | Tool | — | — | ✓ | ✓ | — | 2024 |
+| AnyTool [98](https://arxiv.org/html/2605.14892v2#bib.bib98) | ESS | Ag | Tool | SF | — | ✓ | ✓ | — | 2024 |
+| RAIN [99](https://arxiv.org/html/2605.14892v2#bib.bib99) | ESS | QA | Inter | SF | — | — | ✓ | ✓ | 2024 |
+| Math-Shepherd [67](https://arxiv.org/html/2605.14892v2#bib.bib67) | VRP | Ma | Log | — | — | — | — | ✓ | 2024 |
+| CPO [62](https://arxiv.org/html/2605.14892v2#bib.bib62) | VRP | Ma | Log | — | — | — | — | — | 2024 |
+| rStar [100](https://arxiv.org/html/2605.14892v2#bib.bib100) | ESS | Ma | Consis | SC | — | — | ✓ | ✓ | 2025 |
+| rStar-Math [101](https://arxiv.org/html/2605.14892v2#bib.bib101) | ESS | Ma | Consis | SC | — | — | — | ✓ | 2025 |
+| TTS [102](https://arxiv.org/html/2605.14892v2#bib.bib102) | ESS | Ma | Log | — | — | — | ✓ | ✓ | 2025 |
+| TOPS [103](https://arxiv.org/html/2605.14892v2#bib.bib103) | ESS | Ma | Log | — | — | — | ✓ | ✓ | 2025 |
+| Rewarding Progress [104](https://arxiv.org/html/2605.14892v2#bib.bib104) | VRP | Ma | Log | — | — | — | — | ✓ | 2025 |
+| WizardMath [68](https://arxiv.org/html/2605.14892v2#bib.bib68) | VRP | Ma | Log | — | — | — | — | ✓ | 2025 |
 | *C. Output-Stage Regulation* |  |  |  |  |  |  |  |  |  |
-| `FActScore` [70](https://arxiv.org/html/2605.14892v2#bib.bib70) | OV | LF | Evid | — | ✓ | — | ✓ | — | 2023 |
-| `FacTool` [71](https://arxiv.org/html/2605.14892v2#bib.bib71) | OV | Mu | Evid | — | ✓ | ✓ | ✓ | — | 2023 |
-| `SelfCheckGPT` [73](https://arxiv.org/html/2605.14892v2#bib.bib73) | OV | LF | Consis | — | — | — | ✓ | — | 2023 |
-| `Semantic Entropy` [105](https://arxiv.org/html/2605.14892v2#bib.bib105) | OV | QA LF | Inter | — | — | — | ✓ | — | 2023 |
-| `RARR` [78](https://arxiv.org/html/2605.14892v2#bib.bib78) | OV | QA LF | Evid | TV | ✓ | — | ✓ | — | 2023 |
-| `ITI` [81](https://arxiv.org/html/2605.14892v2#bib.bib81) | RC | QA | Inter | — | — | — | ✓ | — | 2023 |
-| `Reflexion` [19](https://arxiv.org/html/2605.14892v2#bib.bib19) | RC | Ag Co | Inter | Refl | — | — | ✓ | ✓ | 2023 |
-| `L2R` [106](https://arxiv.org/html/2605.14892v2#bib.bib106) | RC | QA | Inter | — | — | — | — | — | 2023 |
-| `Factcheck-GPT` [72](https://arxiv.org/html/2605.14892v2#bib.bib72) | OV | QA LF | Evid | — | ✓ | — | ✓ | — | 2024 |
-| `HaloScope` [75](https://arxiv.org/html/2605.14892v2#bib.bib75) | OV | QA LF | Inter | — | — | — | ✓ | — | 2024 |
-| `DoLa` [79](https://arxiv.org/html/2605.14892v2#bib.bib79) | RC | QA LF | Inter | — | — | — | ✓ | — | 2024 |
-| `CAD` [80](https://arxiv.org/html/2605.14892v2#bib.bib80) | RC | QA LF | Evid | — | — | — | ✓ | — | 2024 |
-| `FactTune` [84](https://arxiv.org/html/2605.14892v2#bib.bib84) | RC | QA LF | Evid | — | — | — | — | — | 2024 |
-| `CoVe` [77](https://arxiv.org/html/2605.14892v2#bib.bib77) | RC | QA LF | Log | SF | — | — | ✓ | ✓ | 2024 |
-| `CRITIC` [87](https://arxiv.org/html/2605.14892v2#bib.bib87) | RC | QA Ma Co | Tool | TV | — | ✓ | ✓ | — | 2024 |
-| `R-Tuning` [85](https://arxiv.org/html/2605.14892v2#bib.bib85) | RC | QA | Inter | — | — | — | — | — | 2024 |
-| `HalluLens` [76](https://arxiv.org/html/2605.14892v2#bib.bib76) | OV | Mu | Inter | — | — | — | ✓ | — | 2025 |
-| `SADI` [82](https://arxiv.org/html/2605.14892v2#bib.bib82) | RC | QA | Inter | — | — | — | ✓ | — | 2025 |
-| `MCD` [83](https://arxiv.org/html/2605.14892v2#bib.bib83) | RC | QA LF | Inter | — | — | — | ✓ | — | 2025 |
-| `SEAL` [88](https://arxiv.org/html/2605.14892v2#bib.bib88) | RC | QA LF | Inter | — | — | — | — | — | 2025 |
-| `SMC steering` [107](https://arxiv.org/html/2605.14892v2#bib.bib107) | RC | QA Co | Log | — | — | — | ✓ | — | 2025 |
+| FActScore [70](https://arxiv.org/html/2605.14892v2#bib.bib70) | OV | LF | Evid | — | ✓ | — | ✓ | — | 2023 |
+| FacTool [71](https://arxiv.org/html/2605.14892v2#bib.bib71) | OV | Mu | Evid | — | ✓ | ✓ | ✓ | — | 2023 |
+| SelfCheckGPT [73](https://arxiv.org/html/2605.14892v2#bib.bib73) | OV | LF | Consis | — | — | — | ✓ | — | 2023 |
+| Semantic Entropy [105](https://arxiv.org/html/2605.14892v2#bib.bib105) | OV | QA LF | Inter | — | — | — | ✓ | — | 2023 |
+| RARR [78](https://arxiv.org/html/2605.14892v2#bib.bib78) | OV | QA LF | Evid | TV | ✓ | — | ✓ | — | 2023 |
+| ITI [81](https://arxiv.org/html/2605.14892v2#bib.bib81) | RC | QA | Inter | — | — | — | ✓ | — | 2023 |
+| Reflexion [19](https://arxiv.org/html/2605.14892v2#bib.bib19) | RC | Ag Co | Inter | Refl | — | — | ✓ | ✓ | 2023 |
+| L2R [106](https://arxiv.org/html/2605.14892v2#bib.bib106) | RC | QA | Inter | — | — | — | — | — | 2023 |
+| Factcheck-GPT [72](https://arxiv.org/html/2605.14892v2#bib.bib72) | OV | QA LF | Evid | — | ✓ | — | ✓ | — | 2024 |
+| HaloScope [75](https://arxiv.org/html/2605.14892v2#bib.bib75) | OV | QA LF | Inter | — | — | — | ✓ | — | 2024 |
+| DoLa [79](https://arxiv.org/html/2605.14892v2#bib.bib79) | RC | QA LF | Inter | — | — | — | ✓ | — | 2024 |
+| CAD [80](https://arxiv.org/html/2605.14892v2#bib.bib80) | RC | QA LF | Evid | — | — | — | ✓ | — | 2024 |
+| FactTune [84](https://arxiv.org/html/2605.14892v2#bib.bib84) | RC | QA LF | Evid | — | — | — | — | — | 2024 |
+| CoVe [77](https://arxiv.org/html/2605.14892v2#bib.bib77) | RC | QA LF | Log | SF | — | — | ✓ | ✓ | 2024 |
+| CRITIC [87](https://arxiv.org/html/2605.14892v2#bib.bib87) | RC | QA Ma Co | Tool | TV | — | ✓ | ✓ | — | 2024 |
+| R-Tuning [85](https://arxiv.org/html/2605.14892v2#bib.bib85) | RC | QA | Inter | — | — | — | — | — | 2024 |
+| HalluLens [76](https://arxiv.org/html/2605.14892v2#bib.bib76) | OV | Mu | Inter | — | — | — | ✓ | — | 2025 |
+| SADI [82](https://arxiv.org/html/2605.14892v2#bib.bib82) | RC | QA | Inter | — | — | — | ✓ | — | 2025 |
+| MCD [83](https://arxiv.org/html/2605.14892v2#bib.bib83) | RC | QA LF | Inter | — | — | — | ✓ | — | 2025 |
+| SEAL [88](https://arxiv.org/html/2605.14892v2#bib.bib88) | RC | QA LF | Inter | — | — | — | — | — | 2025 |
+| SMC steering [107](https://arxiv.org/html/2605.14892v2#bib.bib107) | RC | QA Co | Log | — | — | — | ✓ | — | 2025 |
 
 </div>
 
@@ -155,23 +155,23 @@ LLM 在自动化软件工程、科学实验设计以及多步网页导航等复�
 
 | **Method** | **Formation** | **Storage** | **Maintenance** | **Retrieval** | **Mem.** **Type** | **Task** **Domain** | **Year** |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| `Generative Agents` [110](https://arxiv.org/html/2605.14892v2#bib.bib110) | Record, Distill | Flat | Append | Multi-factor | ●●○ | Simulation | 2023 |
-| `MemoChat` [112](https://arxiv.org/html/2605.14892v2#bib.bib112) | Distill | Flat | Append | Similarity | ●●○ | Conversation | 2023 |
-| `Reflexion` [19](https://arxiv.org/html/2605.14892v2#bib.bib19) | Distill | Flat | Append | Injection | ●○○ | General | 2023 |
-| `MemoryBank` [123](https://arxiv.org/html/2605.14892v2#bib.bib123) | Record | Flat | Decay | Similarity | ●●○ | Conversation | 2024 |
-| `MemGPT` [111](https://arxiv.org/html/2605.14892v2#bib.bib111) | Record | Tiered | Eviction | Autonomous | ●○○ | Conv, QA | 2024 |
-| `HippoRAG` [119](https://arxiv.org/html/2605.14892v2#bib.bib119) | Distill | Graph | Incremental | Graph trav. | ○●○ | QA | 2024 |
-| `EMG` [120](https://arxiv.org/html/2605.14892v2#bib.bib120) | Distill | Graph | Rewrite | Similarity | ●●○ | Conversation | 2024 |
-| `SeCom` [115](https://arxiv.org/html/2605.14892v2#bib.bib115) | Distill | Flat | Append | Similarity | ●●○ | Conversation | 2025 |
-| `ENGRAM` [116](https://arxiv.org/html/2605.14892v2#bib.bib116) | Routing | Typed | Append | Type-aware | ●●● | Conversation | 2025 |
-| `Mem0` [114](https://arxiv.org/html/2605.14892v2#bib.bib114) | Distill | Graph | CRUD | Similarity | ○●○ | Conversation | 2025 |
-| `MemTree` [121](https://arxiv.org/html/2605.14892v2#bib.bib121) | Distill | Tree | Compression | Tree trav. | ○●○ | QA | 2025 |
-| `A-MEM` [122](https://arxiv.org/html/2605.14892v2#bib.bib122) | Distill | Graph | Evolution | Similarity | ○●○ | Conversation | 2025 |
-| `Zep` [118](https://arxiv.org/html/2605.14892v2#bib.bib118) | Distill | Graph | Versioning | Hybrid | ●●○ | Conv, Ent | 2025 |
-| `RecurSum` [113](https://arxiv.org/html/2605.14892v2#bib.bib113) | Distill | Flat | Compression | Similarity | ○●○ | Conversation | 2025 |
-| `COMEDY` [124](https://arxiv.org/html/2605.14892v2#bib.bib124) | Distill | Flat | Compression | Similarity | ●●○ | Conversation | 2025 |
-| `MemOS` [125](https://arxiv.org/html/2605.14892v2#bib.bib125) | Routing | Unified | Lifecycle | Routed | ●●● | General | 2025 |
-| `MemRL` [126](https://arxiv.org/html/2605.14892v2#bib.bib126) | Record | Flat | Learned | Utility-driven | ●○○ | General | 2026 |
+| Generative Agents [110](https://arxiv.org/html/2605.14892v2#bib.bib110) | Record, Distill | Flat | Append | Multi-factor | ●●○ | Simulation | 2023 |
+| MemoChat [112](https://arxiv.org/html/2605.14892v2#bib.bib112) | Distill | Flat | Append | Similarity | ●●○ | Conversation | 2023 |
+| Reflexion [19](https://arxiv.org/html/2605.14892v2#bib.bib19) | Distill | Flat | Append | Injection | ●○○ | General | 2023 |
+| MemoryBank [123](https://arxiv.org/html/2605.14892v2#bib.bib123) | Record | Flat | Decay | Similarity | ●●○ | Conversation | 2024 |
+| MemGPT [111](https://arxiv.org/html/2605.14892v2#bib.bib111) | Record | Tiered | Eviction | Autonomous | ●○○ | Conv, QA | 2024 |
+| HippoRAG [119](https://arxiv.org/html/2605.14892v2#bib.bib119) | Distill | Graph | Incremental | Graph trav. | ○●○ | QA | 2024 |
+| EMG [120](https://arxiv.org/html/2605.14892v2#bib.bib120) | Distill | Graph | Rewrite | Similarity | ●●○ | Conversation | 2024 |
+| SeCom [115](https://arxiv.org/html/2605.14892v2#bib.bib115) | Distill | Flat | Append | Similarity | ●●○ | Conversation | 2025 |
+| ENGRAM [116](https://arxiv.org/html/2605.14892v2#bib.bib116) | Routing | Typed | Append | Type-aware | ●●● | Conversation | 2025 |
+| Mem0 [114](https://arxiv.org/html/2605.14892v2#bib.bib114) | Distill | Graph | CRUD | Similarity | ○●○ | Conversation | 2025 |
+| MemTree [121](https://arxiv.org/html/2605.14892v2#bib.bib121) | Distill | Tree | Compression | Tree trav. | ○●○ | QA | 2025 |
+| A-MEM [122](https://arxiv.org/html/2605.14892v2#bib.bib122) | Distill | Graph | Evolution | Similarity | ○●○ | Conversation | 2025 |
+| Zep [118](https://arxiv.org/html/2605.14892v2#bib.bib118) | Distill | Graph | Versioning | Hybrid | ●●○ | Conv, Ent | 2025 |
+| RecurSum [113](https://arxiv.org/html/2605.14892v2#bib.bib113) | Distill | Flat | Compression | Similarity | ○●○ | Conversation | 2025 |
+| COMEDY [124](https://arxiv.org/html/2605.14892v2#bib.bib124) | Distill | Flat | Compression | Similarity | ●●○ | Conversation | 2025 |
+| MemOS [125](https://arxiv.org/html/2605.14892v2#bib.bib125) | Routing | Unified | Lifecycle | Routed | ●●● | General | 2025 |
+| MemRL [126](https://arxiv.org/html/2605.14892v2#bib.bib126) | Record | Flat | Learned | Utility-driven | ●○○ | General | 2026 |
 
 </div>
 
@@ -231,32 +231,32 @@ $$
 | **Method** | **Strategy** | **Structure** | **Exec** **Mode** | **Replan** | **Task** **Domain** | **Year** |
 | --- | --- | --- | --- | --- | --- | --- |
 | *A. Decomposition-Based Planning* |  |  |  |  |  |  |
-| `Least-to-Most` [130](https://arxiv.org/html/2605.14892v2#bib.bib130) | Proactive | Seq | Seq | — | General | 2023 |
-| `Plan-and-Solve` [131](https://arxiv.org/html/2605.14892v2#bib.bib131) | Proactive | Seq | Seq | — | General | 2023 |
-| `HuggingGPT` [132](https://arxiv.org/html/2605.14892v2#bib.bib132) | Proactive | DAG | Hier | — | General | 2023 |
-| `LLM-Planner` [134](https://arxiv.org/html/2605.14892v2#bib.bib134) | Proactive | Seq | Seq | ✓ | Robotics | 2023 |
-| `LLM+P` [135](https://arxiv.org/html/2605.14892v2#bib.bib135) | Proactive | Seq | Seq | — | Robotics | 2023 |
-| `ReAct` [18](https://arxiv.org/html/2605.14892v2#bib.bib18) | Progressive | Seq | Intlv | — | General | 2023 |
-| `DEPS` [142](https://arxiv.org/html/2605.14892v2#bib.bib142) | Progressive | Seq | Intlv | ✓ | General | 2023 |
-| `LLMCompiler` [133](https://arxiv.org/html/2605.14892v2#bib.bib133) | Proactive | DAG | Hier | ✓ | Tool | 2024 |
-| `Skeleton-of-Thought` [137](https://arxiv.org/html/2605.14892v2#bib.bib137) | Proactive | Tree | Hier | — | General | 2024 |
-| `Voyager` [128](https://arxiv.org/html/2605.14892v2#bib.bib128) | Progressive | Seq | Intlv | ✓ | General | 2024 |
-| `ADaPT` [139](https://arxiv.org/html/2605.14892v2#bib.bib139) | Progressive | Tree | Intlv | ✓ | General | 2024 |
-| `CodeAct` [141](https://arxiv.org/html/2605.14892v2#bib.bib141) | Progressive | Program | Intlv | ✓ | General | 2024 |
-| `KnowAgent` [143](https://arxiv.org/html/2605.14892v2#bib.bib143) | Progressive | Seq | Intlv | ✓ | General | 2024 |
-| `Planning Anything` [136](https://arxiv.org/html/2605.14892v2#bib.bib136) | Proactive | Program | Seq | — | General | 2025 |
-| `Plan-and-Act` [138](https://arxiv.org/html/2605.14892v2#bib.bib138) | Proactive | Seq | Hier | — | Web | 2025 |
-| `SelfGoal` [140](https://arxiv.org/html/2605.14892v2#bib.bib140) | Progressive | Tree | Intlv | ✓ | General | 2025 |
+| Least-to-Most [130](https://arxiv.org/html/2605.14892v2#bib.bib130) | Proactive | Seq | Seq | — | General | 2023 |
+| Plan-and-Solve [131](https://arxiv.org/html/2605.14892v2#bib.bib131) | Proactive | Seq | Seq | — | General | 2023 |
+| HuggingGPT [132](https://arxiv.org/html/2605.14892v2#bib.bib132) | Proactive | DAG | Hier | — | General | 2023 |
+| LLM-Planner [134](https://arxiv.org/html/2605.14892v2#bib.bib134) | Proactive | Seq | Seq | ✓ | Robotics | 2023 |
+| LLM+P [135](https://arxiv.org/html/2605.14892v2#bib.bib135) | Proactive | Seq | Seq | — | Robotics | 2023 |
+| ReAct [18](https://arxiv.org/html/2605.14892v2#bib.bib18) | Progressive | Seq | Intlv | — | General | 2023 |
+| DEPS [142](https://arxiv.org/html/2605.14892v2#bib.bib142) | Progressive | Seq | Intlv | ✓ | General | 2023 |
+| LLMCompiler [133](https://arxiv.org/html/2605.14892v2#bib.bib133) | Proactive | DAG | Hier | ✓ | Tool | 2024 |
+| Skeleton-of-Thought [137](https://arxiv.org/html/2605.14892v2#bib.bib137) | Proactive | Tree | Hier | — | General | 2024 |
+| Voyager [128](https://arxiv.org/html/2605.14892v2#bib.bib128) | Progressive | Seq | Intlv | ✓ | General | 2024 |
+| ADaPT [139](https://arxiv.org/html/2605.14892v2#bib.bib139) | Progressive | Tree | Intlv | ✓ | General | 2024 |
+| CodeAct [141](https://arxiv.org/html/2605.14892v2#bib.bib141) | Progressive | Program | Intlv | ✓ | General | 2024 |
+| KnowAgent [143](https://arxiv.org/html/2605.14892v2#bib.bib143) | Progressive | Seq | Intlv | ✓ | General | 2024 |
+| Planning Anything [136](https://arxiv.org/html/2605.14892v2#bib.bib136) | Proactive | Program | Seq | — | General | 2025 |
+| Plan-and-Act [138](https://arxiv.org/html/2605.14892v2#bib.bib138) | Proactive | Seq | Hier | — | Web | 2025 |
+| SelfGoal [140](https://arxiv.org/html/2605.14892v2#bib.bib140) | Progressive | Tree | Intlv | ✓ | General | 2025 |
 | *B. Search-Based Planning* |  |  |  |  |  |  |
-| `LLM-MCTS` [145](https://arxiv.org/html/2605.14892v2#bib.bib145) | MCTS | State | Seq | — | Robotics | 2023 |
-| `RAP` [147](https://arxiv.org/html/2605.14892v2#bib.bib147) | MCTS | State | Seq | — | General | 2023 |
-| `PromptAgent` [146](https://arxiv.org/html/2605.14892v2#bib.bib146) | MCTS | State | Seq | — | General | 2024 |
-| `ToolChain*` [150](https://arxiv.org/html/2605.14892v2#bib.bib150) | A* | Action | Seq | — | Tool | 2024 |
-| `REST-MCTS*` [148](https://arxiv.org/html/2605.14892v2#bib.bib148) | MCTS | State | Seq | — | General | 2024 |
-| `PlanRAG` [153](https://arxiv.org/html/2605.14892v2#bib.bib153) | Retrieve | Plan | Seq | ✓ | QA | 2024 |
-| `AFlow` [149](https://arxiv.org/html/2605.14892v2#bib.bib149) | MCTS | Plan | Seq | — | General | 2025 |
-| `DiffuSearch` [151](https://arxiv.org/html/2605.14892v2#bib.bib151) | Diffusion | State | Seq | — | General | 2025 |
-| `Agent S` [127](https://arxiv.org/html/2605.14892v2#bib.bib127) | Greedy | Plan | Hier | ✓ | Web | 2025 |
+| LLM-MCTS [145](https://arxiv.org/html/2605.14892v2#bib.bib145) | MCTS | State | Seq | — | Robotics | 2023 |
+| RAP [147](https://arxiv.org/html/2605.14892v2#bib.bib147) | MCTS | State | Seq | — | General | 2023 |
+| PromptAgent [146](https://arxiv.org/html/2605.14892v2#bib.bib146) | MCTS | State | Seq | — | General | 2024 |
+| ToolChain* [150](https://arxiv.org/html/2605.14892v2#bib.bib150) | A* | Action | Seq | — | Tool | 2024 |
+| REST-MCTS* [148](https://arxiv.org/html/2605.14892v2#bib.bib148) | MCTS | State | Seq | — | General | 2024 |
+| PlanRAG [153](https://arxiv.org/html/2605.14892v2#bib.bib153) | Retrieve | Plan | Seq | ✓ | QA | 2024 |
+| AFlow [149](https://arxiv.org/html/2605.14892v2#bib.bib149) | MCTS | Plan | Seq | — | General | 2025 |
+| DiffuSearch [151](https://arxiv.org/html/2605.14892v2#bib.bib151) | Diffusion | State | Seq | — | General | 2025 |
+| Agent S [127](https://arxiv.org/html/2605.14892v2#bib.bib127) | Greedy | Plan | Hier | ✓ | Web | 2025 |
 
 </div>
 
@@ -353,13 +353,13 @@ A2A 是 Google 联合 50+ 科技巨头共同提出的，它负责解决不同责
 
 | **Protocol** | **Proposer** | **Comm.** **Type** | **Msg. Format** | **Core Functions** | **Year** |
 | --- | --- | --- | --- | --- | --- |
-| `Agora` [275](https://arxiv.org/html/2605.14892v2#bib.bib275) | University of Oxford | A2A | PD | Consensus formation | 2024 |
-| `MCP` [276](https://arxiv.org/html/2605.14892v2#bib.bib276) | Anthropic | A2T | JSON-RPC | Standardized context access | 2024 |
-| `ANP` [277](https://arxiv.org/html/2605.14892v2#bib.bib277) | ANP Community | A2A | JSON-LD+NL | Meta-protocol negotiation | 2024 |
-| `LMOS` [278](https://arxiv.org/html/2605.14892v2#bib.bib278) | Eclipse Foundation | A2S | JSON-LD+TD | Group management | 2024 |
-| `ACP` [279](https://arxiv.org/html/2605.14892v2#bib.bib279) | IBM | A2A | JSON-LD | Async & Sync interaction | 2025 |
-| `A2A` [26](https://arxiv.org/html/2605.14892v2#bib.bib26) | Google | A2A | JSON-RPC/SSE | Agent discovery | 2025 |
-| `Agent Protocol` [280](https://arxiv.org/html/2605.14892v2#bib.bib280) | AI Engineer Foundation | A2S | REST/HTTP | Standardized task API | 2025 |
+| Agora [275](https://arxiv.org/html/2605.14892v2#bib.bib275) | University of Oxford | A2A | PD | Consensus formation | 2024 |
+| MCP [276](https://arxiv.org/html/2605.14892v2#bib.bib276) | Anthropic | A2T | JSON-RPC | Standardized context access | 2024 |
+| ANP [277](https://arxiv.org/html/2605.14892v2#bib.bib277) | ANP Community | A2A | JSON-LD+NL | Meta-protocol negotiation | 2024 |
+| LMOS [278](https://arxiv.org/html/2605.14892v2#bib.bib278) | Eclipse Foundation | A2S | JSON-LD+TD | Group management | 2024 |
+| ACP [279](https://arxiv.org/html/2605.14892v2#bib.bib279) | IBM | A2A | JSON-LD | Async & Sync interaction | 2025 |
+| A2A [26](https://arxiv.org/html/2605.14892v2#bib.bib26) | Google | A2A | JSON-RPC/SSE | Agent discovery | 2025 |
+| Agent Protocol [280](https://arxiv.org/html/2605.14892v2#bib.bib280) | AI Engineer Foundation | A2S | REST/HTTP | Standardized task API | 2025 |
 
 </div>
 
@@ -457,7 +457,7 @@ $$
 
 这一视角不再按智能体之间的边来切分，而是按Agent 内部的功能模块或任务执行的时序阶段来切分。
 
-`AgentErrorTaxonomy` / `AgentErrorBench` / `AgentDebug` 采用了模块化的 Agent 架构，将错误归因于五个分类：记忆、反思、规划、执行、系统级操作；将每一步 $t$ 的输出按功能拆解为五个显式字段：$u_t = \{m_t^{\text{mem}}, m_t^{\text{ref}}, m_t^{\text{plan}}, m_t^{\text{act}}, m_t^{\text{sys}}\}$，利用 Critic LLM 选择出错误模块节点集合 $\mathcal{C} = \{(t_k, \text{module}_k, \text{error\_type}_k)\}$ 然后在该集合中找到最早触发错误的节点，之后可以进行回溯修复重做。
+`AgentErrorTaxonomy` / `AgentErrorBench` / `AgentDebug` 采用了模块化的 Agent 架构，将错误归因于五个分类：记忆、反思、规划、执行、系统级操作；将每一步 $t$ 的输出按功能拆解为五个显式字段：$u_t = \{m_t^{\text{mem}}, m_t^{\text{ref}}, m_t^{\text{plan}}, m_t^{\text{act}}, m_t^{\text{sys}}\}$，利用 Critic LLM 选择出错误模块节点集合 $\mathcal{C} = \{(t_k, \text{module}_k, \mathrm{error\_type}_k)\}$ 然后在该集合中找到最早触发错误的节点，之后可以进行回溯修复重做。
 
 #### 因果生命周期视角
 
