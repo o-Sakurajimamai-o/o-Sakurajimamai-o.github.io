@@ -75,7 +75,7 @@ Traditional agent memory systems often use simplified storage paradigms, mainly 
 
 Building a knowledge graph for an agent involves continuously extracting and integrating structured triples from unstructured interaction streams. Mainstream approaches rely heavily on large language models (LLMs) as open-vocabulary parsing engines.
 
-In the AriGraph world model, an LLM parses each textual observation from the environment, identifies relevant objects, and extracts their relationships as triples. Similarly, systems such as Mem0 transform conversational messages into entity–relation–entity triples during extraction. This offers substantial advantages over traditional named entity recognition (NER) and relation-classification pipelines. LLMs can generalize to unseen, fine-grained entity types and uncover implicit semantic relationships through deeper contextual understanding.
+In the `AriGraph` world model, an LLM parses each textual observation from the environment, identifies relevant objects, and extracts their relationships as triples. Similarly, systems such as `Mem0` transform conversational messages into entity–relation–entity triples during extraction. This offers substantial advantages over traditional named entity recognition (NER) and relation-classification pipelines. LLMs can generalize to unseen, fine-grained entity types and uncover implicit semantic relationships through deeper contextual understanding.
 
 #### Corresponding Memory Types
 
@@ -87,7 +87,7 @@ Knowledge graphs also support dynamic construction and modification, since knowl
 
 Hierarchical memory organizes information into a multilevel tree, compressing large collections of experience into readily accessible knowledge schemas. It supports top-down traversal to retrieve abstract topics and bottom-up aggregation of summaries to maintain coherence across a large memory repository.
 
-Systems such as MemTree dynamically route new information through the tree. They cluster similar content under existing nodes, create new branches for novel information, and recursively update ancestor summaries to reflect newly absorbed knowledge.
+Systems such as `MemTree` dynamically route new information through the tree. They cluster similar content under existing nodes, create new branches for novel information, and recursively update ancestor summaries to reflect newly absorbed knowledge.
 
 Construction relies on two core processes: **semantic clustering** for organization and **recursive summarization** for conceptual abstraction. To preserve the hierarchy's value as a compressed knowledge schema, each parent dynamically generates a concise natural-language summary of all information in its subtree.
 
@@ -97,13 +97,13 @@ Beyond static factual knowledge, this structure can also represent conversationa
 
 #### Modeling Two Temporal Dimensions
 
-A key distinction is between when an event actually occurred (_valid time_) and when the system recorded it (_transaction time_). **Graphiti** implements a bi-temporal model that tracks both dimensions simultaneously.
+A key distinction is between when an event actually occurred (_valid time_) and when the system recorded it (_transaction time_). **`Graphiti`** implements a bi-temporal model that tracks both dimensions simultaneously.
 
-Relative expressions such as "last Friday" can easily become ambiguous across conversation sessions. **TReMu** uses time-aware memory to separate mention time, the session timestamp, from the inferred time at which the event occurred.
+Relative expressions such as "last Friday" can easily become ambiguous across conversation sessions. **`TReMu`** uses time-aware memory to separate mention time, the session timestamp, from the inferred time at which the event occurred.
 
 #### Hierarchical Temporal Constraints
 
-**MemoTime** aims to prevent temporal inconsistencies in reasoning chains, such as retrieving an effect that occurred before its cause. It organizes temporal knowledge graph (TKG) reasoning into a hierarchical **Tree of Time**. Any retrieved reasoning path $e_1\to e_2\to e_3$ must respect chronological order, $t_1\leq t_2\leq t_3$. This operator-aware structure prunes evidence that appears semantically relevant but is temporally invalid.
+**`MemoTime`** aims to prevent temporal inconsistencies in reasoning chains, such as retrieving an effect that occurred before its cause. It organizes temporal knowledge graph (TKG) reasoning into a hierarchical **Tree of Time**. Any retrieved reasoning path $e_1\to e_2\to e_3$ must respect chronological order, $t_1\leq t_2\leq t_3$. This operator-aware structure prunes evidence that appears semantically relevant but is temporally invalid.
 
 | Date | Event |
 | --- | --- |
@@ -138,13 +138,13 @@ Binary graphs connecting two entities are efficient, but lose information when r
 
 #### Information Integrity in N-ary Relations
 
-Hypergraph memory aims to avoid the sparsity and semantic fragmentation caused by decomposing complex facts into multiple binary edges. **HyperGraphRAG** demonstrates, from an information-theoretic perspective, that hypergraph representations preserve more complete information than equivalent binary graphs.
+Hypergraph memory aims to avoid the sparsity and semantic fragmentation caused by decomposing complex facts into multiple binary edges. **`HyperGraphRAG`** demonstrates, from an information-theoretic perspective, that hypergraph representations preserve more complete information than equivalent binary graphs.
 
 A natural-language knowledge fragment and all its associated entities are represented as one hyperedge, $e_i=(e_i^{\text{text}},\{v_1,\dots,v_n\})$. This supports **dual retrieval**, retrieving both relevant entities and the hyperedges that bind them together. The result provides complete factual context for downstream generation.
 
 #### Structural Dependencies in Tabular Data
 
-Hypergraphs are particularly effective for structured tabular data whose relationships are inherently group-based. **HyperG** models tabular knowledge using hypergraphs, constructing separate hyperedges for rows, columns, and the entire table. These capture higher-order dependencies, including semantic consistency within columns and hierarchical relationships between table captions and data cells.
+Hypergraphs are particularly effective for structured tabular data whose relationships are inherently group-based. **`HyperG`** models tabular knowledge using hypergraphs, constructing separate hyperedges for rows, columns, and the entire table. These capture higher-order dependencies, including semantic consistency within columns and hierarchical relationships between table captions and data cells.
 
 ### Hybrid Graph Architectures
 
@@ -152,7 +152,7 @@ Graph structures excel in precision and multi-hop reasoning, but may lack the br
 
 ##### External Graphs with Internal Working Memory
 
-One hybrid approach focuses on interaction between a large external knowledge graph and a lightweight internal working state. **KG-Agent** combines an external knowledge graph with internal _Knowledge Memory_. Unlike purely graph-based agents, it maintains a structured scratchpad, iteratively updating reasoning history, tool definitions, and intermediate observations retrieved from the external graph. This design lets the agent navigate large static graphs using a flexible, evolving internal context, connecting symbolic storage with neural reasoning.
+One hybrid approach focuses on interaction between a large external knowledge graph and a lightweight internal working state. **`KG-Agent`** combines an external knowledge graph with internal _Knowledge Memory_. Unlike purely graph-based agents, it maintains a structured scratchpad, iteratively updating reasoning history, tool definitions, and intermediate observations retrieved from the external graph. This design lets the agent navigate large static graphs using a flexible, evolving internal context, connecting symbolic storage with neural reasoning.
 
 ### Summary
 
@@ -199,7 +199,7 @@ Consider a memory graph $G_t=(V_t,E_t,X_t)$. The node set $V_t$ contains entitie
    $$
 2. Expand from the anchor set, moving outward by $n$ steps. This can use breadth-first search (BFS) or relation-constrained traversal that selects only relevant neighboring nodes.
 3. Score and prune nodes or paths; the implementation details are not discussed here.
-4. Cross-graph traversal changes the procedure in step 2. G-Memory uses bidirectional traversal across three layers: an insight graph at the top, a query graph in the middle, and an interaction graph below. It first retrieves candidates from the middle layer by similarity. It then searches upward for similar tasks and traverses downward to find the corresponding original interaction graph.
+4. Cross-graph traversal changes the procedure in step 2. `G-Memory` uses bidirectional traversal across three layers: an insight graph at the top, a query graph in the middle, and an interaction graph below. It first retrieves candidates from the middle layer by similarity. It then searches upward for similar tasks and traverses downward to find the corresponding original interaction graph.
 
 ### Reinforcement Learning-Based Retrieval Operators
 
@@ -248,14 +248,14 @@ Internal self-evolution can refine memory through internal consistency, but it c
 
 This approach optimizes memory content and management policies using the actual outcomes of past actions. Raw interaction logs in open, dynamic environments often contain substantial noise. Agents therefore use task success and failure as strong supervisory signals to extract useful action knowledge.
 
-Rather than relying on rigid, hardcoded rules, systems such as Memory-R1 and Inside Out treat memory operations as learnable discrete actions within an RL framework. These operations include insertion, modification, and deletion. End-to-end rewards reflecting downstream task accuracy allow the agent to learn optimal policies for maintaining graph health.
+Rather than relying on rigid, hardcoded rules, systems such as `Memory-R1` and `Inside Out` treat memory operations as learnable discrete actions within an RL framework. These operations include insertion, modification, and deletion. End-to-end rewards reflecting downstream task accuracy allow the agent to learn optimal policies for maintaining graph health.
 
 #### Active Inquiry
 
-Recent frameworks allow agents to identify uncertainty in their memory graphs and set goals autonomously to resolve these blind spots. ProMem supports reflection on missing nodes or ambiguous edges, generating targeted queries to fill knowledge gaps. AgentEvolver extends this capability to task generation. It synthesizes new subtasks that encourage exploration of unknown states, adding diverse experience to memory proactively.
+Recent frameworks allow agents to identify uncertainty in their memory graphs and set goals autonomously to resolve these blind spots. `ProMem` supports reflection on missing nodes or ambiguous edges, generating targeted queries to fill knowledge gaps. `AgentEvolver` extends this capability to task generation. It synthesizes new subtasks that encourage exploration of unknown states, adding diverse experience to memory proactively.
 
-KIMI K2.5 introduces a scalable swarm mechanism, spawning parallel subagents to explore disjoint branches of a problem space. The central memory repository can rapidly gather diverse perspectives and edge cases. This transforms the system from a passive container of experience into an active engine for knowledge construction.
+`KIMI K2.5` introduces a scalable swarm mechanism, spawning parallel subagents to explore disjoint branches of a problem space. The central memory repository can rapidly gather diverse perspectives and edge cases. This transforms the system from a passive container of experience into an active engine for knowledge construction.
 
 Despite progress in feedback-driven adaptation and active inquiry, explicitly using graph topology to guide external exploration remains an open research direction.
 
-Paper and figures: [Graph-based Agent Memory: Taxonomy, Techniques, and Applications](https://arxiv.org/abs/2602.05665v1). Figures 1–4 follow the order in the note and correspond to Figures 1, 2, 6, and 8 in the paper. Captions are adapted from the corresponding paper descriptions.
+Paper and figures: [`Graph-based Agent Memory: Taxonomy, Techniques, and Applications`](https://arxiv.org/abs/2602.05665v1). Figures 1–4 follow the order in the note and correspond to Figures 1, 2, 6, and 8 in the paper. Captions are adapted from the corresponding paper descriptions.
