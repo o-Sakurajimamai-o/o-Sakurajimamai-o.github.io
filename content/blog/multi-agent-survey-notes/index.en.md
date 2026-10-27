@@ -1,8 +1,8 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-25T23:12:12+08:00
-description: "Reading notes on Beyond Individual Intelligence: individual capabilities, reasoning, memory, planning, role assignment, multi-agent communication, and orchestration."
+lastmod: 2026-10-27T22:24:12+08:00
+description: "Reading notes on Beyond Individual Intelligence: individual capabilities, reasoning, memory, planning, role assignment, multi-agent communication, orchestration, and failure attribution."
 draft: false
 ---
 
@@ -422,3 +422,61 @@ AdaptOrch selects different orchestration topologies for different tasks through
 2. **Sequential**: used when tasks form a single chain of strong causal dependencies.
 3. **Hierarchical**: used when tasks span modules and require central aggregation and reconciliation.
 4. **Hybrid**: dynamically combines patterns when the task graph contains both parallel clusters and long dependency chains.
+
+## Multi-Agent System Failure Attribution
+
+In a single-agent system, errors can generally be located more easily because one agent is responsible for its own output. In a multi-agent system, an agent's output may not cause an immediate error. It can continue along the interaction chain, influencing other agents and causing further errors. This makes failure attribution particularly important.
+
+<figure class="fig">
+  <img src="/blog/multi-agent-survey-notes/figures/failure-attribution.png" width="1731" height="946" alt="Figure 4. Failure attribution in multi-agent systems, showing execution trajectories, failure propagation, and attribution analysis." loading="lazy" decoding="async">
+  <figcaption>Figure 4. Failure attribution in multi-agent systems, showing execution trajectories, failure propagation, and attribution analysis.</figcaption>
+</figure>
+
+### Diagnosis
+
+A multi-agent execution trajectory $\tau$ is a time-ordered dynamic sequence formed under a given user query, initial environment state, and system configuration. It can be formalized as:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\tau=\big((i_{0},u_{0}),\dots,(i_{t},u_{t}),\dots,(i_{H},u_{H})\big),
+$$
+
+</div>
+
+Here, $H$ is the trajectory horizon, and $(i_{t},u_{t})$ denotes the active agent and its corresponding action at time step $t$.
+
+To define when a failure occurs, a trajectory evaluation function $Z(\tau)$ is introduced. When $Z(\tau)=1$, the trajectory's final result is assessed as anomalous. The failure attribution process can be formalized as:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+(I,t)=\begin{cases}f(\Omega,\tau,q),&\text{if }Z(\tau)=1,\\
+\emptyset,&\text{otherwise}.\end{cases}
+$$
+
+</div>
+
+Only when the system trajectory is judged anomalous, that is, $Z(\tau)=1$, does the attribution model $f$ take the system configuration $\Omega$, trajectory $\tau$, and user query $q$ as inputs. It returns the agent responsible for the failure and the corresponding decisive time step as the pair $(I,t)$. If the system operates normally, it returns the empty set $\emptyset$.
+
+### Failure Taxonomy
+
+Existing failure taxonomies can be grouped into three orthogonal perspectives: **system structure**, **execution stages**, and **causal lifecycle**.
+
+#### System Structure Perspective
+
+This perspective focuses on organizational structures and interaction edges between agents. The basic approach defines categories of errors: MAST defines three main categories with 14 subcategories, while AgentAsk defines four types of handoff errors. The execution trajectory is then used to determine whether an agent made an error and which category it belongs to, usually with an LLM making the decision. AgentAsk adds a follow-up process: after detecting an error, it asks the agent responsible for clarification and sends the work back to be redone.
+
+#### Execution Perspective
+
+Instead of dividing errors according to edges between agents, this perspective divides them by an agent's internal functional modules or the sequential stages of task execution.
+
+`AgentErrorTaxonomy`, `AgentErrorBench`, and `AgentDebug` use a modular agent architecture to attribute errors to five categories: memory, reflection, planning, execution, and system-level operations. The output at each step $t$ is decomposed by function into five explicit fields: $u_t = \{m_t^{\text{mem}}, m_t^{\text{ref}}, m_t^{\text{plan}}, m_t^{\text{act}}, m_t^{\text{sys}}\}$. A Critic LLM selects a set of faulty module nodes $\mathcal{C} = \{(t_k, \text{module}_k, \text{error\_type}_k)\}$. The earliest node to trigger an error is then located in this set, allowing the process to be traced back, repaired, and redone.
+
+#### Causal Lifecycle Perspective
+
+The first two perspectives, system structure and execution stages, essentially assign static labels to individual failure points. The causal lifecycle perspective instead treats a failure as a living, dynamically evolving organism, focusing on the full process through which the error occurs.
+
+The time step where a fault is introduced (Originating Point $t_{\text{origin}}$) is often far removed from the step where it becomes a visible anomaly (Manifestation Point $t_{\text{manifest}}$). `FailCycle` divides errors in a MAS into four stages: Fault Introduction (latent introduction), Propagation (hidden propagation), Evolution / Mutation (cross-node mutation), and Manifestation (visible outbreak). A graph is then constructed to locate the error and trace it back for correction.
+
+`AGENTSCOPE` groups anomalies into five high-level behavioral patterns and proposes a **neurosymbolic diagnosis framework**. It uses an LLM to organize the trajectory $\tau$ into structured nodes: `Node_t = {Intent, Pre-condition (observed state before execution), Action (tool call or instruction), Post-condition (state change after execution)}`. Agents are then formally defined, and a set of **neural invariant assertions** is generated automatically. Based on the trajectory, a Critic LLM evaluates these assertions and maps them directly to failure patterns at the corresponding nodes.

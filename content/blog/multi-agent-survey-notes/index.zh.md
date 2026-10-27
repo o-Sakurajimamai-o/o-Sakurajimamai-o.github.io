@@ -1,8 +1,8 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-25T23:12:12+08:00
-description: "《Beyond Individual Intelligence》阅读笔记：个体能力、推理、记忆、规划、角色分配、多智能体通信与编排。"
+lastmod: 2026-10-27T22:24:12+08:00
+description: "《Beyond Individual Intelligence》阅读笔记：个体能力、推理、记忆、规划、角色分配、多智能体通信、编排与故障归因。"
 draft: false
 isCJKLanguage: true
 ---
@@ -408,3 +408,61 @@ AdaptOrch 针对不同的任务选择了不同的拓扑编排。AdaptOrch 设了
 2. **Sequential**：当任务是单链条强因果依赖时启用；
 3. **Hierarchical**：当任务跨模块且需要中心汇总对账时启用；
 4. **Hybrid**：当任务图里既有并行簇又有长依赖链时动态组合启用。
+
+## 多智能体系统故障归因
+
+在单智能体中，一般是可以很好定位到错误，它的产出结果由它一人负责。但是在多智能体系统中，一个智能体的产出并不会立刻报错，而且会顺着交互链一直延续下去，而其它智能体可能会受该产物影响又产生新的错误。因此错误归因变得极其重要。
+
+<figure class="fig">
+  <img src="/blog/multi-agent-survey-notes/figures/failure-attribution.png" width="1731" height="946" alt="图 4：多智能体系统中的故障归因机制，展示执行轨迹、故障传播和归因分析。" loading="lazy" decoding="async">
+  <figcaption>图 4：多智能体系统中的故障归因机制，展示执行轨迹、故障传播和归因分析。</figcaption>
+</figure>
+
+### 诊断
+
+多智能体执行轨迹 $\tau$ 是指在给定的用户查询、初始环境状态和系统配置下形成的时间有序动态序列，可以形式化为：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\tau=\big((i_{0},u_{0}),\dots,(i_{t},u_{t}),\dots,(i_{H},u_{H})\big),
+$$
+
+</div>
+
+其中 $H$ 表示轨迹时域长度，$(i_{t},u_{t})$ 则表示在时间步 $t$ 处于活跃状态的智能体及其相应的行动。
+
+为了定义故障发生的条件，引入了轨迹评估函数 $Z(\tau)$。当 $Z(\tau)=1$ 时，表示轨迹 $\tau$ 的最终结果状态被评估为异常。故障归因过程可形式化为：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+(I,t)=\begin{cases}f(\Omega,\tau,q),&\text{if }Z(\tau)=1,\\
+\emptyset,&\text{otherwise}.\end{cases}
+$$
+
+</div>
+
+只有当系统轨迹被判定为异常时（即 $Z(\tau)=1$），归因模型 $f$ 才会以系统配置 $\Omega$、轨迹 $\tau$ 和用户查询 $q$ 作为输入，并返回对故障负责的智能体及对应的决定性时间步（表示为二元组 $(I,t)$）；若系统运行正常，则输出空集 $\emptyset$。
+
+### 故障分类
+
+可以将现有的故障分类体系归纳为三大正交视角：**系统结构视角**、**执行阶段视角** 和 **因果生命周期视角**。
+
+#### 系统结构视角
+
+这一视角聚焦于智能体之间的组织架构与交互边。基本方法是定义若干类错误（MAST 定义了 3 大类 14 子类、AgentAsk 定义了 4 种交接错误类），然后通过根据执行轨迹来判断某个智能体的轨迹是否出错，归属于哪一类（一般通过 LLM 来决策），其中 AgentAsk 增加了追问打回的流程，即判断出错误后，进一步的向产生错误的 Agent 澄清问题重新做。
+
+#### 执行视角
+
+这一视角不再按智能体之间的边来切分，而是按Agent 内部的功能模块或任务执行的时序阶段来切分。
+
+`AgentErrorTaxonomy` / `AgentErrorBench` / `AgentDebug` 采用了模块化的 Agent 架构，将错误归因于五个分类：记忆、反思、规划、执行、系统级操作；将每一步 $t$ 的输出按功能拆解为五个显式字段：$u_t = \{m_t^{\text{mem}}, m_t^{\text{ref}}, m_t^{\text{plan}}, m_t^{\text{act}}, m_t^{\text{sys}}\}$，利用 Critic LLM 选择出错误模块节点集合 $\mathcal{C} = \{(t_k, \text{module}_k, \text{error\_type}_k)\}$ 然后在该集合中找到最早触发错误的节点，之后可以进行回溯修复重做。
+
+#### 因果生命周期视角
+
+前两个视角（系统结构、执行阶段）本质上还是在给“单个故障点”贴静态标签；而因果生命周期视角则把故障看作一个活的、动态演化的生物体，重点刻画它发生错误的全过程。
+
+故障引入的时间步（Originating Point $t_{\text{origin}}$）与故障暴露为可见异常的时间步（Manifestation Point $t_{\text{manifest}}$）往往严重分离，`FailCycle` 将 MAS 中的错误划分为四个阶段：Fault Introduction (潜伏引入)、Propagation (隐蔽传播)、Evolution / Mutation (跨节点变异)、Manifestation (显性爆发)，随后依然是构建图然后定位错误进行回溯处理。
+
+`AGENTSCOPE` 将异常归结为五种高层行为模式，提出了一套 **神经符号诊断框架**。它利用 LLM 将轨迹 $\tau$ 整合成规则化节点：`Node_t = {Intent(意图), Pre-condition(前置观测状态), Action(调用的工具/发出的指令), Post-condition(执行后状态变化)}`，然后对 Agent 进行规范化定义，自动生成一组**神经不变量断言**，后再基于这组轨迹，利用 Critic LLM 进行判定，直接映射对应节点的故障模式。
