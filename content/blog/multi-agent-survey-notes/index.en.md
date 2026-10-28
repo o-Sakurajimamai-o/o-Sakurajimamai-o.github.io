@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-27T22:24:12+08:00
+lastmod: 2026-10-28T20:58:26+08:00
 description: "Reading notes on Beyond Individual Intelligence: individual capabilities, reasoning, memory, planning, role assignment, multi-agent communication, orchestration, and failure attribution."
 draft: false
 ---
@@ -480,3 +480,48 @@ The first two perspectives, system structure and execution stages, essentially a
 The time step where a fault is introduced (Originating Point $t_{\text{origin}}$) is often far removed from the step where it becomes a visible anomaly (Manifestation Point $t_{\text{manifest}}$). `FailCycle` divides errors in a MAS into four stages: Fault Introduction (latent introduction), Propagation (hidden propagation), Evolution / Mutation (cross-node mutation), and Manifestation (visible outbreak). A graph is then constructed to locate the error and trace it back for correction.
 
 `AGENTSCOPE` groups anomalies into five high-level behavioral patterns and proposes a **neurosymbolic diagnosis framework**. It uses an LLM to organize the trajectory $\tau$ into structured nodes: `Node_t = {Intent, Pre-condition (observed state before execution), Action (tool call or instruction), Post-condition (state change after execution)}`. Agents are then formally defined, and a set of **neural invariant assertions** is generated automatically. Based on the trajectory, a Critic LLM evaluates these assertions and maps them directly to failure patterns at the corresponding nodes.
+
+### Failure Attribution
+
+Attribution methods can broadly be divided into three types.
+
+#### Data-Driven Attribution
+
+Data-driven attribution has roughly evolved through four stages. First, approaches such as `Who&When` flatten error logs and pass them directly to an LLM to determine where an error occurred. Next, `AgenTracer` and `AEGIS` inject faulty trajectories into successful logs and repair nodes in faulty logs, using reinforcement learning to train small attribution models. Then `Spectrum`, `CORRECT`, and `GraphTracer` use graph structures or structured logs to make analysis and judgment easier for LLMs. Finally, `AgentAsk`, `Trajectory Graph Copilot`, and `Trajectory Guard` train small models or encoders to assess an agent's next action. If the decision model judges the action to be wrong or inappropriate, it sends the work back to be redone.
+
+Because a small model's output speed is not necessarily fast, the decision model could be trained specifically for decision-making, similar to Jev, or an encoder such as a GRU could be trained, as in `Trajectory Guard`.
+
+#### Constraint-Guided Methods
+
+Data-driven methods generally require fine-tuning or training small models. By applying constraints when reading logs, we can narrow the search space for localization.
+
+Current approaches to constraining error logs fall into two broad categories: staged rule reconstruction that narrows the attribution search space, and explicit constraints with active intervention.
+
+`SDBL` uses two strategies to narrow the search space. One divides the context or logs into chunks, which a Judge LLM reads and assesses to identify suspect intervals. The other extracts prior rules from common multi-agent collaboration patterns, such as:
+
+**Table 5.** Examples of using error symptoms and prior expert rules to identify suspect intervals.
+
+<details class="survey-details">
+<summary>
+  <svg width="24" height="24" class="survey-details__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+  <span>Table 5</span>
+  <svg width="24" height="24" class="survey-details__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+</summary>
+<div class="survey-details__body">
+
+<div class="survey-table" tabindex="0" role="region" aria-label="Table 5">
+
+| Final error symptom | Prior rule based on expert experience | Suspect interval identified |
+| --- | --- | --- |
+| Failed logical assertion / incorrect business value | A core business logic error unrelated to the frontend UI or environment packaging | Backend core implementation and calculation logic |
+| SyntaxError in code | A compile-time error indicating that the last code change did not pass syntax checking | The most recent code generation and review interaction |
+| Requirements misunderstood / answer off topic | Misunderstanding of the top-level intent | The PM's initial task decomposition |
+
+</div>
+
+</div>
+</details>
+
+`DoVer` makes a pointed observation: attribution based on static logs alone is fundamentally an ill-posed problem, and its output can only be an unverified hypothesis. `DoVer` therefore turns attribution into a closed-loop automated debugger: “generate a hypothesis $\to$ actively modify and replay the system $\to$ verify the hypothesis from the replay result.” An LLM reads the failed trajectory and generates $K$ candidate failure hypotheses. The system then rolls back to the relevant state and reruns according to those hypotheses; if the rerun succeeds, the error is located.
+
+An advantage of `DoVer` is that the candidate set may reveal more than one error: the Planner may give an unclear description, causing the Worker to execute incorrectly, while the Reviewer's checks may have insufficient scope. This can capture all three errors. The drawback is the higher cost of replaying the workflow.

@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-27T22:24:12+08:00
+lastmod: 2026-10-28T20:58:26+08:00
 description: "《Beyond Individual Intelligence》阅读笔记：个体能力、推理、记忆、规划、角色分配、多智能体通信、编排与故障归因。"
 draft: false
 isCJKLanguage: true
@@ -466,3 +466,48 @@ $$
 故障引入的时间步（Originating Point $t_{\text{origin}}$）与故障暴露为可见异常的时间步（Manifestation Point $t_{\text{manifest}}$）往往严重分离，`FailCycle` 将 MAS 中的错误划分为四个阶段：Fault Introduction (潜伏引入)、Propagation (隐蔽传播)、Evolution / Mutation (跨节点变异)、Manifestation (显性爆发)，随后依然是构建图然后定位错误进行回溯处理。
 
 `AGENTSCOPE` 将异常归结为五种高层行为模式，提出了一套 **神经符号诊断框架**。它利用 LLM 将轨迹 $\tau$ 整合成规则化节点：`Node_t = {Intent(意图), Pre-condition(前置观测状态), Action(调用的工具/发出的指令), Post-condition(执行后状态变化)}`，然后对 Agent 进行规范化定义，自动生成一组**神经不变量断言**，后再基于这组轨迹，利用 Critic LLM 进行判定，直接映射对应节点的故障模式。
+
+### 故障归因
+
+大致分为三种归因方法。
+
+#### 数据驱动归因
+
+数据驱动归因截止到目前，大致经历了四个阶段，首先是类似 `Who&When` 这种的直接将错误日志扁平化交给大模型去处理，让他来查看哪里错了。接着 `AgenTracer` 和 `AEGIS` 通过在成功日志里注入错误轨迹、在错误日志里进行节点修复的方法，通过强化学习训练来针对性的训练出归因小模型。然后 `Spectrum`、`CORRECT`、`GraphTracer` 利用图结构或者结构日志方便大模型进行解析判断。最后，`AgentAsk`、`Trajectory Graph Copilot`、`Trajectory Guard` 都通过训练小模型或编码器来对 Agent 的下一步动作进行判断，如果决策模型认为该行为错误或者不对，那就打回重做。
+
+由于小模型的输出速率不一定很快，这里的决策模型可以训练一个专门针对决策（类似 Jev）的模型，或者像 `Trajectory Guard` 训练编码器 GRU。
+
+#### 约束引导方法
+
+数据驱动的方法基本上需要微调或训练小模型来达到效果，我们可以通过对日志进行约束读取，进而缩小搜索范围来进行定位。
+
+对错误日志进行约束，目前分为两大类：分阶段规则重构并收缩归因搜索空间、显式约束与主动干预。
+
+`SDBL` 通过两种策略来缩小搜索范围，一种策略是将上下文或日志分成若干 chunk，通过 Judge LLM 来进行读取判断，从而确定一些嫌疑区间；二是预先提取常见多智能体协作模式的先验规则，形如：
+
+**表 5.** 根据报错特征和经验规则锁定嫌疑区间的示例。
+
+<details class="survey-details">
+<summary>
+  <svg width="24" height="24" class="survey-details__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+  <span>Table 5</span>
+  <svg width="24" height="24" class="survey-details__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 5 7 7-7 7"/></svg>
+</summary>
+<div class="survey-details__body">
+
+<div class="survey-table" tabindex="0" role="region" aria-label="表 5">
+
+| 最终报错特征 | 专家经验先验规则 | 直接锁定的嫌疑区间 |
+| --- | --- | --- |
+| 逻辑断言失败 / 业务数值不符 | 属于业务核心逻辑错误，与前端 UI、环境打包无关 | 锁定在后端核心代码实现与计算逻辑区间 |
+| 代码 SyntaxError 语法报错 | 编译期错误，说明最后一次修改代码后没通过语法检查 | 锁定在最后一次代码生成与代码审查交互区间 |
+| 需求跑偏 / 答非所问 | 顶层意图理解偏差 | 锁定在开头的 PM 任务拆解区间 |
+
+</div>
+
+</div>
+</details>
+
+`DoVer` 提出了一个非常犀利的观点：光看静态日志做归因本质上是一个病态问题，它产出的结果只能算未经验证的猜想。因此，`DoVer` 将归因升级为一个 “先生成猜想 $\to$ 主动修改系统重放 $\to$ 根据重放结果验证猜想” 的闭环自动调试器。具体实现为由 LLM 读取失败轨迹后，生成 $K$ 个候选故障假设，然后根据这些故障假设，回滚到当时的状态重新运行，如果这次成功则会成功定位到错误。
+
+`DoVer` 的优势更在于，针对于这若干个候选集，它可能不单单是抓出一个错误，很有可能是 Planner 描述不清、导致 Worker 执行不对、Reviewer 审查边界不足，所以这可以将三个错误的情况都抓住。缺点就是成本较高，因为需要重放流程。
