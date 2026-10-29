@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-28T20:58:26+08:00
+lastmod: 2026-10-29T23:19:54+08:00
 description: "Reading notes on Beyond Individual Intelligence: individual capabilities, reasoning, memory, planning, role assignment, multi-agent communication, orchestration, and failure attribution."
 draft: false
 ---
@@ -525,3 +525,52 @@ Current approaches to constraining error logs fall into two broad categories: st
 `DoVer` makes a pointed observation: attribution based on static logs alone is fundamentally an ill-posed problem, and its output can only be an unverified hypothesis. `DoVer` therefore turns attribution into a closed-loop automated debugger: “generate a hypothesis $\to$ actively modify and replay the system $\to$ verify the hypothesis from the replay result.” An LLM reads the failed trajectory and generates $K$ candidate failure hypotheses. The system then rolls back to the relevant state and reruns according to those hypotheses; if the rerun succeeds, the error is located.
 
 An advantage of `DoVer` is that the candidate set may reveal more than one error: the Planner may give an unclear description, causing the Worker to execute incorrectly, while the Reviewer's checks may have insufficient scope. This can capture all three errors. The drawback is the higher cost of replaying the workflow.
+
+#### Causal Inference Methods
+
+Data-driven methods make attribution judgments based on correlations with errors: if replay succeeds at a node, the error is attributed to that node. Constraint-guided methods use enforced constraints to identify a step where an error or violation occurred. Neither approach fundamentally resolves attribution to the critical cause: a node may violate a constraint without being the cause that led to failure. Causal inference methods aim to attribute the failure to that critical node.
+
+**SCM Model**
+
+A complete SCM consists of four parts, usually written as the tuple $\mathcal{M} = \langle U, V, F, P(U) \rangle$. Here:
+
+1. $V$ represents endogenous variables, which can be understood as local variables inside the model. They are observable, of interest, and influence one another.
+2. $U$ represents exogenous variables, underlying factors determined outside the environment and unaffected by any variable in the system.
+3. $F$ represents structural equations, describing an irreversible causal generation process. For each endogenous variable $V_i$, there is a deterministic function $f_i$:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+V_i := f_i(\text{Parents}(V_i), U_i)
+$$
+
+</div>
+
+From the SCM perspective, there is no black-box mechanism: apparent randomness comes from not knowing the value of $U$. In an agent system, the policy outputs the log probability of each action, $\log P(a \mid s)$. In an SCM, the **Gumbel-Max Trick** rewrites this as a deterministic equation:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+A_t := \arg\max_{a} \left( \log \pi(a \mid S_t) + U_{t, a} \right), \quad \text{where } U_{t, a} \sim \text{Gumbel}(0, 1)
+$$
+
+</div>
+
+Introducing the exogenous variable $U$ moves the random distributions outside the system, turning its interior into a directed code graph driven by deterministic functions $F$. This gives us the mathematical ability to fix historical random seeds at any node and replay what happened, using counterfactual reasoning with fixed exogenous variables.
+
+`Agent-Specific Effects` uses a structural causal model (SCM) to infer all exogenous random variables $u$ from a failure trajectory $\tau$ that has already occurred. It rewinds to step $t$ and forces agent $i$'s erroneous action $a_{i,t}$ to be replaced by a correct alternative $a'_{i,t}$. For subsequent steps $t' > t$, it treats agents in two groups differently:
+
+- **Target teammate set $C$ (the affected group being tested)**: these agents can observe the new environment state after agent $i$ changes its action and respond with new actions according to their policies.
+- **Non-target set $\mathcal{A} \setminus C$ (other unrelated teammates)**: these agents are frozen. Even if the environment state has changed because of $a'_{i,t}$, the system still uses their old observations from the original failure trajectory $\tau$, or directly forces them to take their original actions from $\tau$.
+
+The difference is then calculated as:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\text{Cf-ASE}_C(a_{i,t} \to a'_{i,t}; Y \mid \tau) = \mathbb{E}\left[Y_{A_{i,t} \leftarrow a'_{i,t}, \text{Agent } C \text{ reacts}} \mid \tau\right] - Y(\tau)
+$$
+
+</div>
+
+If $\text{Cf-ASE}_C$ is large, this indicates that the node caused the overall task to fail, providing an attribution. The method remains limited to locating one critical node and cannot resolve multiple attributions.
