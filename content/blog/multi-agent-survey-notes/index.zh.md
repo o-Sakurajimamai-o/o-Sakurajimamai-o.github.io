@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-29T23:19:54+08:00
+lastmod: 2026-10-30T23:02:28+08:00
 description: "《Beyond Individual Intelligence》阅读笔记：个体能力、推理、记忆、规划、角色分配、多智能体通信、编排与故障归因。"
 draft: false
 isCJKLanguage: true
@@ -516,9 +516,7 @@ $$
 
 数据驱动的方法通过错误相关性（如果在某个节点重放成功了，那么归因到该节点）来进行归因判断，约束引导通过强制约束（即出错或违规的一步）；这两种方法本质没有解决致命归因，即真正导致出错的节点，可能某个节点是违规了，但并非致命因，因果推断方法致力于解决归因到致命节点。
 
-**SCM 模型**
-
-一个完整的 SCM 由四个部分组成，通常记作四元组 $\mathcal{M} = \langle U, V, F, P(U) \rangle$。其中
+**SCM 模型**：一个完整的 SCM 由四个部分组成，通常记作四元组 $\mathcal{M} = \langle U, V, F, P(U) \rangle$。其中
 
 1. $V$ 是内生变量，可以理解为模型内部的局部变量，是我们可以直接观察到、关心且互相影响的变量。
 2. $U$ 是外生变量，这是由环境外部决定的、不受系统任何变量影响的底层因素。
@@ -544,6 +542,8 @@ $$
 
 通过引入外生变量 $U$ 将一切随机分布剥离到系统外部，把系统内部转化为由确定性函数 $F$ 驱动的“有向代码图”，从而赋予我们在系统任意节点锁定历史随机种子重演历史（反事实推理，通过固定外生变量）的数学能力。
 
+##### 决策的因果效应为底座
+
 `Agent-Specific Effects` 利用结构因果模型（SCM），从已经发生的失败轨迹 $\tau$ 中，反推出当时发生的所有外生随机变量 $u$。将时间倒流回第 $t$ 步，强制把智能体 $i$ 的错误动作 $a_{i,t}$ 替换为正确的备选动作 $a'_{i,t}$，随后在 $t' > t$ 的推演中分两种情况处理：
 
 - **目标队友集合 $C$（要测试的受影响群体）**：允许它们看到智能体 $i$ 修改动作后的新环境状态，并根据自己的策略做出新的动作反应。
@@ -560,3 +560,80 @@ $$
 </div>
 
 若 $\text{Cf-ASE}_C$ 值很大，那么意味着该节点使得整个任务出现错误，以此达到归因的目的。该方法依然有只能定位一处关键节点的局限性，并不能解决多归因问题。
+
+---
+
+`MMDP-SCM` 定义了**总反事实效应 TCFE**：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\text{TCFE}_{a_{i,t}, \tau(A_{i,t})}(Y \mid \tau)_{\mathcal{M}} = \mathbb{E}[Y_{a_{i,t}} \mid \tau]_{\mathcal{M}} - \tau(Y)
+$$
+
+</div>
+
+- $\mathbb{E}[Y_{a_{i,t}} \mid \tau]_{\mathcal{M}}$ 是将第 $t$ 步动作改为 $\text{do}(A_{i,t} := a_{i,t})$ 后得到的期望值。
+- $\tau(Y)$ 指的是真实轨迹得到的结果。
+
+作者将 TCFE 拆解为两项之和：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\text{TCFE}(a_{i,t}) = \underbrace{\text{Effect}_{\text{Agent-Propagation}}}_{\text{通过带偏下游队友传导的效应}} + \underbrace{\text{Effect}_{\text{Env-State-Propagation}}}_{\text{通过破坏环境状态直接传导的效应}}
+$$
+
+</div>
+
+其中 TCFE 可以求出，且等式右侧第二项可以通过冻结时间步 $t'>t$ 后的动作，修改 $t$ 时间步的动作 $a'_{i,t}$ 得到。那么此时等式右侧第一项也自然得出来了。
+
+`MMDP-SCM` 通过利用博弈论中的 Shapley Value（夏普利值）来对下游的子 Agent 进行分权重归因；遍历所有可能的目标队友组合 $C$，计算某个队友 $j$ 加入解冻集合前后的边际效应贡献：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\phi_j = \sum_{C \subseteq \mathcal{A} \setminus \{j\}} \frac{\vert{}C\vert{}!(\vert{}\mathcal{A}\vert{} - \vert{}C\vert{} - 1)!}{\vert{}\mathcal{A}\vert{}!} \Big( \text{Cf-ASE}_{C \cup \{j\}} - \text{Cf-ASE}_C \Big)
+$$
+
+</div>
+
+其中 $\sum_{j=1}^n \phi_j =\text{Effect}_{\text{Agent-Propagation}}$；可以理解为在 $C$ 已经改变行为的基础上，让智能体 $j$ 也改变行为，最后的结果会改变多少。遍历所有可能的 $C$，就是智能体 $j$ 的夏普利值 $\phi_j$。
+
+上述讲的是归因于不同的智能体，接下来是对当前的环境进行归因。由于我们不可以直接修改环境变量，因为这不符合物理转移规律，作者首先计算方差缩减量 $\text{ICC}(S_k)$：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\text{ICC}(S_k) = \underbrace{\mathbb{E}[\text{Var}(\Delta Y \mid \tau, \mathcal{U}_{\lt S_k})]}_{\text{固定第 } k \text{ 步前的方差}} - \underbrace{\mathbb{E}[\text{Var}(\Delta Y \mid \tau, \mathcal{U}_{\le S_k})]}_{\text{固定第 } k \text{ 步后的方差}}
+$$
+
+</div>
+
+然后按方差缩减比例分锅，得到状态 $S_k$ 的归因得分 $\psi_{S_k}$：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\psi_{S_k} = \frac{\text{ICC}(S_k)}{\text{Var}(\Delta Y \mid \tau)} \cdot \text{Effect}_{\text{Env-State-Propagation}}
+$$
+
+</div>
+
+其中 $\sum_{k=t+1}^{h} \text{ICC}(S_k) = \text{Var}(\Delta Y \mid \tau)$；$\psi_{S_k}$ 表示了哪一步的状态转移 $S_k$ 决定了最多的结果波动。
+
+---
+
+`EMAI` 定义一个掩码向量 $m_{i,t} \in \{0, 1\}$，利用强化学习（这里使用的是 QMIX）去优化整体多智能体框架，损失函数为：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\mathcal{L}(\phi) = \left| R(\tau_{\text{normal}}) - R(\tau_{\text{masked by }\phi}) \right| + \lambda \|m\|_1
+$$
+
+</div>
+
+当 $m_{i,t} = 1$ 时，智能体 $i$ 正常工作，反之冻结。损失函数非常巧妙，为了最小化损失，必须使无关紧要的智能体 $m_{i,t}=0$，这样才能确保权重较大的智能体正常工作，使得 $\left| R(\tau_{\text{normal}}) - R(\tau_{\text{masked by }\phi}) \right|$ 尽可能小，其中 $R(\tau_{\text{masked by }\phi})$ 是指被当前策略屏蔽后的得分。
+
+##### 从 MAS 执行日志中恢复因果图与多粒度溯源

@@ -1,7 +1,7 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-29T23:19:54+08:00
+lastmod: 2026-10-30T23:02:28+08:00
 description: "Reading notes on Beyond Individual Intelligence: individual capabilities, reasoning, memory, planning, role assignment, multi-agent communication, orchestration, and failure attribution."
 draft: false
 ---
@@ -530,9 +530,7 @@ An advantage of `DoVer` is that the candidate set may reveal more than one error
 
 Data-driven methods make attribution judgments based on correlations with errors: if replay succeeds at a node, the error is attributed to that node. Constraint-guided methods use enforced constraints to identify a step where an error or violation occurred. Neither approach fundamentally resolves attribution to the critical cause: a node may violate a constraint without being the cause that led to failure. Causal inference methods aim to attribute the failure to that critical node.
 
-**SCM Model**
-
-A complete SCM consists of four parts, usually written as the tuple $\mathcal{M} = \langle U, V, F, P(U) \rangle$. Here:
+**SCM Model**: A complete SCM consists of four parts, usually written as the tuple $\mathcal{M} = \langle U, V, F, P(U) \rangle$. Here:
 
 1. $V$ represents endogenous variables, which can be understood as local variables inside the model. They are observable, of interest, and influence one another.
 2. $U$ represents exogenous variables, underlying factors determined outside the environment and unaffected by any variable in the system.
@@ -558,6 +556,8 @@ $$
 
 Introducing the exogenous variable $U$ moves the random distributions outside the system, turning its interior into a directed code graph driven by deterministic functions $F$. This gives us the mathematical ability to fix historical random seeds at any node and replay what happened, using counterfactual reasoning with fixed exogenous variables.
 
+##### Grounding Attribution in the Causal Effects of Decisions
+
 `Agent-Specific Effects` uses a structural causal model (SCM) to infer all exogenous random variables $u$ from a failure trajectory $\tau$ that has already occurred. It rewinds to step $t$ and forces agent $i$'s erroneous action $a_{i,t}$ to be replaced by a correct alternative $a'_{i,t}$. For subsequent steps $t' > t$, it treats agents in two groups differently:
 
 - **Target teammate set $C$ (the affected group being tested)**: these agents can observe the new environment state after agent $i$ changes its action and respond with new actions according to their policies.
@@ -574,3 +574,80 @@ $$
 </div>
 
 If $\text{Cf-ASE}_C$ is large, this indicates that the node caused the overall task to fail, providing an attribution. The method remains limited to locating one critical node and cannot resolve multiple attributions.
+
+---
+
+`MMDP-SCM` defines the **total counterfactual effect (TCFE)**:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\text{TCFE}_{a_{i,t}, \tau(A_{i,t})}(Y \mid \tau)_{\mathcal{M}} = \mathbb{E}[Y_{a_{i,t}} \mid \tau]_{\mathcal{M}} - \tau(Y)
+$$
+
+</div>
+
+- $\mathbb{E}[Y_{a_{i,t}} \mid \tau]_{\mathcal{M}}$ is the expected outcome after changing the action at step $t$ using $\text{do}(A_{i,t} := a_{i,t})$.
+- $\tau(Y)$ is the outcome of the actual trajectory.
+
+The authors decompose TCFE into two effects:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\text{TCFE}(a_{i,t}) = \underbrace{\text{Effect}_{\text{Agent-Propagation}}}_{\substack{\text{Effect transmitted through}\\\text{misled downstream teammates}}} + \underbrace{\text{Effect}_{\text{Env-State-Propagation}}}_{\substack{\text{Effect transmitted directly through}\\\text{damage to the environment state}}}
+$$
+
+</div>
+
+TCFE can be calculated, and the second term on the right can be obtained by freezing actions after time step $t'>t$ and changing the action at step $t$ to $a'_{i,t}$. The first term can then be derived from the difference.
+
+`MMDP-SCM` uses the Shapley Value from game theory to assign weighted attribution to downstream subagents. It considers every possible combination of target teammates $C$ and calculates the marginal contribution of adding teammate $j$ to the unfrozen set:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\phi_j = \sum_{C \subseteq \mathcal{A} \setminus \{j\}} \frac{\vert{}C\vert{}!(\vert{}\mathcal{A}\vert{} - \vert{}C\vert{} - 1)!}{\vert{}\mathcal{A}\vert{}!} \Big( \text{Cf-ASE}_{C \cup \{j\}} - \text{Cf-ASE}_C \Big)
+$$
+
+</div>
+
+Here, $\sum_{j=1}^n \phi_j =\text{Effect}_{\text{Agent-Propagation}}$. This can be understood as the change in the final result when agent $j$ also changes its behavior, given that $C$ has already changed its behavior. Considering every possible $C$ yields agent $j$'s Shapley value $\phi_j$.
+
+The preceding discussion attributes effects to individual agents; the next step attributes effects to the environment. Since directly changing environment variables would violate the physical transition rules, the authors first calculate the variance reduction $\text{ICC}(S_k)$:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\text{ICC}(S_k) = \underbrace{\mathbb{E}[\text{Var}(\Delta Y \mid \tau, \mathcal{U}_{\lt S_k})]}_{\substack{\text{Variance before fixing}\\\text{step } k}} - \underbrace{\mathbb{E}[\text{Var}(\Delta Y \mid \tau, \mathcal{U}_{\le S_k})]}_{\substack{\text{Variance after fixing}\\\text{step } k}}
+$$
+
+</div>
+
+Attribution is then assigned in proportion to the variance reduction, giving the attribution score $\psi_{S_k}$ for state $S_k$:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\psi_{S_k} = \frac{\text{ICC}(S_k)}{\text{Var}(\Delta Y \mid \tau)} \cdot \text{Effect}_{\text{Env-State-Propagation}}
+$$
+
+</div>
+
+Here, $\sum_{k=t+1}^{h} \text{ICC}(S_k) = \text{Var}(\Delta Y \mid \tau)$. The score $\psi_{S_k}$ shows which state transition $S_k$ accounts for the greatest variation in the outcome.
+
+---
+
+`EMAI` defines a mask vector $m_{i,t} \in \{0, 1\}$ and uses reinforcement learning, specifically QMIX, to optimize the overall multi-agent framework. Its loss function is:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\mathcal{L}(\phi) = \left| R(\tau_{\text{normal}}) - R(\tau_{\text{masked by }\phi}) \right| + \lambda \|m\|_1
+$$
+
+</div>
+
+When $m_{i,t} = 1$, agent $i$ operates normally; otherwise, it is frozen. To minimize the loss, the mask must set unimportant agents to $m_{i,t}=0$ while keeping higher-weight agents operating. This makes $\left| R(\tau_{\text{normal}}) - R(\tau_{\text{masked by }\phi}) \right|$ as small as possible. Here, $R(\tau_{\text{masked by }\phi})$ is the score after masking under the current policy.
+
+##### Recovering Causal Graphs and Multi-Granularity Traces from MAS Execution Logs
