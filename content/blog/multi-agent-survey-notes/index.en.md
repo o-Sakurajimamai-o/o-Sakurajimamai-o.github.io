@@ -1,8 +1,8 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-30T23:02:28+08:00
-description: "Reading notes on Beyond Individual Intelligence: individual capabilities, reasoning, memory, planning, role assignment, multi-agent communication, orchestration, and failure attribution."
+lastmod: 2026-10-31T16:16:18+08:00
+description: "Reading notes on Beyond Individual Intelligence: individual capabilities, reasoning, memory, planning, role assignment, multi-agent communication, orchestration, failure attribution, and self-evolution."
 draft: false
 ---
 
@@ -487,7 +487,7 @@ Attribution methods can broadly be divided into three types.
 
 #### Data-Driven Attribution
 
-Data-driven attribution has roughly evolved through four stages. First, approaches such as `Who&When` flatten error logs and pass them directly to an LLM to determine where an error occurred. Next, `AgenTracer` and `AEGIS` inject faulty trajectories into successful logs and repair nodes in faulty logs, using reinforcement learning to train small attribution models. Then `Spectrum`, `CORRECT`, and `GraphTracer` use graph structures or structured logs to make analysis and judgment easier for LLMs. Finally, `AgentAsk`, `Trajectory Graph Copilot`, and `Trajectory Guard` train small models or encoders to assess an agent's next action. If the decision model judges the action to be wrong or inappropriate, it sends the work back to be redone.
+Data-driven attribution has roughly evolved through four stages. First, approaches such as `Who&When` flatten error logs and pass them directly to an LLM to determine where an error occurred. Next, `AGENTRACER` and `AEGIS` inject faulty trajectories into successful logs and repair nodes in faulty logs, using reinforcement learning to train small attribution models. Then `Spectrum`, `CORRECT`, and `GraphTracer` use graph structures or structured logs to make analysis and judgment easier for LLMs. Finally, `AgentAsk`, `Trajectory Graph Copilot`, and `Trajectory Guard` train small models or encoders to assess an agent's next action. If the decision model judges the action to be wrong or inappropriate, it sends the work back to be redone.
 
 Because a small model's output speed is not necessarily fast, the decision model could be trained specifically for decision-making, similar to Jev, or an encoder such as a GRU could be trained, as in `Trajectory Guard`.
 
@@ -650,4 +650,142 @@ $$
 
 When $m_{i,t} = 1$, agent $i$ operates normally; otherwise, it is frozen. To minimize the loss, the mask must set unimportant agents to $m_{i,t}=0$ while keeping higher-weight agents operating. This makes $\left| R(\tau_{\text{normal}}) - R(\tau_{\text{masked by }\phi}) \right|$ as small as possible. Here, $R(\tau_{\text{masked by }\phi})$ is the score after masking under the current policy.
 
+> I think this work has not yet entered the field of LLM-based MAS and is an area worth exploring. I am leaving a checkpoint here.
+
 ##### Recovering Causal Graphs and Multi-Granularity Traces from MAS Execution Logs
+
+`CHIEF` constructs a three-layer causal graph from trajectory $\tau$: “subtask $\to$ agent $\mathcal{A}$ $\to$ state step $S_k$.” It automatically synthesizes virtual contract criteria $\mathcal{O}$ for each node, including preconditions $\mathcal{P}_{\text{pre}}$ and acceptance criteria $\mathcal{C}_{\text{acc}}$, and defines a binary detection mask $m_{j,k} \in \{0, 1\}$:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+m_{j,k} = \mathbb{I}\Big( F_{\text{eval}}(S_k, \mathcal{O}) = \text{normal} \Big)
+$$
+
+</div>
+
+It prunes and skips branches with $m=1$ from the top down, tracing back only through branches where $m=0$.
+
+For an anomalous step $S_k$, it does not directly penalize the state. It first checks whether the upstream nodes pointing to $S_k$ in the causal graph are damaged, and defines the true root-cause attribution $\psi_{S_k}$ as:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\psi_{S_k} = (1 - m_{j,k}) \cdot \prod_{S_p \in \text{Pa}(S_k)} m_p
+$$
+
+</div>
+
+If any $S_p \in \text{Pa}(S_k)$ has $m_p = 0$, then $\prod m_p = 0 \implies \psi_{S_k} = 0$, indicating that step $k$ was likely led astray by an upstream node. Conversely, if no upstream node is $0$, then $\psi_{S_k} = 1$, indicating that $S_k$ is a high-weight attribution node.
+
+---
+
+`AgentTrace` discards resampling and LLM judges and performs a backward breadth-first search from the error terminal state $S_h$. It defines five state features:
+
+- $F_p(S_k)$ is a position feature with a larger weight, because earlier states have a greater influence on later decisions.
+- $F_s(S_k)$ is a graph-structure feature: the out-degree $\text{deg}^+(S_k)$ of node $S_k$ in the data dependency graph, or the number of downstream agents associated with it. A larger out-degree indicates greater importance.
+- $F_c(S_k)$ is a content-statistics feature, capturing how much the current output length deviates from the mean and the occurrence of error keywords.
+- $F_f(S_k)$ is the causal-flow distance, measured by the shortest dependency path from $S_k$ to the final crash state $S_h$.
+- $F_e(S_k)$ is the model's endogenous confidence: the mean token log-probability when the agent generates the action at that step (log-probs entropy). The more hesitant the model is, or the higher the entropy, the more likely the step is to trigger the failure.
+
+The attribution score $\psi_{S_k}$ for a state step $S_k$ is:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\psi_{S_k} = w_p F_p(S_k) + w_s F_s(S_k) + w_c F_c(S_k) + w_f F_f(S_k) + w_e F_e(S_k)
+$$
+
+</div>
+
+Each feature dimension is min-max normalized within trajectory $\tau$:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\hat{F}(S_k) = \frac{F(S_k) - \min_{S_t \in \tau} F(S_t)}{\max_{S_t \in \tau} F(S_t) - \min_{S_t \in \tau} F(S_t) + \epsilon}
+$$
+
+</div>
+
+Think:
+
+<blockquote>
+
+Looking back at the `EMAI` loss function:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\mathcal{L}(\phi) = \left\vert{} R(\tau_{\text{normal}}) - R(\tau_{\text{masked by }\phi}) \right\vert{} + \lambda \|m\|_1
+$$
+
+</div>
+
+As discussed earlier, a major difficulty with `EMAI` is that training the mask network $\phi$ from scratch is too slow and expensive. Perhaps $\mathbf{F}(S_k) = [F_p, F_s, F_c, F_f, F_e]$ could be used as input features for the `EMAI` mask network $\phi$, which would output mask weights $m_{j,k} = \sigma(\phi^\top \mathbf{F}(S_k)) \in [0, 1]$.
+
+In that case, the mask network $\phi$ would have only five scalar weight parameters, or a very small two-layer MLP, and could converge almost instantly in a few steps of GRPO training.
+
+</blockquote>
+
+## Multi-Agent Self-Evolution
+
+This area remains open for exploration. There are few RSI agent workflows that can work well with attribution methods to support iterative updates. I select only the examples I personally consider representative.
+
+### System-Level Evolution
+
+Its core formal mapping updates the following **three collective organizational objectives** across generations:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\Big( \mathcal{G}^{(k)}, \;\; \mathcal{A}^{(k)}, \;\; \mathcal{M}_{\text{shared}}^{(k)} \Big) \xrightarrow{\Gamma_{\text{systemic}}\big(\tau^{(k)}, \, R(\tau^{(k)})\big)} \Big( \mathcal{G}^{(k+1)}, \;\; \mathcal{A}^{(k+1)}, \;\; \mathcal{M}_{\text{shared}}^{(k+1)} \Big)
+$$
+
+</div>
+
+Here, $\mathcal{A}^{(k)}$ is the set of agents, $\mathcal{G}^{(k)} = (\mathcal{A}^{(k)}, \mathcal{E}_c^{(k)})$ is the communication topology, and $\Gamma_{\text{systemic}}$ is the evolution operator.
+
+`Puppeteer` uses a central orchestration controller $\pi_\omega$ that dynamically selects the next agent to activate at each step according to the current state $S_t$, using RL:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\mathcal{L}_{\text{Puppeteer}}(\omega) = - \mathbb{E}_{\tau \sim \pi_\omega}\left[ R(\tau) - \lambda \sum_{t=1}^{h} \text{Cost}(a_t) \right]
+$$
+
+</div>
+
+`EvoMAC` defines the multi-agent system in generation $k$ as a topology graph:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\mathcal{G}^{(k)} = \big( \mathcal{A}_C^{(k)}, \; \mathcal{E}_c^{(k)} \big)
+$$
+
+</div>
+
+Here, $\mathcal{A}_C^{(k)} = \{a_1^{(k)}, \dots, a_N^{(k)}\}$ is the set of agents, each driven by $p_j^{(k)}$. Since there is no test script to calculate $R(\tau)$, the paper uses an LLM-based testing team $\mathcal{A}_T$ to write a test suite $Y_{\text{test}}$, yielding an objective textual loss:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\mathcal{L}_{\text{env}}^{(k)} = \text{Execute}\big( Y^{(k)}, \; Y_{\text{test}} \big)
+$$
+
+</div>
+
+Following the idea of `TextGrad`, textual backpropagation updates prompts and adds, removes, or modifies communication routes between agents:
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\nabla_{\text{text}}^{(k)} = a_{\text{grad}}\Big( \mathcal{G}^{(k)}, \; \big\{ p_j^{(k)}, o_j^{(k)} \big\}_{j=1}^N, \; \mathcal{L}_{\text{env}}^{(k)} \Big)
+$$
+
+</div>
+
+---
+
+Building on `EvoMAC`, `ANN` organizes the MAS as an $L$-layer feedforward neural network: $\mathcal{A} = \{\mathcal{A}_1, \mathcal{A}_2, \dots, \mathcal{A}_L\}$. Each layer $\mathcal{A}_\ell$ is a team responsible for a specific subtask and has an inter-layer aggregation function $f_\ell$. During backpropagation, it computes both a global inter-layer gradient $\nabla_{\text{global}} \mathcal{G}$, which adjusts task decomposition and aggregation $f_\ell$ between layers, and a local intra-layer gradient $\nabla_{\text{local}} a_{j,\ell}$, which adjusts the addition, removal, or modification of agent roles within a layer.

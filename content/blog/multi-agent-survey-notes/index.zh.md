@@ -1,8 +1,8 @@
 ---
 title: "Multi-Agent Systems Survey Notes"
 date: 2026-10-23T00:00:00+08:00
-lastmod: 2026-10-30T23:02:28+08:00
-description: "《Beyond Individual Intelligence》阅读笔记：个体能力、推理、记忆、规划、角色分配、多智能体通信、编排与故障归因。"
+lastmod: 2026-10-31T16:16:18+08:00
+description: "《Beyond Individual Intelligence》阅读笔记：个体能力、推理、记忆、规划、角色分配、多智能体通信、编排、故障归因与自进化。"
 draft: false
 isCJKLanguage: true
 ---
@@ -307,7 +307,7 @@ $$
 
 **静态角色分配**：指定智能体或子智能体担任的角色和职责，在任务分配之前安排好，过程中不会改变，这使得工作流程边界清晰、零临场组队开销、极其稳定。同时这种分配只适用于较为局限的场景下，对于动态或不确定的场景下性能表现较差。
 
-**动态角色分配**：动态角色分配允许系统在运行时根据当前任务有多难、进行到哪一步了，实时改变子智能体的分配策略。及其灵活，具备较高的通用性，但相对的，动态分配的策略依赖于 Agent 架构和主 LLM 的能力，因此实现较为复杂，并且管理复杂度也会上升。
+**动态角色分配**：动态角色分配允许系统在运行时根据当前任务有多难、进行到哪一步了，实时改变子智能体的分配策略。极其灵活，具备较高的通用性，但相对的，动态分配的策略依赖于 Agent 架构和主 LLM 的能力，因此实现较为复杂，并且管理复杂度也会上升。
 
 ### 多智能体通信
 
@@ -473,7 +473,7 @@ $$
 
 #### 数据驱动归因
 
-数据驱动归因截止到目前，大致经历了四个阶段，首先是类似 `Who&When` 这种的直接将错误日志扁平化交给大模型去处理，让他来查看哪里错了。接着 `AgenTracer` 和 `AEGIS` 通过在成功日志里注入错误轨迹、在错误日志里进行节点修复的方法，通过强化学习训练来针对性的训练出归因小模型。然后 `Spectrum`、`CORRECT`、`GraphTracer` 利用图结构或者结构日志方便大模型进行解析判断。最后，`AgentAsk`、`Trajectory Graph Copilot`、`Trajectory Guard` 都通过训练小模型或编码器来对 Agent 的下一步动作进行判断，如果决策模型认为该行为错误或者不对，那就打回重做。
+数据驱动归因截至目前，大致经历了四个阶段，首先是类似 `Who&When` 这种的直接将错误日志扁平化交给大模型去处理，让他来查看哪里错了。接着 `AGENTRACER` 和 `AEGIS` 通过在成功日志里注入错误轨迹、在错误日志里进行节点修复的方法，通过强化学习训练来针对性地训练出归因小模型。然后 `Spectrum`、`CORRECT`、`GraphTracer` 利用图结构或者结构日志方便大模型进行解析判断。最后，`AgentAsk`、`Trajectory Graph Copilot`、`Trajectory Guard` 都通过训练小模型或编码器来对 Agent 的下一步动作进行判断，如果决策模型认为该行为错误或者不对，那就打回重做。
 
 由于小模型的输出速率不一定很快，这里的决策模型可以训练一个专门针对决策（类似 Jev）的模型，或者像 `Trajectory Guard` 训练编码器 GRU。
 
@@ -636,4 +636,142 @@ $$
 
 当 $m_{i,t} = 1$ 时，智能体 $i$ 正常工作，反之冻结。损失函数非常巧妙，为了最小化损失，必须使无关紧要的智能体 $m_{i,t}=0$，这样才能确保权重较大的智能体正常工作，使得 $\left| R(\tau_{\text{normal}}) - R(\tau_{\text{masked by }\phi}) \right|$ 尽可能小，其中 $R(\tau_{\text{masked by }\phi})$ 是指被当前策略屏蔽后的得分。
 
+> 个人认为该工作目前没有进入到基于 LLM 的 MAS 系统领域，是有待发掘的一部分，这里留个 CheckPoint。
+
 ##### 从 MAS 执行日志中恢复因果图与多粒度溯源
+
+`CHIEF` 将轨迹 $\tau$ 构建成“子任务 $\to$ 智能体 $\mathcal{A}$ $\to$ 状态步 $S_k$”三层因果图，为每个节点自动合成虚拟契约标准 $\mathcal{O}$（包含前置条件 $\mathcal{P}_{\text{pre}}$ 和验收标准 $\mathcal{C}_{\text{acc}}$），定义二元检测掩码 $m_{j,k} \in \{0, 1\}$：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+m_{j,k} = \mathbb{I}\Big( F_{\text{eval}}(S_k, \mathcal{O}) = \text{正常} \Big)
+$$
+
+</div>
+
+自顶向下把 $m=1$ 的分支剪枝跳过，只针对 $m = 0$ 的分支展开回溯。
+
+对于第 $k$ 个异常步 $S_k$，不直接惩罚该状态，先检查因果图中指向 $S_k$ 的上层节点集合是否有损坏，由此定义状态 $S_k$ 的真实根因归因 $\psi_{S_k}$：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\psi_{S_k} = (1 - m_{j,k}) \cdot \prod_{S_p \in \text{Pa}(S_k)} m_p
+$$
+
+</div>
+
+如果存在某个 $S_p \in \text{Pa}(S_k)$ 使得 $m_p = 0$，则 $\prod m_p = 0 \implies \psi_{S_k} = 0$，这表示第 $k$ 步大概率是被上层带偏的。相反，当不存在上游为 $0$ 的节点时，那么会有 $\psi_{S_k} = 1$，说明 $S_k$ 是归因的高权重节点。
+
+---
+
+`AgentTrace` 抛弃了重采样和 LLM 裁判，从报错终端状态 $S_h$ 逆向做广度优先搜索。它设计了五个状态特征：
+
+- $F_p(S_k)$ 为位置特征，权重较大，因为越靠前的状态对后续决策的影响越大；
+- $F_s(S_k)$ 为图结构特征，节点 $S_k$ 在数据依赖图中的出度 $\text{deg}^+(S_k)$（即下游有多少智能体与当前节点有关联），出度越大，说明它很重要；
+- $F_c(S_k)$ 为内容统计特征，表示当前步输出长度偏离均值程度与报错关键词统计；
+- $F_f(S_k)$ 为因果流距离，表示从 $S_k$ 到最终崩溃状态 $S_h$ 的最短依赖路径步数；
+- $F_e(S_k)$ 为模型内生置信度，智能体生成该步动作时的 Token 平均对数概率（Log-probs 熵值），模型越犹豫（熵越高），该步越可能是故障引爆点。
+
+计算任意状态步 $S_k$ 的归因得分 $\psi_{S_k}$：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\psi_{S_k} = w_p F_p(S_k) + w_s F_s(S_k) + w_c F_c(S_k) + w_f F_f(S_k) + w_e F_e(S_k)
+$$
+
+</div>
+
+其中每个维度的特征都经过轨迹 $\tau$ 内的最大最小归一化：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\hat{F}(S_k) = \frac{F(S_k) - \min_{S_t \in \tau} F(S_t)}{\max_{S_t \in \tau} F(S_t) - \min_{S_t \in \tau} F(S_t) + \epsilon}
+$$
+
+</div>
+
+Think：
+
+<blockquote>
+
+回看 `EMAI` 损失函数：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\mathcal{L}(\phi) = \left\vert{} R(\tau_{\text{normal}}) - R(\tau_{\text{masked by }\phi}) \right\vert{} + \lambda \|m\|_1
+$$
+
+</div>
+
+之前我们讨论过，`EMAI` 最大的痛点是掩码网络 $\phi$ 从零训练太慢、太贵。也许可以利用 $\mathbf{F}(S_k) = [F_p, F_s, F_c, F_f, F_e]$ 作为 `EMAI` 掩码网络 $\phi$ 的输入特征，去输出掩码权重 $m_{j,k} = \sigma(\phi^\top \mathbf{F}(S_k)) \in [0, 1]$。
+
+这样一来，掩码网络 $\phi$ 只有 5 个标量权重参数（或者一个极小的两层 MLP），在 GRPO 训练时几步就能瞬间收敛；
+
+</blockquote>
+
+## 多智能体自进化
+
+这一部分仍然是有待发掘的领域，能够很好地配合归因方法进行迭代更新的 RSI 智能体工作流很少。我这里只选取部分个人认为有代表性的。
+
+### 系统级进化
+
+它的核心形式化映射是针对以下**三个集体组织目标**进行跨代更新：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\Big( \mathcal{G}^{(k)}, \;\; \mathcal{A}^{(k)}, \;\; \mathcal{M}_{\text{shared}}^{(k)} \Big) \xrightarrow{\Gamma_{\text{systemic}}\big(\tau^{(k)}, \, R(\tau^{(k)})\big)} \Big( \mathcal{G}^{(k+1)}, \;\; \mathcal{A}^{(k+1)}, \;\; \mathcal{M}_{\text{shared}}^{(k+1)} \Big)
+$$
+
+</div>
+
+其中 $\mathcal{A}^{(k)}$ 为智能体集合、$\mathcal{G}^{(k)} = (\mathcal{A}^{(k)}, \mathcal{E}_c^{(k)})$ 为通信拓扑图、$\Gamma_{\text{systemic}}$ 为进化算子。
+
+`Puppeteer` 设一个中心编排控制器 $\pi_\omega$，每一步根据当前状态 $S_t$ 动态决定下一个激活哪个智能体，利用 RL：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\mathcal{L}_{\text{Puppeteer}}(\omega) = - \mathbb{E}_{\tau \sim \pi_\omega}\left[ R(\tau) - \lambda \sum_{t=1}^{h} \text{Cost}(a_t) \right]
+$$
+
+</div>
+
+`EvoMAC` 将第 $k$ 代多智能体系统定义为一个拓扑图：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\mathcal{G}^{(k)} = \big( \mathcal{A}_C^{(k)}, \; \mathcal{E}_c^{(k)} \big)
+$$
+
+</div>
+
+其中 $\mathcal{A}_C^{(k)} = \{a_1^{(k)}, \dots, a_N^{(k)}\}$ 是智能体集合，每个智能体由 $p_j^{(k)}$ 驱动；由于没有测试脚本来计算 $R(\tau)$，论文通过基于 LLM 的测试团队 $\mathcal{A}_T$ 编写出测试套件 $Y_{\text{test}}$，那么就可以得到客观的文本损失：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\mathcal{L}_{\text{env}}^{(k)} = \text{Execute}\big( Y^{(k)}, \; Y_{\text{test}} \big)
+$$
+
+</div>
+
+通过 `TextGrad` 的思想进行反向传播更新提示词、增删改智能体的通信路线：
+
+<div style="max-width:100%;overflow-x:auto">
+
+$$
+\nabla_{\text{text}}^{(k)} = a_{\text{grad}}\Big( \mathcal{G}^{(k)}, \; \big\{ p_j^{(k)}, o_j^{(k)} \big\}_{j=1}^N, \; \mathcal{L}_{\text{env}}^{(k)} \Big)
+$$
+
+</div>
+
+---
+
+`ANN` 在 `EvoMAC` 基础上，将 MAS 系统化为 $L$ 层的前馈神经网络层：$\mathcal{A} = \{\mathcal{A}_1, \mathcal{A}_2, \dots, \mathcal{A}_L\}$，每一层 $\mathcal{A}_\ell$ 一个负责特定子任务的协作小分队，配有层间聚合函数 $f_\ell$；在反向传播阶段同时计算全局层间梯度 $\nabla_{\text{global}} \mathcal{G}$（调整层与层之间的任务分解和聚合方式 $f_\ell$）和局部层内梯度 $\nabla_{\text{local}} a_{j,\ell}$（调整该层智能体角色的增删改）。
