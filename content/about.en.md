@@ -26,7 +26,7 @@ resume:
 
 {{< entry title="National College Computer Ability Challenge (UG & PG Group) — First Prize" date="Dec 2024" />}}
 
-{{< entry title="Group Programming Ladder Tournament — Individual Second Prize (top 9%)" date="May 2026" />}}
+{{< entry title="Group Programming Ladder Tournament — Individual Second Prize (top 6%)" date="May 2026" />}}
 
 {{< entry title="Lanqiao Cup National Finals — Second Prize" date="Jun 2025" />}}
 

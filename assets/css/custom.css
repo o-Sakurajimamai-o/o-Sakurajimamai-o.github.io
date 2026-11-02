@@ -69,7 +69,24 @@ body {
 :lang(zh) .prose p { text-spacing-trim: space-first; }
 
 /* 目录锚点跳转时，标题不要贴着视口顶边 */
-.prose h2, .prose h3, .prose h4 { scroll-margin-top: 2rem; }
+.prose h2, .prose h3, .prose h4, .prose h5 { scroll-margin-top: 2rem; }
+
+/* 标题层次与 L4/L5 小标题排版补齐：
+   Tailwind Typography 默认只为 h1~h4 提供样式，h5 缺乏间距与标题色彩。
+   在此微调 h4 层次并补全 h5 的字号、边距与色彩 */
+.prose h4 {
+  font-size: 1.05em;
+  font-weight: 600;
+}
+
+.prose h5 {
+  font-size: 0.95em;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-top: 1.4em;
+  margin-bottom: 0.4em;
+  color: var(--tw-prose-headings);
+}
 
 /* 链接：默认继承正文色 + 下划线，hover 才上主色 */
 .prose a, main a.link {
