@@ -1,7 +1,7 @@
 ---
 title: "DoVer: Intervention-Driven Multi-Agent Debugging"
 date: 2026-11-06T18:45:50+08:00
-lastmod: 2026-11-06T18:45:50+08:00
+lastmod: 2026-11-07T10:34:13+08:00
 description: "Reading notes on DoVer, multi-agent failure attribution, intervention, and validation."
 draft: false
 ---
@@ -121,3 +121,26 @@ On difficult datasets, the framework alone cannot effectively improve performanc
 ## Self-Improvement
 
 These are two future directions the authors anticipate. In the paper, the authors use human collaboration to optimize and add tools, improving agent performance on difficult tasks. I would expect: (i) a fully automated debugging loop, or RSI, where DoVer's insights feed into automated subagent improvement, for example by using a coding agent to implement repairs; and (ii) capability-aware intervention generation that tailors interventions to known subagent capability boundaries when code changes are not allowed. Both directions can help build robust, self-improving multi-agent systems.
+
+## Summary
+
+DoVer offers a shift in paradigm: instead of relying solely on detection and judgment, it uses a suspect–replay–verify process to locate critical error steps. It also points out that, under the ReAct framework, attributing failure to a single action is inherently incomplete. More importantly, DoVer suggests directions for future work, including the ideas discussed in the self-improvement section above.
+
+---
+
+DoVer still has many limitations. First, its validation and attribution methods cannot readily be applied in real-world settings: the prompts given to the debugging model contain the ground-truth answer, meaning that the judge LLM is **looking for errors with the answer already in hand**. DoVer also calculates milestone progress using **human-written reference steps**. In real-world settings, comparable reference answers are not available, which limits practical usability.
+
+> 1. Introduce a PRM in place of the judge LLM with ground truth. Train a PRM specifically to score intermediate steps and trigger unsupervised attribution by detecting logical contradictions, infinite loops, or hallucinations about empty results in trajectories.
+> 2. Consider replacing human-written reference steps with a dynamic dependency graph. At the start of a task, a planning and decomposition model could automatically break the user's original query into a **sub-goal directed acyclic graph (Sub-goal DAG)** with validation conditions, for example: verify that a data source exists $\rightarrow$ verify field completeness $\rightarrow$ calculate the result. During replay, sub-goal completion could be used directly to calculate Progress Made, removing the dependence on manually annotated steps.
+
+DoVer also has a high token cost: for one failed trajectory, it must open more than four paths for replay. Moreover, for a single trial, one intervention cannot handle compound failures that require multiple corrections along a long chain. Even after correcting an error at step $t$, a later action may contain a new error.
+
+> Consider replay in a sandbox simulation environment similar to Dream-RSI.
+
+In addition, DoVer does not ensure that the system will handle an erroneous decision or action correctly next time. When the same situation arises again, there is no framework or reference action to help the LLM correct itself, so it may repeat the error.
+
+> This final issue is part of the RSI loop. A persistent memory module might let the LLM retrieve its past errors or a maintained knowledge base during ReAct, helping it correct mistakes. Alternatively, **step-level DPO / RL** could be used to fine-tune the model, in conjunction with the PRM mentioned above.
+>
+> DoVer and a coding agent could also co-evolve: the coding agent could assist the decision-making agent and help evolve its tools.
+
+In the WW-AB and WW-GAIA datasets, as many as **57.6%–66.7%** of trials ultimately fell into the **Inconclusive** category. Given model advances, **it may be worth evaluating DoVer with modern models to see how they perform**.
